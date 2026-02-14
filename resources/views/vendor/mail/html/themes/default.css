@@ -1,0 +1,341 @@
+/* Base - SENELEC Theme */
+
+body,
+body *:not(html):not(style):not(br):not(tr):not(code) {
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    position: relative;
+}
+
+body {
+    -webkit-text-size-adjust: none;
+    background-color: #ffffff;
+    color: #333333;
+    height: 100%;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+}
+
+p,
+ul,
+ol,
+blockquote {
+    line-height: 1.4;
+    text-align: left;
+}
+
+a {
+    color: #E85D04;
+}
+
+a img {
+    border: none;
+}
+
+/* Typography */
+
+h1 {
+    color: #2B1444;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 0;
+    text-align: left;
+}
+
+h2 {
+    color: #E85D04;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 0;
+    text-align: left;
+}
+
+h3 {
+    color: #B3006C;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 0;
+    text-align: left;
+}
+
+p {
+    font-size: 15px;
+    line-height: 1.5em;
+    margin-top: 0;
+    text-align: left;
+    color: #333333;
+}
+
+p.sub {
+    font-size: 12px;
+}
+
+img {
+    max-width: 100%;
+}
+
+/* Layout */
+
+.wrapper {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.content {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* Header */
+
+.header {
+    padding: 25px 0;
+    text-align: center;
+    background: linear-gradient(135deg, #2B1444 0%, #4A2066 100%);
+}
+
+.header a {
+    color: #ffffff;
+    font-size: 19px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* Logo */
+
+.logo {
+    height: 75px;
+    max-height: 75px;
+    width: 75px;
+}
+
+/* Body */
+
+.body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+    border-top: 3px solid #E85D04;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.inner-body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    background-color: #ffffff;
+    border-color: #e0e0e0;
+    border-radius: 8px;
+    border-width: 1px;
+    box-shadow: 0 4px 12px rgba(43, 20, 68, 0.1);
+    margin: 0 auto;
+    padding: 0;
+    width: 570px;
+}
+
+/* Subcopy */
+
+.subcopy {
+    border-top: 1px solid #e0e0e0;
+    margin-top: 25px;
+    padding-top: 25px;
+}
+
+.subcopy p {
+    font-size: 14px;
+    color: #666666;
+}
+
+/* Footer */
+
+.footer {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    margin: 0 auto;
+    padding: 0;
+    text-align: center;
+    width: 570px;
+}
+
+.footer p {
+    color: #888888;
+    font-size: 12px;
+    text-align: center;
+}
+
+.footer a {
+    color: #E85D04;
+    text-decoration: underline;
+}
+
+/* Tables */
+
+.table table {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 20px auto;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    background-color: #2B1444;
+    color: #ffffff;
+    border-bottom: 2px solid #E85D04;
+    margin: 0;
+    padding: 10px 8px;
+    text-align: left;
+    font-weight: bold;
+}
+
+.table td {
+    color: #333333;
+    font-size: 14px;
+    line-height: 18px;
+    margin: 0;
+    padding: 10px 8px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.table tr:nth-child(even) td {
+    background-color: #f9f9f9;
+}
+
+.content-cell {
+    max-width: 100vw;
+    padding: 32px;
+}
+
+/* Buttons */
+
+.action {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 30px auto;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+}
+
+.button {
+    -webkit-text-size-adjust: none;
+    border-radius: 6px;
+    color: #fff;
+    display: inline-block;
+    overflow: hidden;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.button-blue,
+.button-primary {
+    background-color: #E85D04;
+    border-bottom: 10px solid #E85D04;
+    border-left: 20px solid #E85D04;
+    border-right: 20px solid #E85D04;
+    border-top: 10px solid #E85D04;
+}
+
+.button-green,
+.button-success {
+    background-color: #059669;
+    border-bottom: 10px solid #059669;
+    border-left: 20px solid #059669;
+    border-right: 20px solid #059669;
+    border-top: 10px solid #059669;
+}
+
+.button-red,
+.button-error {
+    background-color: #B3006C;
+    border-bottom: 10px solid #B3006C;
+    border-left: 20px solid #B3006C;
+    border-right: 20px solid #B3006C;
+    border-top: 10px solid #B3006C;
+}
+
+/* Panels */
+
+.panel {
+    border-left: #E85D04 solid 4px;
+    margin: 21px 0;
+    border-radius: 0 6px 6px 0;
+}
+
+.panel-content {
+    background-color: #fff8f3;
+    color: #333333;
+    padding: 16px;
+}
+
+.panel-content p {
+    color: #333333;
+}
+
+.panel-item {
+    padding: 0;
+}
+
+.panel-item p:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* Utilities */
+
+.break-all {
+    word-break: break-all;
+}
+
+/* Custom SENELEC styles */
+
+.senelec-highlight {
+    background-color: #fff3e6;
+    border: 1px solid #E85D04;
+    border-radius: 6px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.senelec-info {
+    background-color: #f0f0ff;
+    border: 1px solid #0D1CB0;
+    border-radius: 6px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.senelec-success {
+    background-color: #e6fff0;
+    border: 1px solid #059669;
+    border-radius: 6px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.senelec-warning {
+    background-color: #fff8e6;
+    border: 1px solid #f59e0b;
+    border-radius: 6px;
+    padding: 15px;
+    margin: 15px 0;
+}

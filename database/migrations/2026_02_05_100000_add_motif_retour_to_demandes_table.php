@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('demandes', function (Blueprint $table) {
+            if (!Schema::hasColumn('demandes', 'motif_retour')) {
+                $table->text('motif_retour')->nullable()->after('statut');
+            }
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('demandes', function (Blueprint $table) {
+            if (Schema::hasColumn('demandes', 'motif_retour')) {
+                $table->dropColumn('motif_retour');
+            }
+        });
+    }
+};

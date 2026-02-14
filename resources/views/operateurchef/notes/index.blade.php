@@ -1,0 +1,299 @@
+@extends('layouts.app')
+
+@section('title', 'Fiches manœuvre')
+
+@section('content')
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <!-- En-tête -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Fiches de manœuvre</h1>
+            <p class="text-gray-600">Joindre les fiches de manœuvre aux NAPT validées</p>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="card-senelec p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-red-100 rounded-full">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Sans fiche</p>
+                    <p class="text-2xl font-semibold text-red-600">{{ $stats['sans_fiche'] }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-senelec p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-green-100 rounded-full">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Avec fiche</p>
+                    <p class="text-2xl font-semibold text-green-600">{{ $stats['avec_fiche'] }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-senelec p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-blue-100 rounded-full">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">En cours</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $stats['en_cours'] }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-senelec p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-gray-100 rounded-full">
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Exécutées</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $stats['executees'] }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="card-senelec p-6">
+        <form method="GET" action="{{ route('operateurchef.notes.index') }}" class="space-y-4">
+            <!-- Ligne 1: Recherche et Dates -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div>
+                    <label class="label">Recherche</label>
+                    <input type="text" name="search" value="{{ request('search') }}" 
+                           placeholder="Numéro NAPT..." class="input-senelec w-full">
+                </div>
+                <div>
+                    <label class="label">Date début</label>
+                    <input type="date" name="date_debut" value="{{ request('date_debut') }}" 
+                           class="input-senelec w-full">
+                </div>
+                <div>
+                    <label class="label">Date fin</label>
+                    <input type="date" name="date_fin" value="{{ request('date_fin') }}" 
+                           class="input-senelec w-full">
+                </div>
+                <div>
+                    <label class="label">Semaine</label>
+                    <select name="semaine" class="input-senelec w-full">
+                        <option value="">1-53</option>
+                        @for($i = 1; $i <= 53; $i++)
+                            <option value="{{ $i }}" {{ request('semaine') == $i ? 'selected' : '' }}>Semaine {{ $i }}</option>
+                        @endfor
+                    </select>
+                </div>
+                <div>
+                    <label class="label">Année</label>
+                    <select name="annee" class="input-senelec w-full">
+                        <option value="">Toutes</option>
+                        <option value="{{ date('Y') }}" {{ request('annee') == date('Y') ? 'selected' : '' }}>{{ date('Y') }}</option>
+                        <option value="{{ date('Y') - 1 }}" {{ request('annee') == date('Y') - 1 ? 'selected' : '' }}>{{ date('Y') - 1 }}</option>
+                        <option value="{{ date('Y') - 2 }}" {{ request('annee') == date('Y') - 2 ? 'selected' : '' }}>{{ date('Y') - 2 }}</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Ligne 2: Statut, Fiche et Boutons -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="label">Statut</label>
+                    <select name="statut" class="input-senelec w-full">
+                        <option value="">Tous les statuts</option>
+                        <option value="validée" {{ request('statut') == 'validée' ? 'selected' : '' }}>Validée</option>
+                        <option value="en cours d'exécution" {{ request('statut') == "en cours d'exécution" ? 'selected' : '' }}>En cours d'exécution</option>
+                        <option value="executée" {{ request('statut') == 'executée' ? 'selected' : '' }}>Exécutée</option>
+                        <option value="annulée" {{ request('statut') == 'annulée' ? 'selected' : '' }}>Annulée</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label">Fiche manœuvre</label>
+                    <select name="fiche" class="input-senelec w-full">
+                        <option value="">Toutes</option>
+                        <option value="sans" {{ request('fiche') == 'sans' ? 'selected' : '' }}>Sans fiche (à traiter)</option>
+                        <option value="avec" {{ request('fiche') == 'avec' ? 'selected' : '' }}>Avec fiche</option>
+                    </select>
+                </div>
+                <div class="flex items-end gap-2">
+                    <button type="submit" class="btn-senelec flex-1">
+                        <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Filtrer
+                    </button>
+                    <a href="{{ route('operateurchef.notes.index') }}" class="btn-senelec-outline px-4" title="Réinitialiser">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tableau -->
+    <div class="card-senelec overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N° NAPT</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Validé par</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fiche manœuvre</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lieu d'exécution</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ouvrages à consigner</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date travaux</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($notes as $note)
+                    <tr class="hover:bg-gray-50 {{ !$note->fiche_manoeuvre && $note->statut === 'validée' ? 'bg-red-50' : '' }}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ $note->numero_note }}</div>
+                            <div class="text-xs text-gray-500">Semaine {{ $note->numero_semaine }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ $note->validePar->full_name ?? 'N/A' }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if($note->fiche_manoeuvre)
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    Jointe
+                                </span>
+                            @else
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    </svg>
+                                    À joindre
+                                </span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ $note->demande->lieu_execution ?? 'N/A' }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">
+                                @php
+                                    $ouvrages = [];
+                                    $demande = $note->demande;
+                                    // Mode manuel
+                                    if ($demande && $demande->ouvrages_consigner_manuel) {
+                                        $ouvrages[] = $demande->ouvrages_consigner_manuel;
+                                    }
+                                    // Mode GMAO - equipements_oracle
+                                    if ($demande && $demande->equipements_oracle) {
+                                        $equipementsData = is_string($demande->equipements_oracle) ? json_decode($demande->equipements_oracle, true) : $demande->equipements_oracle;
+                                        if ($equipementsData) {
+                                            foreach (['equipements_consigner_level_1', 'equipements_consigner_level_2', 'equipements_consigner_level_3'] as $level) {
+                                                if (isset($equipementsData[$level]) && is_array($equipementsData[$level])) {
+                                                    foreach ($equipementsData[$level] as $eq) {
+                                                        if (isset($eq['description'])) {
+                                                            $ouvrages[] = $eq['description'];
+                                                        } elseif (isset($eq['code'])) {
+                                                            $ouvrages[] = $eq['code'];
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    // Mode GMAO - lignes_oracle
+                                    if ($demande && $demande->lignes_oracle) {
+                                        $lignesData = is_string($demande->lignes_oracle) ? json_decode($demande->lignes_oracle, true) : $demande->lignes_oracle;
+                                        if ($lignesData && is_array($lignesData)) {
+                                            foreach ($lignesData as $ligne) {
+                                                if (isset($ligne['description'])) {
+                                                    $ouvrages[] = $ligne['description'];
+                                                } elseif (isset($ligne['code'])) {
+                                                    $ouvrages[] = $ligne['code'];
+                                                }
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                @if(count($ouvrages) > 0)
+                                    {{ implode(', ', array_slice($ouvrages, 0, 3)) }}
+                                    @if(count($ouvrages) > 3)
+                                        <span class="text-xs text-gray-500">+{{ count($ouvrages) - 3 }}</span>
+                                    @endif
+                                @else
+                                    N/A
+                                @endif
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ $note->ddt ? $note->ddt->format('d/m/Y H:i') : 'N/A' }}</div>
+                            <div class="text-xs text-gray-500">{{ $note->dft ? $note->dft->format('d/m/Y H:i') : '' }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @php
+                                $statusColors = [
+                                    'validée' => 'bg-blue-100 text-blue-800',
+                                    'en cours d\'exécution' => 'bg-yellow-100 text-yellow-800',
+                                    'executée' => 'bg-green-100 text-green-800',
+                                    'annulée' => 'bg-red-100 text-red-800',
+                                ];
+                                $colorClass = $statusColors[$note->statut] ?? 'bg-gray-100 text-gray-800';
+                            @endphp
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $colorClass }}">
+                                {{ ucfirst($note->statut) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                            <a href="{{ route('operateurchef.notes.show', $note) }}" class="p-1.5 text-purple-500 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors" title="Voir">
+                                <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </a>
+                            @if($note->statut === 'validée')
+                                <a href="{{ route('operateurchef.notes.edit', $note) }}" class="text-senelec-purple hover:text-senelec-magenta" title="{{ $note->fiche_manoeuvre ? 'Modifier fiche' : 'Ajouter fiche' }}">
+                                    <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </a>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                            <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <p class="text-lg font-medium">Aucune note trouvée</p>
+                            <p class="text-sm">Les notes validées apparaîtront ici.</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        
+        @if($notes->hasPages())
+        <div class="px-6 py-4 border-t border-gray-200">
+            {{ $notes->links() }}
+        </div>
+        @endif
+    </div>
+</div>
+@endsection

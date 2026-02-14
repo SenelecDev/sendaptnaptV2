@@ -1,0 +1,66 @@
+# ==============================================
+# SENDAPTNAPT - Docker Ignore
+# ==============================================
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea
+.vscode
+*.sublime-*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies (sera installé dans le container)
+/node_modules
+/vendor
+
+# Build artifacts
+/public/hot
+/public/storage
+/public/build
+
+# Logs et cache
+/storage/*.key
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+!/storage/logs/.gitkeep
+!/storage/framework/cache/.gitkeep
+!/storage/framework/sessions/.gitkeep
+!/storage/framework/views/.gitkeep
+
+# Tests
+/tests
+phpunit.xml
+.phpunit.*
+
+# Documentation
+*.md
+!README.md
+!DEPLOY-DOCKER.md
+
+# Environment
+.env
+.env.*
+!.env.example
+!.env.docker
+
+# Docker (on ne copie pas les fichiers docker dans l'image sauf ceux nécessaires)
+docker-compose*.yml
+Dockerfile*
+
+# Autres
+*.log
+*.cache
+npm-debug.log
+yarn-error.log
+.editorconfig
+.styleci.yml
+phpstan.neon
