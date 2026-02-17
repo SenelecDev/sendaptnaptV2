@@ -30,14 +30,18 @@
         <!-- Aperçu profil -->
         <div class="card-senelec p-6">
             <div class="flex items-center gap-6">
-                <div class="flex-shrink-0">
+                <div class="flex-shrink-0 relative">
                     @if($user->photo_url)
                         <img class="h-20 w-20 rounded-full object-cover border-4 border-senelec-purple/20" 
                              src="{{ $user->photo_url }}" 
-                             alt="{{ $user->full_name }}">
+                             alt="{{ $user->full_name }}"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="h-20 w-20 rounded-full bg-senelec-purple flex items-center justify-center text-white text-2xl font-semibold border-4 border-senelec-purple/20" style="display:none;">
+                            {{ $user->initials }}
+                        </div>
                     @else
-                        <div class="h-20 w-20 rounded-full bg-senelec-purple flex items-center justify-center text-white text-2xl font-semibold">
-                            {{ strtoupper(substr($user->name ?? 'U', 0, 2)) }}
+                        <div class="h-20 w-20 rounded-full bg-senelec-purple flex items-center justify-center text-white text-2xl font-semibold border-4 border-senelec-purple/20">
+                            {{ $user->initials }}
                         </div>
                     @endif
                 </div>
