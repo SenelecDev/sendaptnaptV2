@@ -1,6 +1,7 @@
 @php
     $user = auth()->user();
-    $showTutorial = !$user->onboarding_completed;
+    // Ne pas afficher si déjà complété OU si l'utilisateur a passé le tutoriel récemment (cookie de secours)
+    $showTutorial = !$user->onboarding_completed && !request()->cookie('onboarding_skipped');
     
     // Définir les étapes selon le rôle
     $steps = [];
@@ -117,15 +118,23 @@
         }
     },
     completeTutorial() {
+        // Cookie de secours : si l'API échoue, ne pas réafficher pendant 7 jours
+        document.cookie = 'onboarding_skipped=1; path=/; max-age=604800';
+        this.open = false;
+
         fetch('{{ route('onboarding.complete') }}', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             }
-        }).then(() => {
-            this.open = false;
-        });
+        }).then(r => {
+            if (r.ok) {
+                // Mise à jour en base : ne plus afficher définitivement
+                return;
+            }
+        }).catch(() => {});
     }
 }" 
 x-show="open"
