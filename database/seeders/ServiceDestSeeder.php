@@ -38,6 +38,11 @@ class ServiceDestSeeder extends Seeder
             }
         }
 
+        // Réinitialiser la séquence PostgreSQL après insertion d'IDs explicites
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement("SELECT setval(pg_get_serial_sequence('services_dest', 'id'), COALESCE((SELECT MAX(id) FROM services_dest), 1))");
+        }
+
         $this->command->info("✅ {$inserted} services destinataires insérés.");
     }
 }
