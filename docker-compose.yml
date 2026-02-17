@@ -122,18 +122,22 @@ services:
       retries: 5
 
   # ===================
-  # Queue Worker (optionnel)
+  # Queue Worker (optionnel - désactivé par défaut si problèmes)
+  # Lancer avec: docker compose --profile queue up -d
   # ===================
   queue:
+    profiles:
+      - queue
     build:
       context: .
       dockerfile: Dockerfile
     container_name: sendaptnapt_queue
     restart: unless-stopped
     working_dir: /var/www/html
-    command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+    command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600 --verbose
     volumes:
       - .:/var/www/html
+    env_file: .env
     environment:
       - APP_ENV=${APP_ENV:-production}
       - DB_CONNECTION=pgsql
@@ -143,6 +147,7 @@ services:
       - DB_USERNAME=${DB_USERNAME:-sendaptnapt}
       - DB_PASSWORD=${DB_PASSWORD:-secret}
       - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - QUEUE_CONNECTION=redis
     depends_on:
       - app

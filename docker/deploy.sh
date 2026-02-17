@@ -58,6 +58,10 @@ case $MODE in
         echo -e "${YELLOW}⏳ Attente de PostgreSQL...${NC}"
         sleep 10
 
+        # Composer (vendor absent car volume monté depuis host)
+        echo -e "${YELLOW}📦 Installation des dépendances Composer...${NC}"
+        $DOCKER_COMPOSE exec -T app composer install --no-dev --optimize-autoloader
+
         # Initialisation Laravel
         echo -e "${YELLOW}🔑 Génération de la clé d'application...${NC}"
         $DOCKER_COMPOSE exec -T app php artisan key:generate --force
@@ -97,6 +101,10 @@ case $MODE in
         echo -e "${YELLOW}🔄 Redémarrage des services...${NC}"
         $DOCKER_COMPOSE up -d
 
+        # Composer (vendor peut être absent si volume monté depuis host)
+        echo -e "${YELLOW}📦 Installation des dépendances Composer...${NC}"
+        $DOCKER_COMPOSE exec -T app composer install --no-dev --optimize-autoloader
+
         # Migrations
         echo -e "${YELLOW}📊 Exécution des migrations...${NC}"
         $DOCKER_COMPOSE exec -T app php artisan migrate --force
@@ -108,9 +116,10 @@ case $MODE in
         echo -e "${YELLOW}⚡ Optimisation...${NC}"
         $DOCKER_COMPOSE exec -T app php artisan optimize
 
-        # Redémarrer les workers
+        # Redémarrer les workers (queue optionnel si profil activé)
         echo -e "${YELLOW}🔄 Redémarrage des workers...${NC}"
-        $DOCKER_COMPOSE restart queue scheduler
+        $DOCKER_COMPOSE restart scheduler 2>/dev/null || true
+        $DOCKER_COMPOSE restart queue 2>/dev/null || true
 
         echo -e "${GREEN}✅ Mise à jour terminée!${NC}"
         ;;
