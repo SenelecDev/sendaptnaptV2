@@ -111,7 +111,7 @@ class User extends Authenticatable implements LdapAuthenticatable
      * - base64 : retourné tel quel
      * - profil/xxx.jpg : fichier dans public/profil/ (URL /profil/xxx.jpg)
      * - autre chemin : asset direct
-     * - si photo null : fallback profil/{matricule}.jpg si le fichier existe
+     * - si photo null : fallback profil/{matricule}.jpg (le navigateur gère le 404 via onerror)
      */
     public function getPhotoUrlAttribute(): ?string
     {
@@ -125,9 +125,9 @@ class User extends Authenticatable implements LdapAuthenticatable
             return asset($this->photo);
         }
 
-        // Fallback : photo par matricule (synchro Oracle sans mise à jour du champ photo)
-        if ($this->matricule && file_exists(public_path('profil/' . $this->matricule . '.jpg'))) {
-            return asset('profil/' . $this->matricule . '.jpg');
+        // Fallback : photo par matricule (sans file_exists pour éviter problèmes Docker/casse)
+        if ($this->matricule) {
+            return asset('profil/' . trim($this->matricule) . '.jpg');
         }
 
         return null;
