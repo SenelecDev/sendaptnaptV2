@@ -54,6 +54,11 @@ case $MODE in
         echo -e "${YELLOW}🚀 Démarrage des services...${NC}"
         $DOCKER_COMPOSE up -d
 
+        # Permissions storage pour PHP-FPM (www = UID 48)
+        echo -e "${YELLOW}🔐 Réglage des permissions storage...${NC}"
+        sudo chown -R 48:48 storage bootstrap/cache 2>/dev/null || chown -R 48:48 storage bootstrap/cache
+        chmod -R 775 storage bootstrap/cache 2>/dev/null || sudo chmod -R 775 storage bootstrap/cache
+
         # Attendre que PostgreSQL soit prêt
         echo -e "${YELLOW}⏳ Attente de PostgreSQL...${NC}"
         sleep 10
@@ -100,6 +105,11 @@ case $MODE in
         # Redémarrer les services
         echo -e "${YELLOW}🔄 Redémarrage des services...${NC}"
         $DOCKER_COMPOSE up -d
+
+        # Permissions storage pour PHP-FPM (www = UID 48)
+        echo -e "${YELLOW}🔐 Réglage des permissions storage...${NC}"
+        sudo chown -R 48:48 storage bootstrap/cache 2>/dev/null || chown -R 48:48 storage bootstrap/cache
+        chmod -R 775 storage bootstrap/cache 2>/dev/null || sudo chmod -R 775 storage bootstrap/cache
 
         # Composer (vendor peut être absent si volume monté depuis host)
         echo -e "${YELLOW}📦 Installation des dépendances Composer...${NC}"
