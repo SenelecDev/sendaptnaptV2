@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends libaio-dev \
     && docker-php-ext-enable oci8 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Installer les dépendances (PostgreSQL, LDAP, GD, ZIP)
+# Installer les dépendances (PostgreSQL, LDAP, GD, ZIP, Redis)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     libldap2-dev \
@@ -40,6 +40,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) pdo_pgsql pgsql ldap gd zip \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Installer Composer
