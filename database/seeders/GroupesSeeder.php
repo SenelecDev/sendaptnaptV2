@@ -40,6 +40,11 @@ class GroupesSeeder extends Seeder
             }
         }
 
+        // Réinitialiser la séquence PostgreSQL après insertion d'IDs explicites
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement("SELECT setval(pg_get_serial_sequence('groupes', 'id'), COALESCE((SELECT MAX(id) FROM groupes), 1))");
+        }
+
         $this->command->info("✅ {$inserted} groupes insérés.");
     }
 }
