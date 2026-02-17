@@ -1,7 +1,6 @@
 @php
     $user = auth()->user();
-    // Ne pas afficher si déjà complété OU si l'utilisateur a passé le tutoriel récemment (cookie de secours)
-    $showTutorial = !$user->onboarding_completed && !request()->cookie('onboarding_skipped');
+    $showTutorial = !$user->onboarding_completed;
     
     // Définir les étapes selon le rôle
     $steps = [];
@@ -116,30 +115,11 @@
         if (this.currentStep > 0) {
             this.currentStep--;
         }
-    },
-    completeTutorial() {
-        // Cookie de secours : si l'API échoue, ne pas réafficher pendant 7 jours
-        document.cookie = 'onboarding_skipped=1; path=/; max-age=604800';
-        this.open = false;
-
-        fetch('{{ route('onboarding.complete') }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        }).then(r => {
-            if (r.ok) {
-                // Mise à jour en base : ne plus afficher définitivement
-                return;
-            }
-        }).catch(() => {});
     }
 }" 
 x-show="open"
 x-cloak
-class="fixed inset-0 z-50">
+class="fixed inset-0 z-[100]">
     <!-- Overlay -->
     <div class="absolute inset-0 bg-black/70"></div>
     
@@ -233,21 +213,32 @@ class="fixed inset-0 z-50">
             
             <!-- Footer -->
             <div class="px-8 py-4 bg-gray-50 flex items-center justify-between">
-                <button @click="completeTutorial()" 
-                        class="text-sm text-gray-500 hover:text-gray-700">
-                    Passer le tutoriel
-                </button>
+                <form method="POST" action="{{ route('onboarding.complete') }}" class="inline">
+                    @csrf
+                    <button type="submit" class="text-sm text-gray-500 hover:text-gray-700">
+                        Passer le tutoriel
+                    </button>
+                </form>
                 
                 <div class="flex gap-3">
                     <button @click="prevStep()" 
                             x-show="currentStep > 0"
+                            type="button"
                             class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition">
                         Précédent
                     </button>
-                    <button @click="currentStep < steps.length - 1 ? nextStep() : completeTutorial()"
+                    <button @click="nextStep()" 
+                            x-show="currentStep < steps.length - 1"
+                            type="button"
                             class="px-6 py-2 text-white rounded-lg transition" style="background-color: #E85D04;">
-                        <span x-text="currentStep < steps.length - 1 ? 'Suivant' : 'Commencer'"></span>
+                        Suivant
                     </button>
+                    <form method="POST" action="{{ route('onboarding.complete') }}" class="inline" x-show="currentStep >= steps.length - 1">
+                        @csrf
+                        <button type="submit" class="px-6 py-2 text-white rounded-lg transition" style="background-color: #E85D04;">
+                            Commencer
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

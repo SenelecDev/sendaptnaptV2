@@ -168,10 +168,10 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->route('profile.signature')->with('success', 'Signature supprimée.');
     })->name('profile.signature.delete');
     
-    // Onboarding - marquer le tutoriel comme complété
+    // Onboarding - marquer le tutoriel comme complété (formulaire POST classique)
     Route::post('/onboarding/complete', function () {
         auth()->user()->update(['onboarding_completed' => true]);
-        return response()->json(['success' => true]);
+        return redirect()->back();
     })->name('onboarding.complete');
 
     // ===== MES ABSENCES / INTÉRIMS (tout utilisateur) =====
