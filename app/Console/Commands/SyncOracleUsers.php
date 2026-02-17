@@ -613,7 +613,9 @@ class SyncOracleUsers extends Command
 
         // Traiter par lots
         while ($offset < $totalCount) {
-            $this->info("Récupération du lot {$offset} - " . min($offset + $batchSize, $totalCount) . " / {$totalCount}");
+            $batchEnd = min($offset + $batchSize, $totalCount);
+            $this->info("Récupération du lot {$offset} - {$batchEnd} / {$totalCount}");
+            $this->logProgress("📦 Lot " . (int)(($offset / $batchSize) + 1) . " : {$offset} → {$batchEnd} / {$totalCount}");
             
             try {
                 // Récupérer les employés Oracle par lot
@@ -627,6 +629,7 @@ class SyncOracleUsers extends Command
                 $bar = $this->output->createProgressBar(count($employees));
                 $bar->start();
 
+                $processedInBatch = 0;
                 foreach ($employees as $oracleData) {
                     try {
                         $matricule = $oracleData['matricule'] ?? null;
@@ -634,6 +637,7 @@ class SyncOracleUsers extends Command
                         if (!$matricule) {
                             $skipped++;
                             $bar->advance();
+                            $processedInBatch++;
                             continue;
                         }
 
@@ -688,6 +692,14 @@ class SyncOracleUsers extends Command
                     }
 
                     $bar->advance();
+                    $processedInBatch++;
+
+                    // Log détaillé tous les 50 utilisateurs pour le suivi en temps réel
+                    $totalProcessed = $offset + $processedInBatch;
+                    if ($processedInBatch % 50 === 0 || $processedInBatch === count($employees)) {
+                        $this->logProgress("📊 {$totalProcessed}/{$totalCount} traités — {$imported} importés, {$updated} mis à jour, {$photosImported} photos");
+                        $this->updateProgress($totalProcessed, $totalCount);
+                    }
                 }
 
                 $bar->finish();

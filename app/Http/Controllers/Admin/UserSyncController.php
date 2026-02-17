@@ -217,7 +217,10 @@ class UserSyncController extends Controller
      */
     protected function runSyncInBackground(array $command, string $message)
     {
-        $response = redirect()->back()->with('success', $message);
+        session()->flash('success', $message);
+        session()->save();
+
+        $response = redirect()->back();
         $response->send();
 
         if (function_exists('fastcgi_finish_request')) {
