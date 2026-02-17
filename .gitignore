@@ -1,4 +1,4 @@
-﻿# Laravel
+# Laravel
 /.phpunit.cache
 /node_modules
 /public/build
@@ -41,6 +41,7 @@ Homestead.json
 Homestead.yaml
 auth.json
 docker-compose.override.yml
+docker-images.tar
 
 # Photos de profil (volumineuses - Ã  transfÃ©rer sÃ©parÃ©ment)
 # /public/profil/*.jpg

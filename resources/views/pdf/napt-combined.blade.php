@@ -310,16 +310,20 @@
                                     }
                                 }
                                 
-                                // Mode GMAO - Équipements
+                                // Mode GMAO - Équipements (dernier niveau uniquement)
                                 if (!empty($napt->demande->equipements_oracle)) {
                                     $equipementsData = json_decode($napt->demande->equipements_oracle, true);
                                     if (is_array($equipementsData)) {
-                                        foreach ($equipementsData as $key => $data) {
-                                            if (is_array($data) && isset($data['description'])) {
-                                                $installations[] = $data['description'];
-                                            } elseif (is_array($data)) {
-                                                $lastItem = end($data);
-                                                $desc = is_array($lastItem) ? ($lastItem['description'] ?? $lastItem['EQUIPMENT_DES'] ?? null) : null;
+                                        $niveauxAvecData = [];
+                                        foreach ($equipementsData as $levelKey => $levelData) {
+                                            if (preg_match('/level_(\d+)/', $levelKey, $m) && is_array($levelData) && !empty($levelData)) {
+                                                $niveauxAvecData[$m[1]] = $levelData;
+                                            }
+                                        }
+                                        if (!empty($niveauxAvecData)) {
+                                            $dernierNiveau = max(array_keys($niveauxAvecData));
+                                            foreach ($niveauxAvecData[$dernierNiveau] as $equip) {
+                                                $desc = is_array($equip) ? ($equip['description'] ?? $equip['EQUIPMENT_DES'] ?? $equip['code'] ?? null) : $equip;
                                                 if ($desc) $installations[] = $desc;
                                             }
                                         }
@@ -442,6 +446,27 @@
                                             @endif
                                         @endforeach
                                     @endif
+                                @elseif($note->demande->ouvrage_type === 'poste' && $note->demande->equipements_oracle)
+                                    @php
+                                        $equipData = json_decode($note->demande->equipements_oracle, true);
+                                        $dernierNiveauEquips = [];
+                                        if (is_array($equipData)) {
+                                            $niveaux = [];
+                                            foreach ($equipData as $k => $v) {
+                                                if (preg_match('/level_(\d+)/', $k, $m) && is_array($v) && !empty($v)) {
+                                                    $niveaux[$m[1]] = $v;
+                                                }
+                                            }
+                                            if (!empty($niveaux)) {
+                                                $dernierNiveauEquips = $niveaux[max(array_keys($niveaux))];
+                                            }
+                                        }
+                                    @endphp
+                                    @if(!empty($dernierNiveauEquips))
+                                        Équipements : @foreach($dernierNiveauEquips as $eq)
+                                            {{ is_array($eq) ? ($eq['description'] ?? $eq['code'] ?? '') : $eq }}@if(!$loop->last), @endif
+                                        @endforeach
+                                    @endif
                                 @endif
                             </b></td>
                         </tr>
@@ -459,6 +484,27 @@
                                             @elseif(is_string($ligne))
                                                 {{ $ligne }}@if(!$loop->last), @endif
                                             @endif
+                                        @endforeach
+                                    @endif
+                                @elseif($note->demande->ouvrage_type_installer === 'poste_installer' && $note->demande->equipements_installer_oracle)
+                                    @php
+                                        $equipInstallerData = json_decode($note->demande->equipements_installer_oracle, true);
+                                        $dernierNiveauEquipsInstaller = [];
+                                        if (is_array($equipInstallerData)) {
+                                            $niveaux = [];
+                                            foreach ($equipInstallerData as $k => $v) {
+                                                if (preg_match('/level_(\d+)/', $k, $m) && is_array($v) && !empty($v)) {
+                                                    $niveaux[$m[1]] = $v;
+                                                }
+                                            }
+                                            if (!empty($niveaux)) {
+                                                $dernierNiveauEquipsInstaller = $niveaux[max(array_keys($niveaux))];
+                                            }
+                                        }
+                                    @endphp
+                                    @if(!empty($dernierNiveauEquipsInstaller))
+                                        @foreach($dernierNiveauEquipsInstaller as $eq)
+                                            {{ is_array($eq) ? ($eq['description'] ?? $eq['code'] ?? '') : $eq }}@if(!$loop->last), @endif
                                         @endforeach
                                     @endif
                                 @endif

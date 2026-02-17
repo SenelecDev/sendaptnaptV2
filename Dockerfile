@@ -1,9 +1,10 @@
 # ==============================================
 # SENDAPTNAPT - Dockerfile Production
-# PHP 8.3 + Extensions Oracle/LDAP/PostgreSQL
+# PHP 8.3 + OCI8 (Oracle) + LDAP + PostgreSQL
+# Base: donvito/php-oci8 (PHP 8.3 avec Oracle Instant Client)
 # ==============================================
 
-FROM php:8.3-fpm-alpine
+FROM donvito/php-oci8:8.3
 
 LABEL maintainer="SENELEC DSI <dsi@senelec.sn>"
 LABEL description="SENDAPTNAPT - Application DAPT/NAPT"
@@ -17,69 +18,28 @@ ENV APP_ENV=production
 ENV APP_DEBUG=false
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# Installer les dépendances système
-RUN apk add --no-cache \
-    # Utilitaires
-    bash \
-    curl \
-    git \
-    zip \
-    unzip \
-    supervisor \
-    # Bibliothèques pour les extensions PHP
+# Installer les dépendances manquantes (PostgreSQL, LDAP, GD, ZIP)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    libldap2-dev \
     libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
     libzip-dev \
-    libxml2-dev \
-    oniguruma-dev \
-    icu-dev \
-    # PostgreSQL
-    postgresql-dev \
-    # LDAP
-    openldap-dev \
-    # Pour Oracle (optionnel, commenté car nécessite instantclient)
-    # libaio \
-    # libnsl \
-    && rm -rf /var/cache/apk/*
-
-# Configurer et installer les extensions PHP
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
-        pdo \
-        pdo_pgsql \
-        pgsql \
-        gd \
-        zip \
-        bcmath \
-        mbstring \
-        xml \
-        intl \
-        opcache \
-        pcntl \
-        ldap
-
-# Installer Redis extension
-RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
-    && apk del .build-deps
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) pdo_pgsql pgsql ldap gd zip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Installer Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Créer l'utilisateur www
-RUN addgroup -g ${GROUP_ID} www \
-    && adduser -u ${USER_ID} -G www -s /bin/bash -D www
-
-# Configurer PHP pour la production
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+# Créer l'utilisateur www pour les permissions (48 = apache CentOS)
+RUN groupadd -g ${GROUP_ID} www 2>/dev/null || true \
+    && useradd -u ${USER_ID} -g www -s /bin/bash -m -d /var/www www 2>/dev/null || true
 
 # Copier la configuration PHP personnalisée
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-
-# Configurer PHP-FPM
 COPY docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Définir le répertoire de travail
@@ -88,25 +48,24 @@ WORKDIR /var/www/html
 # Copier les fichiers de dépendances d'abord (pour le cache Docker)
 COPY composer.json composer.lock ./
 
-# Installer les dépendances PHP (sans dev)
+# Installer les dépendances PHP (sans dev) - OCI8 est présent dans l'image
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
 # Copier le reste de l'application
-COPY --chown=www:www . .
+COPY . .
 
 # Finaliser l'installation Composer
 RUN composer dump-autoload --optimize --no-dev
 
 # Créer les dossiers nécessaires et définir les permissions
 RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
-    && chown -R www:www storage bootstrap/cache \
+    && chown -R 48:48 storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
 # Exposer le port PHP-FPM
 EXPOSE 9000
 
-# Utilisateur par défaut
-USER www
+# PHP-FPM démarre en root et délègue les workers à www (www.conf)
 
 # Commande par défaut
 CMD ["php-fpm"]

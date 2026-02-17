@@ -605,52 +605,46 @@ table, th, td {
                                             }
                                         }
                                     }
-				    // Récupérer uniquement le dernier équipement
-                                    $dernierEquipement = null;
+				    // Récupérer uniquement le dernier niveau d'équipements
+                                    $dernierNiveauEquipements = [];
                                     if ($equipementsData && is_array($equipementsData)) {
-                                        // Parcourir tous les niveaux pour trouver le dernier équipement
-                                        foreach ($equipementsData as $level => $data) {
-                                            if (isset($data) && is_array($data) && !empty($data)) {
-                                                // Récupérer le dernier élément du tableau
-                                                $lastItem = end($data);
-                                                // Vérifier si c'est un objet ou une chaîne
-                                                if (is_array($lastItem)) {
-                                                    $dernierEquipement = $lastItem; // Objet avec code/description
-                                                } else {
-                                                    $dernierEquipement = $lastItem; // Simple chaîne
-                                                }
+                                        $niveauxAvecData = [];
+                                        foreach ($equipementsData as $levelKey => $levelData) {
+                                            if (preg_match('/level_(\d+)/', $levelKey, $m) && is_array($levelData) && !empty($levelData)) {
+                                                $niveauxAvecData[$m[1]] = $levelData;
                                             }
+                                        }
+                                        if (!empty($niveauxAvecData)) {
+                                            $dernierNiveau = max(array_keys($niveauxAvecData));
+                                            $dernierNiveauEquipements = $niveauxAvecData[$dernierNiveau];
                                         }
                                     }
                                 @endphp
-                                @if($dernierEquipement)
-                                                    @php
-                                                       // Extraire le code et la description selon la structure
-                                                        if (is_array($dernierEquipement)) {
-                                                            // Nouvelle structure : objet avec code et description
-                                                            $equipementCode = $dernierEquipement['code'] ?? '';
-                                                            $description = $dernierEquipement['description'] ?? ($equipementCode ? getEquipementDescriptionPDF($equipementCode) : '');
-                                                        } else {
-                                                            // Ancienne structure : simple chaîne (code)
-                                                            $equipementCode = $dernierEquipement;
-                                                            $description = getEquipementDescriptionPDF($dernierEquipement);
-                                                        }
-							// Extraire uniquement la dernière partie de la description (après le dernier " - ")
-                                                        $descriptionCourte = $description;
-                                                        if (strpos($description, ' - ') !== false) {
-                                                            $parties = explode(' - ', $description);
-                                                            $descriptionCourte = end($parties);
-                                                        }
-                                    
-                                                    @endphp
-                                                    Équipement :
+                                @if(!empty($dernierNiveauEquipements))
+                                    Équipement :
                                     <ul>
-                                        <li>
-                                            {{ $descriptionCourte }}
-                                            @if($description !== $equipementCode)
-                                                                    ({{ $equipementCode }})
-                                            @endif
-                                        </li>
+                                        @foreach($dernierNiveauEquipements as $dernierEquipement)
+                                            @php
+                                                if (is_array($dernierEquipement)) {
+                                                    $equipementCode = $dernierEquipement['code'] ?? '';
+                                                    $description = $dernierEquipement['description'] ?? ($equipementCode ? getEquipementDescriptionPDF($equipementCode) : '');
+                                                } else {
+                                                    $equipementCode = $dernierEquipement;
+                                                    $description = getEquipementDescriptionPDF($dernierEquipement);
+                                                }
+                                                $descriptionCourte = $description;
+                                                if (strpos($description ?? '', ' - ') !== false) {
+                                                    $parties = explode(' - ', $description);
+                                                    $descriptionCourte = end($parties);
+                                                }
+                                            @endphp
+                                            <li>
+                                                {{ $descriptionCourte }}
+                                                @if($description !== $equipementCode)
+                                                    ({{ $equipementCode }})
+                                                @endif
+                                            </li>
+                                        @endforeach
                                     </ul>
 				@endif
 				@endif
@@ -728,57 +722,49 @@ table, th, td {
                                             }
                                         }
                                     }
-				// Récupérer uniquement le dernier équipement à installer
-                                    $dernierEquipementInstaller = null;
+				// Récupérer uniquement le dernier niveau d'équipements à installer
+                                    $dernierNiveauEquipementsInstaller = [];
                                     if ($equipementsInstallerData && is_array($equipementsInstallerData)) {
-                                        // Parcourir tous les niveaux pour trouver le dernier équipement
-                                        foreach ($equipementsInstallerData as $level => $data) {
-                                            if (isset($data) && is_array($data) && !empty($data)) {
-                                                // Récupérer le dernier élément du tableau
-                                                $lastItem = end($data);
-                                                // Vérifier si c'est un objet ou une chaîne
-                                                if (is_array($lastItem)) {
-                                                    $dernierEquipementInstaller = $lastItem; // Objet avec code/description
-                                                } else {
-                                                    $dernierEquipementInstaller = $lastItem; // Simple chaîne
-                                                }
+                                        $niveauxAvecData = [];
+                                        foreach ($equipementsInstallerData as $levelKey => $levelData) {
+                                            if (preg_match('/level_(\d+)/', $levelKey, $m) && is_array($levelData) && !empty($levelData)) {
+                                                $niveauxAvecData[$m[1]] = $levelData;
                                             }
+                                        }
+                                        if (!empty($niveauxAvecData)) {
+                                            $dernierNiveau = max(array_keys($niveauxAvecData));
+                                            $dernierNiveauEquipementsInstaller = $niveauxAvecData[$dernierNiveau];
                                         }
                                     }
                                 @endphp
-                                @if($dernierEquipementInstaller)
-                                    @php
-                                        // Extraire le code et la description selon la structure
-                                        if (is_array($dernierEquipementInstaller)) {
-                                            // Nouvelle structure : objet avec code et description
-                                            $equipementCode = $dernierEquipementInstaller['code'] ?? '';
-                                            $description = $dernierEquipementInstaller['description'] ?? ($equipementCode ? getEquipementDescriptionPDFInstaller($equipementCode) : '');
-                                        } else {
-                                            // Ancienne structure : simple chaîne (code)
-                                            $equipementCode = $dernierEquipementInstaller;
-                                            $description = getEquipementDescriptionPDFInstaller($dernierEquipementInstaller);
-						
-                                        }
-
-					// Extraire uniquement la dernière partie de la description (après le dernier " - ")
-                                        $descriptionCourte = $description;
-                                        if (strpos($description, ' - ') !== false) {
-                                            $parties = explode(' - ', $description);
-                                            $descriptionCourte = end($parties);
-                                        }
-
-                                    @endphp
-					@if($description)
+                                @if(!empty($dernierNiveauEquipementsInstaller))
                                     Équipement sur lequel les travaux sont à realiser :
                                     <ul>
-                                        <li>
-                                            {{ $descriptionCourte }}
-                                            @if($description !== $equipementCode)
+                                        @foreach($dernierNiveauEquipementsInstaller as $dernierEquipementInstaller)
+                                            @php
+                                                if (is_array($dernierEquipementInstaller)) {
+                                                    $equipementCode = $dernierEquipementInstaller['code'] ?? '';
+                                                    $description = $dernierEquipementInstaller['description'] ?? ($equipementCode ? getEquipementDescriptionPDFInstaller($equipementCode) : '');
+                                                } else {
+                                                    $equipementCode = $dernierEquipementInstaller;
+                                                    $description = getEquipementDescriptionPDFInstaller($dernierEquipementInstaller);
+                                                }
+                                                $descriptionCourte = $description;
+                                                if (strpos($description ?? '', ' - ') !== false) {
+                                                    $parties = explode(' - ', $description);
+                                                    $descriptionCourte = end($parties);
+                                                }
+                                            @endphp
+                                            @if($description)
+                                            <li>
+                                                {{ $descriptionCourte }}
+                                                @if($description !== $equipementCode)
                                                     ({{ $equipementCode }})
+                                                @endif
+                                            </li>
                                             @endif
-                                        </li>
+                                        @endforeach
                                     </ul>
-                                @endif
 				@endif
 				@endif
                             @endif

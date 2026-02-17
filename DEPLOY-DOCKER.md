@@ -304,21 +304,72 @@ sudo firewall-cmd --list-all
 
 ### Problèmes courants
 
-**1. Permission denied sur les volumes**
+**1. Timeout / "failed to resolve source metadata" / "i/o timeout" (Docker Hub inaccessible)**
+```bash
+# Le serveur ne peut pas atteindre Docker Hub. Solutions :
+
+# A) Augmenter le timeout Docker (daemon.json)
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json << 'EOF'
+{
+  "max-concurrent-downloads": 3,
+  "max-concurrent-uploads": 1,
+  "registry-mirrors": []
+}
+EOF
+sudo systemctl restart docker
+
+# B) Tester la connectivité vers Docker Hub
+curl -I https://registry-1.docker.io/v2/
+
+# C) Si proxy requis, configurer Docker :
+# /etc/systemd/system/docker.service.d/http-proxy.conf
+# [Service]
+# Environment="HTTP_PROXY=http://proxy:port"
+# Environment="HTTPS_PROXY=http://proxy:port"
+# Puis: sudo systemctl daemon-reload && sudo systemctl restart docker
+
+# D) Contournement : exporter/importer les images (réseau restreint)
+# Sur une machine avec accès Internet (ex: votre PC) :
+#   cd /chemin/vers/sendaptnapt
+#   bash docker/export-images.sh
+#   scp docker-images.tar user@serveur:/var/www/sendaptnapt/
+# Sur le serveur :
+#   cd /var/www/sendaptnapt
+#   sudo bash docker/load-images.sh
+#   sudo bash docker/deploy.sh first
+```
+
+**2. "commande introuvable" ou "Permission denied" avec deploy.sh**
+```bash
+# Vérifier que le script existe
+ls -la docker/deploy.sh
+
+# Corriger les fins de ligne Windows (CRLF → LF) si nécessaire
+sed -i 's/\r$//' docker/deploy.sh
+
+# Exécuter avec bash explicitement
+sudo bash docker/deploy.sh first
+
+# Ou avec le chemin complet
+sudo bash /var/www/sendaptnapt/docker/deploy.sh first
+```
+
+**3. Permission denied sur les volumes**
 ```bash
 # Sur le serveur (48 = apache sur CentOS)
 sudo chown -R apache:apache /var/www/sendaptnapt/storage
 sudo chmod -R 775 /var/www/sendaptnapt/storage
 ```
 
-**2. Connexion à la base de données impossible**
+**4. Connexion à la base de données impossible**
 ```bash
 # Vérifier que PostgreSQL est prêt
 docker-compose logs postgres
 docker-compose exec postgres pg_isready -U sendaptnapt
 ```
 
-**3. Application lente**
+**5. Application lente**
 ```bash
 # Vérifier les caches
 docker-compose exec app php artisan config:cache
@@ -326,14 +377,14 @@ docker-compose exec app php artisan route:cache
 docker-compose exec app php artisan view:cache
 ```
 
-**4. Espace disque insuffisant**
+**6. Espace disque insuffisant**
 ```bash
 # Nettoyer Docker
 docker system prune -af
 docker volume prune -f
 ```
 
-**5. Voir les logs d'erreur**
+**7. Voir les logs d'erreur**
 ```bash
 docker-compose logs -f app 2>&1 | tail -100
 docker-compose exec app cat storage/logs/laravel.log | tail -50

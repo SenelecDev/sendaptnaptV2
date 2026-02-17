@@ -283,29 +283,34 @@
                                         @endif
                                     @endif
 
-                                    {{-- Équipements à consigner depuis Oracle --}}
+                                    {{-- Équipements à consigner depuis Oracle (dernier niveau uniquement) --}}
                                     @if($demande->equipements_oracle)
                                         @php
                                             $equipementsConsigner = json_decode($demande->equipements_oracle, true);
-                                            $allEquipements = [];
+                                            $dernierNiveauEquipements = [];
                                             if (is_array($equipementsConsigner)) {
+                                                $niveauxAvecData = [];
                                                 foreach ($equipementsConsigner as $levelKey => $levelData) {
-                                                    if (is_array($levelData)) {
-                                                        foreach ($levelData as $equipement) {
-                                                            if (is_array($equipement)) {
-                                                                $allEquipements[] = $equipement['description'] ?? $equipement['code'] ?? '';
-                                                            } elseif (is_string($equipement)) {
-                                                                $allEquipements[] = $equipement;
-                                                            }
+                                                    if (preg_match('/level_(\d+)/', $levelKey, $m) && is_array($levelData) && !empty($levelData)) {
+                                                        $niveauxAvecData[$m[1]] = $levelData;
+                                                    }
+                                                }
+                                                if (!empty($niveauxAvecData)) {
+                                                    $dernierNiveau = max(array_keys($niveauxAvecData));
+                                                    foreach ($niveauxAvecData[$dernierNiveau] as $equipement) {
+                                                        if (is_array($equipement)) {
+                                                            $dernierNiveauEquipements[] = $equipement['description'] ?? $equipement['code'] ?? '';
+                                                        } elseif (is_string($equipement)) {
+                                                            $dernierNiveauEquipements[] = $equipement;
                                                         }
                                                     }
                                                 }
                                             }
                                         @endphp
-                                        @if(!empty($allEquipements))
+                                        @if(!empty($dernierNiveauEquipements))
                                             <strong>Équipements :</strong>
                                             <ul>
-                                                @foreach($allEquipements as $equip)
+                                                @foreach($dernierNiveauEquipements as $equip)
                                                     <li>{{ $equip }}</li>
                                                 @endforeach
                                             </ul>
@@ -339,29 +344,34 @@
                                         @endif
                                     @endif
 
-                                    {{-- Équipements à installer depuis Oracle --}}
+                                    {{-- Équipements à installer depuis Oracle (dernier niveau uniquement) --}}
                                     @if($demande->equipements_installer_oracle)
                                         @php
                                             $equipementsInstaller = json_decode($demande->equipements_installer_oracle, true);
-                                            $allEquipementsInstaller = [];
+                                            $dernierNiveauEquipementsInstaller = [];
                                             if (is_array($equipementsInstaller)) {
+                                                $niveauxAvecData = [];
                                                 foreach ($equipementsInstaller as $levelKey => $levelData) {
-                                                    if (is_array($levelData)) {
-                                                        foreach ($levelData as $equipement) {
-                                                            if (is_array($equipement)) {
-                                                                $allEquipementsInstaller[] = $equipement['description'] ?? $equipement['code'] ?? '';
-                                                            } elseif (is_string($equipement)) {
-                                                                $allEquipementsInstaller[] = $equipement;
-                                                            }
+                                                    if (preg_match('/level_(\d+)/', $levelKey, $m) && is_array($levelData) && !empty($levelData)) {
+                                                        $niveauxAvecData[$m[1]] = $levelData;
+                                                    }
+                                                }
+                                                if (!empty($niveauxAvecData)) {
+                                                    $dernierNiveau = max(array_keys($niveauxAvecData));
+                                                    foreach ($niveauxAvecData[$dernierNiveau] as $equipement) {
+                                                        if (is_array($equipement)) {
+                                                            $dernierNiveauEquipementsInstaller[] = $equipement['description'] ?? $equipement['code'] ?? '';
+                                                        } elseif (is_string($equipement)) {
+                                                            $dernierNiveauEquipementsInstaller[] = $equipement;
                                                         }
                                                     }
                                                 }
                                             }
                                         @endphp
-                                        @if(!empty($allEquipementsInstaller))
+                                        @if(!empty($dernierNiveauEquipementsInstaller))
                                             <strong>Équipements :</strong>
                                             <ul>
-                                                @foreach($allEquipementsInstaller as $equip)
+                                                @foreach($dernierNiveauEquipementsInstaller as $equip)
                                                     <li>{{ $equip }}</li>
                                                 @endforeach
                                             </ul>
