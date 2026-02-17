@@ -185,7 +185,7 @@ class AuthenticationTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertRedirect(route('valideur.dashboard'));
+        $response->assertRedirect(route('valideur.notes.index'));
     }
 
     /** @test */
@@ -202,7 +202,7 @@ class AuthenticationTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertRedirect(route('operateur.dashboard'));
+        $response->assertRedirect(route('operateur.notes.index'));
     }
 
     /** @test */

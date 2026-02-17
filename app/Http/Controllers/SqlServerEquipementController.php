@@ -21,12 +21,7 @@ class SqlServerEquipementController extends Controller
     {
         $search = $request ? ($request->input('q') ?? '') : '';
         
-        // Toujours utiliser les données de démonstration pour l'instant
-        // car la connexion GMAO n'est pas encore configurée
-        return response()->json($this->getDemoLieuxExecution($search));
-        
-        /*
-        // Code pour la connexion GMAO réelle (à activer quand la connexion sera prête)
+        // Utiliser la connexion GMAO réelle
         try {
             $cacheKey = 'lieux_execution_' . md5($search);
             
@@ -34,7 +29,7 @@ class SqlServerEquipementController extends Controller
                 $query = "
                     SELECT ereq_code, ereq_description, ereq_entity, ereq_function, ereq_category, EREQ_PARENT_EQUIPMENT
                     FROM equipment
-                    WHERE (ereq_category IN ('P-TRANS') OR ereq_category IN ('LIGNE-AER','LIGNE-SOUT'))
+                    WHERE ereq_category IN ('P-TRANS', 'P-HTB', 'LIGNE-AER', 'LIGNE-SOUT')
                 ";
                 
                 $params = [];
@@ -51,7 +46,7 @@ class SqlServerEquipementController extends Controller
                 foreach ($results as $row) {
                     $data[] = [
                         'code' => $row->ereq_code,
-                        'description' => $row->ereq_description,
+                        'description' => $row->ereq_description ?? $row->ereq_code,
                         'entity' => $row->ereq_entity ?? null,
                         'function' => $row->ereq_function ?? null,
                         'category' => $row->ereq_category,
@@ -71,7 +66,6 @@ class SqlServerEquipementController extends Controller
             // Retourner des données de démonstration en cas d'erreur
             return response()->json($this->getDemoLieuxExecution($search));
         }
-        */
     }
 
     /**
@@ -83,11 +77,7 @@ class SqlServerEquipementController extends Controller
             return response()->json([]);
         }
 
-        // Toujours utiliser les données de démonstration pour l'instant
-        return response()->json($this->getDemoEquipementsEnfants($parentCode));
-        
-        /*
-        // Code pour la connexion GMAO réelle (à activer quand la connexion sera prête)
+        // Utiliser la connexion GMAO réelle
         try {
             $cacheKey = 'equipements_enfants_' . md5($parentCode);
             
@@ -103,7 +93,7 @@ class SqlServerEquipementController extends Controller
                 foreach ($results as $row) {
                     $data[] = [
                         'code' => $row->ereq_code,
-                        'description' => $row->ereq_description,
+                        'description' => $row->ereq_description ?? $row->ereq_code,
                         'entity' => $row->ereq_entity ?? null,
                         'function' => $row->ereq_function ?? null,
                         'category' => $row->ereq_category,
@@ -122,7 +112,6 @@ class SqlServerEquipementController extends Controller
             // Retourner des données de démonstration en cas d'erreur
             return response()->json($this->getDemoEquipementsEnfants($parentCode));
         }
-        */
     }
 
     /**
@@ -147,12 +136,7 @@ class SqlServerEquipementController extends Controller
             return [];
         }
 
-        // Utiliser les données de démonstration pour l'instant
-        // car la connexion GMAO n'est pas encore configurée
-        return $this->getDemoEquipementsByCodes($codes);
-        
-        /*
-        // Code pour la connexion GMAO réelle (à activer quand la connexion sera prête)
+        // Utiliser la connexion GMAO réelle
         try {
             // Créer les placeholders pour la requête IN
             $placeholders = str_repeat('?,', count($codes) - 1) . '?';
@@ -168,7 +152,7 @@ class SqlServerEquipementController extends Controller
             foreach ($results as $row) {
                 $data[] = [
                     'code' => $row->ereq_code,
-                    'description' => $row->ereq_description,
+                    'description' => $row->ereq_description ?? $row->ereq_code,
                     'entity' => $row->ereq_entity ?? null,
                     'function' => $row->ereq_function ?? null,
                     'category' => $row->ereq_category,
@@ -185,7 +169,6 @@ class SqlServerEquipementController extends Controller
             // En cas d'erreur, utiliser les données de démo
             return $this->getDemoEquipementsByCodes($codes);
         }
-        */
     }
     
     /**
@@ -263,11 +246,7 @@ class SqlServerEquipementController extends Controller
      */
     public function getAllLignes()
     {
-        // Toujours utiliser les données de démonstration pour l'instant
-        return response()->json($this->getDemoAllLignes());
-        
-        /*
-        // Code pour la connexion GMAO réelle (à activer quand la connexion sera prête)
+        // Utiliser la connexion GMAO réelle
         try {
             $cacheKey = 'all_lignes';
             
@@ -283,7 +262,7 @@ class SqlServerEquipementController extends Controller
                 foreach ($results as $row) {
                     $data[] = [
                         'code' => $row->ereq_code,
-                        'description' => $row->ereq_description,
+                        'description' => $row->ereq_description ?? $row->ereq_code,
                         'entity' => $row->ereq_entity ?? null,
                         'function' => $row->ereq_function ?? null,
                         'category' => $row->ereq_category,
@@ -301,7 +280,6 @@ class SqlServerEquipementController extends Controller
             Log::error("SQL Server getAllLignes error: " . $e->getMessage());
             return response()->json($this->getDemoAllLignes());
         }
-        */
     }
 
     /**

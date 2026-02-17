@@ -32,7 +32,7 @@ class StatutDemandeMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'SENDAPTNAPT - DAPT ' . $this->demande->numero_demande . ' - ' . ucfirst($this->demande->statut),
+            subject: 'DAPTNAPT - DAPT ' . $this->demande->numero_demande . ' - ' . ucfirst($this->demande->statut),
         );
     }
 

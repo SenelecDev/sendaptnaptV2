@@ -206,24 +206,12 @@ class NotificationService
      */
     public function notifyNaptReturned(Note $note, string $returnedBy = 'verificateur', string $motif = ''): void
     {
-        // Si retourné par le valideur → notifier le vérificateur qui a vérifié
-        if ($returnedBy === 'valideur' && $note->verifiePar) {
-            $note->verifiePar->notify(new WorkflowNotification(
-                type: 'napt_returned',
-                title: 'NAPT retournée par le valideur',
-                message: "La note {$note->numero_note} que vous avez vérifiée a été retournée par le valideur." . ($motif ? " Motif: {$motif}" : ''),
-                actionUrl: "/verificateur/notes/{$note->id}",
-                actionText: 'Voir la note',
-                data: ['note_id' => $note->id, 'numero' => $note->numero_note, 'returned_by' => $returnedBy, 'motif' => $motif]
-            ));
-        }
-        
-        // Si retourné par le vérificateur → notifier le DESA qui a créé la note
-        if ($returnedBy === 'vérificateur' && $note->etabliPar) {
+        // Notifier le DESA qui a créé la note
+        if ($note->etabliPar) {
             $note->etabliPar->notify(new WorkflowNotification(
                 type: 'napt_returned',
                 title: 'NAPT retournée',
-                message: "La note {$note->numero_note} a été retournée par le vérificateur." . ($motif ? " Motif: {$motif}" : ''),
+                message: "La note {$note->numero_note} a été retournée par le {$returnedBy}." . ($motif ? " Motif: {$motif}" : ''),
                 actionUrl: "/desa/notes/{$note->id}/edit",
                 actionText: 'Modifier la note',
                 data: ['note_id' => $note->id, 'numero' => $note->numero_note, 'returned_by' => $returnedBy, 'motif' => $motif]

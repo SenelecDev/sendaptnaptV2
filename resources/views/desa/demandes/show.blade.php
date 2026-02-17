@@ -132,8 +132,8 @@
                             <p class="text-gray-900 whitespace-pre-line">{{ $demande->ouvrages_consigner_manuel ?: '-' }}</p>
                         @else
                             @php
-                                $lignesOracle = $demande->lignes_oracle ? json_decode($demande->lignes_oracle, true) : [];
-                                $equipementsOracle = $demande->equipements_oracle ? json_decode($demande->equipements_oracle, true) : [];
+                                $lignesOracle = is_array($demande->lignes_oracle) ? $demande->lignes_oracle : ($demande->lignes_oracle ? json_decode($demande->lignes_oracle, true) : []);
+                                $equipementsOracle = is_array($demande->equipements_oracle) ? $demande->equipements_oracle : ($demande->equipements_oracle ? json_decode($demande->equipements_oracle, true) : []);
                             @endphp
                             
                             @if(!empty($lignesOracle))
@@ -181,8 +181,8 @@
                             <p class="text-gray-900 whitespace-pre-line">{{ $demande->ouvrages_installer_manuel ?: '-' }}</p>
                         @else
                             @php
-                                $lignesInstallerOracle = $demande->lignes_installer_oracle ? json_decode($demande->lignes_installer_oracle, true) : [];
-                                $equipementsInstaller = $demande->equipements_installer_oracle ? json_decode($demande->equipements_installer_oracle, true) : [];
+                                $lignesInstallerOracle = is_array($demande->lignes_installer_oracle) ? $demande->lignes_installer_oracle : ($demande->lignes_installer_oracle ? json_decode($demande->lignes_installer_oracle, true) : []);
+                                $equipementsInstaller = is_array($demande->equipements_installer_oracle) ? $demande->equipements_installer_oracle : ($demande->equipements_installer_oracle ? json_decode($demande->equipements_installer_oracle, true) : []);
                             @endphp
                             
                             @if(!empty($lignesInstallerOracle))

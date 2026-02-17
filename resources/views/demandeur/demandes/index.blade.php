@@ -171,7 +171,7 @@
                                             </svg>
                                         </a>
                                     @endif
-                                    @if($demande->demandeur_id == Auth::id() && in_array($demande->statut, ['créée', 'retournée', 'brouillon']))
+                                    @if($demande->demandeur_id == Auth::id() && in_array($demande->statut, ['retournée', 'brouillon']))
                                         <a href="{{ route('demandeur.demandes.edit', $demande) }}" 
                                            class="text-senelec-teal hover:text-senelec-teal-dark transition-colors" title="Modifier">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -179,7 +179,7 @@
                                             </svg>
                                         </a>
                                     @endif
-                                    @if($demande->demandeur_id == Auth::id() && in_array($demande->statut, ['brouillon', 'créée']) && !$demande->note)
+                                    @if($demande->demandeur_id == Auth::id() && $demande->statut === 'brouillon')
                                         <button type="button" 
                                                 class="text-red-600 hover:text-red-900 transition-colors" 
                                                 title="Supprimer"

@@ -28,12 +28,17 @@ class NoteController extends Controller
             ->join('users', 'demandes.demandeur_id', '=', 'users.id')
             ->select('notes.*');
         
-        // Recherche
+        // Recherche (numéro NAPT, numéro DAPT, lieu d'exécution, ouvrage à consigner)
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(notes.numero_note) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(demandes.numero_demande) like ?', ["%{$search}%"]);
+            $searchLower = strtolower($request->search);
+            $query->where(function ($q) use ($searchLower) {
+                $q->whereRaw('LOWER(notes.numero_note) LIKE ?', ["%{$searchLower}%"])
+                  ->orWhereRaw('LOWER(demandes.numero_demande) LIKE ?', ["%{$searchLower}%"])
+                  ->orWhereRaw('LOWER(demandes.lieu_execution) LIKE ?', ["%{$searchLower}%"])
+                  ->orWhereRaw('LOWER(COALESCE(demandes.ouvrages_consigner_manuel, "")) LIKE ?', ["%{$searchLower}%"]);
+                if (\DB::connection()->getDriverName() === 'mysql') {
+                    $q->orWhereRaw('LOWER(CAST(COALESCE(demandes.ouvrages_consigner_gmao, "[]") AS CHAR)) LIKE ?', ["%{$searchLower}%"]);
+                }
             });
         }
         
@@ -126,7 +131,11 @@ class NoteController extends Controller
         $correspondants = Correspondant::orderBy('nom')->get();
         $services = ServiceDest::orderBy('nom')->get();
         
-        return view('desa.notes.create', compact('demande', 'demandesAcceptees', 'chargecons', 'correspondants', 'services'));
+        // Dernier numéro NAPT créé (pour affichage du format attendu)
+        $dernierNapt = Note::orderBy('created_at', 'desc')->first();
+        $dernierNumeroNapt = $dernierNapt ? $dernierNapt->numero_note : null;
+        
+        return view('desa.notes.create', compact('demande', 'demandesAcceptees', 'chargecons', 'correspondants', 'services', 'dernierNumeroNapt'));
     }
 
     /**

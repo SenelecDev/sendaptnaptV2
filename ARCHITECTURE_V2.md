@@ -325,11 +325,11 @@ class User extends Authenticatable implements LdapAuthenticatable
     - groupe_id, is_active
     - onboarding_completed  // Tutoriel complété
 
-    // Relations
-    - groupe() : BelongsTo Groupe
-    - demandes() : HasMany Demande
-    - absences() : HasMany Absence
-    - interims() : HasMany Absence
+// Relations
+- groupe() : BelongsTo Groupe
+- demandes() : HasMany Demande
+- absences() : HasMany Absence
+- interims() : HasMany Absence
     - notesEtablies(), notesVerifiees(), notesValidees()
 
     // Méthodes intérim
@@ -360,9 +360,9 @@ class Demande extends Model
     - id, numero_demande (auto: GROUPE-XXXXX-YYYY)
     - date, statut, mode_saisie
     - demandeur_id, charge_travaux_id, charge_travaux_externe_id, traite_id
-    - destinataire, lieu_execution, lieu_code
+- destinataire, lieu_execution, lieu_code
     - designation, renseignement
-    - ouvrage_type (ligne/poste)
+- ouvrage_type (ligne/poste)
     - mte, mcce, etape (ue/de)
     
     // Dates prévues
@@ -375,7 +375,7 @@ class Demande extends Model
     - ouvrages_consigner_gmao, ouvrages_installer_gmao
 
     // Mode Manuel (texte)
-    - ouvrages_consigner_manuel, ouvrages_installer_manuel
+- ouvrages_consigner_manuel, ouvrages_installer_manuel
 
     // Relations
     - demandeur() : BelongsTo User
@@ -407,23 +407,23 @@ class Note extends Model
 
     // Champs principaux
     - id, numero_note (auto: XXXXX-YYYY)
-    - numero_semaine, date
+- numero_semaine, date
     - demande_id, statut
 
-    // Acteurs avec signatures
+// Acteurs avec signatures
     - etabli_id, verifie_id, valide_id
     - retourne1_id, retourne2_id
     - execute_id, en_cours_execution_id, annule_id
 
     // Dates
-    - dre (date réelle début)
-    - ddt, dft (début/fin travaux)
-    - drex (date réelle exécution)
+- dre (date réelle début)
+- ddt, dft (début/fin travaux)
+- drex (date réelle exécution)
 
-    // Documents
-    - document, etude, fiche_manoeuvre
+// Documents
+- document, etude, fiche_manoeuvre
 
-    // Informations
+// Informations
     - renseignementN, motif, motifbis, commentanul
 
     // Relations Many-to-Many
@@ -464,11 +464,11 @@ class Comment extends Model
 ```php
 class Absence extends Model
 {
-    - id
-    - user_id (absent)
-    - interim_id (remplaçant)
-    - date_debut, date_fin
-    - motif
+- id
+- user_id (absent)
+- interim_id (remplaçant)
+- date_debut, date_fin
+- motif
     - role (NULL = tous les rôles du titulaire)
 }
 ```

@@ -22,7 +22,12 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
-if ! command -v docker-compose &> /dev/null; then
+# Docker Compose: v1 (docker-compose) ou v2 (docker compose)
+if command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+elif docker compose version &> /dev/null; then
+    DOCKER_COMPOSE="docker compose"
+else
     echo -e "${RED}❌ Docker Compose n'est pas installé!${NC}"
     exit 1
 fi
@@ -44,10 +49,10 @@ case $MODE in
 
         # Construire et démarrer
         echo -e "${YELLOW}🔨 Construction des images...${NC}"
-        docker-compose build --no-cache
+        $DOCKER_COMPOSE build --no-cache
 
         echo -e "${YELLOW}🚀 Démarrage des services...${NC}"
-        docker-compose up -d
+        $DOCKER_COMPOSE up -d
 
         # Attendre que PostgreSQL soit prêt
         echo -e "${YELLOW}⏳ Attente de PostgreSQL...${NC}"
@@ -55,22 +60,22 @@ case $MODE in
 
         # Initialisation Laravel
         echo -e "${YELLOW}🔑 Génération de la clé d'application...${NC}"
-        docker-compose exec -T app php artisan key:generate --force
+        $DOCKER_COMPOSE exec -T app php artisan key:generate --force
 
         echo -e "${YELLOW}📊 Exécution des migrations...${NC}"
-        docker-compose exec -T app php artisan migrate --force
+        $DOCKER_COMPOSE exec -T app php artisan migrate --force
 
         echo -e "${YELLOW}🌱 Exécution des seeders...${NC}"
-        docker-compose exec -T app php artisan db:seed --force
+        $DOCKER_COMPOSE exec -T app php artisan db:seed --force
 
         echo -e "${YELLOW}🔗 Création du lien storage...${NC}"
-        docker-compose exec -T app php artisan storage:link || true
+        $DOCKER_COMPOSE exec -T app php artisan storage:link || true
 
         echo -e "${YELLOW}⚡ Optimisation...${NC}"
-        docker-compose exec -T app php artisan config:cache
-        docker-compose exec -T app php artisan route:cache
-        docker-compose exec -T app php artisan view:cache
-        docker-compose exec -T app php artisan optimize
+        $DOCKER_COMPOSE exec -T app php artisan config:cache
+        $DOCKER_COMPOSE exec -T app php artisan route:cache
+        $DOCKER_COMPOSE exec -T app php artisan view:cache
+        $DOCKER_COMPOSE exec -T app php artisan optimize
 
         echo -e "${GREEN}✅ Déploiement initial terminé!${NC}"
         ;;
@@ -86,26 +91,26 @@ case $MODE in
 
         # Reconstruire si nécessaire
         echo -e "${YELLOW}🔨 Reconstruction des images...${NC}"
-        docker-compose build
+        $DOCKER_COMPOSE build
 
         # Redémarrer les services
         echo -e "${YELLOW}🔄 Redémarrage des services...${NC}"
-        docker-compose up -d
+        $DOCKER_COMPOSE up -d
 
         # Migrations
         echo -e "${YELLOW}📊 Exécution des migrations...${NC}"
-        docker-compose exec -T app php artisan migrate --force
+        $DOCKER_COMPOSE exec -T app php artisan migrate --force
 
         # Vider et recréer les caches
         echo -e "${YELLOW}🗑️  Nettoyage des caches...${NC}"
-        docker-compose exec -T app php artisan optimize:clear
+        $DOCKER_COMPOSE exec -T app php artisan optimize:clear
         
         echo -e "${YELLOW}⚡ Optimisation...${NC}"
-        docker-compose exec -T app php artisan optimize
+        $DOCKER_COMPOSE exec -T app php artisan optimize
 
         # Redémarrer les workers
         echo -e "${YELLOW}🔄 Redémarrage des workers...${NC}"
-        docker-compose restart queue scheduler
+        $DOCKER_COMPOSE restart queue scheduler
 
         echo -e "${GREEN}✅ Mise à jour terminée!${NC}"
         ;;
@@ -121,7 +126,7 @@ esac
 # Afficher l'état
 echo ""
 echo -e "${GREEN}📊 État des services:${NC}"
-docker-compose ps
+$DOCKER_COMPOSE ps
 
 echo ""
 echo -e "${GREEN}🌐 Application disponible sur:${NC}"

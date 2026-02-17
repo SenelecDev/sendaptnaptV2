@@ -478,8 +478,8 @@ class DemandeController extends Controller
             abort(403, 'Vous ne pouvez modifier que vos propres demandes.');
         }
         
-        // Ne peut modifier que si statut créée, retournée ou brouillon
-        if (!in_array($demande->statut, [Demande::STATUT_CREEE, Demande::STATUT_RETOURNEE, Demande::STATUT_BROUILLON])) {
+        // Ne peut modifier que si statut retournée ou brouillon (pas créée/en cours/acceptée)
+        if (!in_array($demande->statut, [Demande::STATUT_RETOURNEE, Demande::STATUT_BROUILLON])) {
             return redirect()->route('demandeur.demandes.show', $demande)
                              ->with('error', 'Cette demande ne peut plus être modifiée.');
         }
@@ -509,8 +509,8 @@ class DemandeController extends Controller
             abort(403, 'Vous ne pouvez modifier que vos propres demandes.');
         }
         
-        // Ne peut modifier que si statut créée, retournée ou brouillon
-        if (!in_array($demande->statut, [Demande::STATUT_CREEE, Demande::STATUT_RETOURNEE, Demande::STATUT_BROUILLON])) {
+        // Ne peut modifier que si statut retournée ou brouillon (pas créée/en cours/acceptée)
+        if (!in_array($demande->statut, [Demande::STATUT_RETOURNEE, Demande::STATUT_BROUILLON])) {
             return redirect()->route('demandeur.demandes.show', $demande)
                              ->with('error', 'Cette demande ne peut plus être modifiée.');
         }
@@ -621,8 +621,8 @@ class DemandeController extends Controller
             abort(403, 'Vous ne pouvez supprimer que vos propres demandes.');
         }
         
-        // Ne peut supprimer que si statut brouillon ou créée (sans notes)
-        if (!in_array($demande->statut, [Demande::STATUT_BROUILLON, Demande::STATUT_CREEE])) {
+        // Ne peut supprimer que les brouillons (demande non envoyée)
+        if ($demande->statut !== Demande::STATUT_BROUILLON) {
             return redirect()->route('demandeur.demandes.index')
                              ->with('error', 'Cette demande ne peut pas être supprimée.');
         }

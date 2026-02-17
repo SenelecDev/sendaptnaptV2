@@ -237,6 +237,11 @@ function sendDiffusion() {
         return;
     }
 
+    // Confirmation
+    if (!confirm(`Êtes-vous sûr de vouloir envoyer la diffusion à ${selectedGroups.length} groupe(s) ?`)) {
+        return;
+    }
+
     // Changer le bouton pour indiquer l'envoi en cours
     const sendBtn = document.getElementById('send-btn');
     const originalText = sendBtn.innerHTML;

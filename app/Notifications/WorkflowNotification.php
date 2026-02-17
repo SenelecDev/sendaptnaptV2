@@ -57,7 +57,7 @@ class WorkflowNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $mail = (new MailMessage)
-            ->subject('SENDAPTNAPT - ' . $this->title)
+            ->subject('[SENELEC - NAPT] ' . $this->title)
             ->greeting('Bonjour ' . ($notifiable->prenom ?? $notifiable->name) . ',');
         
         // Ajouter une icône selon le type

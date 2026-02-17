@@ -100,15 +100,8 @@ class NotificationController extends Controller
      */
     public function getLatest()
     {
-        $query = Auth::user()->notifications();
-        
-        // Filtrer par timestamp si le paramètre 'since' est fourni (pour les notifications push)
-        if (request()->has('since')) {
-            $since = \Carbon\Carbon::createFromTimestampMs(request()->get('since'));
-            $query->where('created_at', '>', $since);
-        }
-        
-        $notifications = $query->orderBy('created_at', 'desc')
+        $notifications = Auth::user()->notifications()
+            ->orderBy('created_at', 'desc')
             ->take(5)
             ->get()
             ->map(function ($notification) {
@@ -117,7 +110,7 @@ class NotificationController extends Controller
                     'type' => $notification->data['type'] ?? 'info',
                     'title' => $notification->data['title'] ?? 'Notification',
                     'message' => $notification->data['message'] ?? '',
-                    'actionUrl' => $notification->data['action_url'] ?? null,
+                    'action_url' => $notification->data['action_url'] ?? null,
                     'read' => $notification->read_at !== null,
                     'created_at' => $notification->created_at->diffForHumans(),
                     'icon' => WorkflowNotification::getIcon($notification->data['type'] ?? ''),

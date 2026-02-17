@@ -26,7 +26,7 @@
                 <div>
                     <label class="label">Recherche</label>
                     <input type="text" name="search" value="{{ request('search') }}" 
-                           placeholder="Numéro NAPT..." class="input-senelec w-full">
+                           placeholder="Numéro NAPT, lieu, ouvrage à consigner..." class="input-senelec w-full">
                 </div>
                 <div>
                     <label class="label">Date début</label>

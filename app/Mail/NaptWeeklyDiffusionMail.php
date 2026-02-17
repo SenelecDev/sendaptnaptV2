@@ -38,7 +38,7 @@ class NaptWeeklyDiffusionMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "SENDAPTNAPT - Diffusion Hebdomadaire Semaine {$this->semaine}/{$this->annee}",
+            subject: "NAPT - Diffusion Hebdomadaire Semaine {$this->semaine}/{$this->annee}",
         );
     }
 

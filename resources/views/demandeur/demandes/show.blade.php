@@ -20,7 +20,7 @@
             </div>
         </div>
         <div class="flex gap-2">
-            @if(in_array($demande->statut, ['créée', 'retournée', 'brouillon']))
+            @if(in_array($demande->statut, ['retournée', 'brouillon']))
                 <a href="{{ route('demandeur.demandes.edit', $demande) }}" class="btn-senelec-outline py-2 px-4">
                     <svg class="w-5 h-5 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -156,8 +156,8 @@
                         @else
                             @php
                                 $hasConsignerData = false;
-                                $lignesOracle = $demande->lignes_oracle ? json_decode($demande->lignes_oracle, true) : [];
-                                $equipementsOracle = $demande->equipements_oracle ? json_decode($demande->equipements_oracle, true) : [];
+                                $lignesOracle = is_array($demande->lignes_oracle) ? $demande->lignes_oracle : ($demande->lignes_oracle ? json_decode($demande->lignes_oracle, true) : []);
+                                $equipementsOracle = is_array($demande->equipements_oracle) ? $demande->equipements_oracle : ($demande->equipements_oracle ? json_decode($demande->equipements_oracle, true) : []);
                             @endphp
                             
                             @if(!empty($lignesOracle))
@@ -224,8 +224,8 @@
                         @else
                             @php
                                 $hasInstallerData = false;
-                                $lignesInstallerOracle = $demande->lignes_installer_oracle ? json_decode($demande->lignes_installer_oracle, true) : [];
-                                $equipementsInstallerOracle = $demande->equipements_installer_oracle ? json_decode($demande->equipements_installer_oracle, true) : [];
+                                $lignesInstallerOracle = is_array($demande->lignes_installer_oracle) ? $demande->lignes_installer_oracle : ($demande->lignes_installer_oracle ? json_decode($demande->lignes_installer_oracle, true) : []);
+                                $equipementsInstallerOracle = is_array($demande->equipements_installer_oracle) ? $demande->equipements_installer_oracle : ($demande->equipements_installer_oracle ? json_decode($demande->equipements_installer_oracle, true) : []);
                             @endphp
                             
                             @if(!empty($lignesInstallerOracle))

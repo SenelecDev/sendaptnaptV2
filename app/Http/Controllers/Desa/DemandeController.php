@@ -7,12 +7,14 @@ use App\Models\Demande;
 use App\Models\Note;
 use App\Models\Observation;
 use App\Models\Groupe;
+use App\Exports\Desa\DashboardExport;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DemandeController extends Controller
 {
@@ -21,30 +23,74 @@ class DemandeController extends Controller
      */
     public function dashboard(Request $request)
     {
-        $periode = $request->get('periode', 'mois'); // semaine, mois, annee
+        // Filtres
+        $filtre = $request->get('filtre', 'tout'); // tout, semaine, mois, annee
+        $periode = $request->get('periode', 'mois'); // Pour les graphiques: semaine, mois, annee
+        $groupeIds = $request->get('groupe_ids', []); // Support multiple groupes
+        $groupeIds = is_array($groupeIds) ? array_filter($groupeIds) : [];
+        $semaine = $request->get('semaine', Carbon::now()->weekOfYear);
+        $mois = $request->get('mois', Carbon::now()->month);
+        $annee = $request->get('annee', Carbon::now()->year);
+        
+        // Calculer les dates de début et fin selon le filtre
+        $dateDebut = null;
+        $dateFin = null;
+        
+        switch ($filtre) {
+            case 'semaine':
+                $dateDebut = Carbon::now()->setISODate($annee, $semaine)->startOfWeek();
+                $dateFin = Carbon::now()->setISODate($annee, $semaine)->endOfWeek();
+                break;
+            case 'mois':
+                $dateDebut = Carbon::createFromDate($annee, $mois, 1)->startOfMonth();
+                $dateFin = Carbon::createFromDate($annee, $mois, 1)->endOfMonth();
+                break;
+            case 'annee':
+                $dateDebut = Carbon::createFromDate($annee, 1, 1)->startOfYear();
+                $dateFin = Carbon::createFromDate($annee, 12, 31)->endOfYear();
+                break;
+        }
+        
+        // Builder de base pour les demandes avec filtres
+        $demandesQuery = Demande::query();
+        $notesQuery = Note::query();
+        
+        if ($dateDebut && $dateFin) {
+            $demandesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
+            $notesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
+        }
+        
+        if (!empty($groupeIds)) {
+            $demandesQuery->whereHas('demandeur', function($q) use ($groupeIds) {
+                $q->whereIn('groupe_id', $groupeIds);
+            });
+            $notesQuery->whereHas('demande.demandeur', function($q) use ($groupeIds) {
+                $q->whereIn('groupe_id', $groupeIds);
+            });
+        }
         
         // Statistiques des demandes
         $demandesStats = [
-            'total' => Demande::count(),
-            'recues' => Demande::where('statut', Demande::STATUT_CREEE)->count(),
-            'en_cours' => Demande::where('statut', Demande::STATUT_EN_COURS)->count(),
-            'acceptees' => Demande::where('statut', Demande::STATUT_ACCEPTEE)->count(),
-            'retournees' => Demande::where('statut', Demande::STATUT_RETOURNEE)->count(),
+            'total' => (clone $demandesQuery)->count(),
+            'recues' => (clone $demandesQuery)->where('statut', Demande::STATUT_CREEE)->count(),
+            'en_cours' => (clone $demandesQuery)->where('statut', Demande::STATUT_EN_COURS)->count(),
+            'acceptees' => (clone $demandesQuery)->where('statut', Demande::STATUT_ACCEPTEE)->count(),
+            'retournees' => (clone $demandesQuery)->where('statut', Demande::STATUT_RETOURNEE)->count(),
         ];
         
         // Statistiques des notes
         $notesStats = [
-            'total' => Note::count(),
-            'brouillon' => Note::where('statut', Note::STATUT_BROUILLON)->count(),
-            'en_etude' => Note::where('statut', Note::STATUT_EN_ETUDE)->count(),
-            'en_attente_verification' => Note::where('statut', Note::STATUT_EN_ATTENTE_VERIFICATION)->count(),
-            'verifiees' => Note::where('statut', Note::STATUT_VERIFIEE)->count(),
-            'en_attente_validation' => Note::where('statut', Note::STATUT_EN_ATTENTE_VALIDATION)->count(),
-            'validees' => Note::where('statut', Note::STATUT_VALIDEE)->count(),
-            'en_cours_execution' => Note::where('statut', Note::STATUT_EN_COURS_EXECUTION)->count(),
-            'executees' => Note::where('statut', Note::STATUT_EXECUTEE)->count(),
-            'retournees' => Note::where('statut', Note::STATUT_RETOURNEE)->count(),
-            'annulees' => Note::where('statut', Note::STATUT_ANNULEE)->count(),
+            'total' => (clone $notesQuery)->count(),
+            'brouillon' => (clone $notesQuery)->where('statut', Note::STATUT_BROUILLON)->count(),
+            'en_etude' => (clone $notesQuery)->where('statut', Note::STATUT_EN_ETUDE)->count(),
+            'en_attente_verification' => (clone $notesQuery)->where('statut', Note::STATUT_EN_ATTENTE_VERIFICATION)->count(),
+            'verifiees' => (clone $notesQuery)->where('statut', Note::STATUT_VERIFIEE)->count(),
+            'en_attente_validation' => (clone $notesQuery)->where('statut', Note::STATUT_EN_ATTENTE_VALIDATION)->count(),
+            'validees' => (clone $notesQuery)->where('statut', Note::STATUT_VALIDEE)->count(),
+            'en_cours_execution' => (clone $notesQuery)->where('statut', Note::STATUT_EN_COURS_EXECUTION)->count(),
+            'executees' => (clone $notesQuery)->where('statut', Note::STATUT_EXECUTEE)->count(),
+            'retournees' => (clone $notesQuery)->where('statut', Note::STATUT_RETOURNEE)->count(),
+            'annulees' => (clone $notesQuery)->where('statut', Note::STATUT_ANNULEE)->count(),
         ];
         
         // Statistiques des observations
@@ -53,31 +99,73 @@ class DemandeController extends Controller
             'non_lues' => Observation::where('lu', false)->count(),
         ];
         
-        // Graph data for Notes (by period)
-        $graphData = $this->getNotesGraphData($periode);
+        // Graph data for Notes (by period) - adapté au filtre
+        $graphData = $this->getNotesGraphData($periode, $groupeIds, $dateDebut, $dateFin);
         
-        // Top groups creating DAPTs
-        $topGroupes = Groupe::withCount('demandes')
+        // Si plusieurs groupes sélectionnés, préparer les données de comparaison
+        $compareData = null;
+        $compareGraphData = null;
+        if (count($groupeIds) > 1) {
+            $compareData = $this->getGroupesCompareData($groupeIds, $dateDebut, $dateFin);
+            $compareGraphData = $this->getGroupesCompareGraphData($groupeIds, $dateDebut, $dateFin);
+        }
+        
+        // Top groups creating DAPTs (avec filtres de période)
+        $topGroupesQuery = Groupe::withCount(['demandes' => function($q) use ($dateDebut, $dateFin) {
+            if ($dateDebut && $dateFin) {
+                $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
+            }
+        }]);
+        
+        $topGroupes = $topGroupesQuery
             ->having('demandes_count', '>', 0)
             ->orderByDesc('demandes_count')
             ->take(5)
             ->get();
         
+        // Top groupes avec DAPT retournées (filtrable par période)
+        $topGroupesRetournees = Groupe::withCount(['demandes as demandes_retournees_count' => function($q) use ($dateDebut, $dateFin) {
+            $q->where('statut', Demande::STATUT_RETOURNEE);
+            if ($dateDebut && $dateFin) {
+                $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
+            }
+        }])
+        ->having('demandes_retournees_count', '>', 0)
+        ->orderByDesc('demandes_retournees_count')
+        ->take(10)
+        ->get();
+        
         // All groupes for filter
         $groupes = Groupe::orderBy('nom')->get();
         
-        // Dernières demandes reçues
-        $dernieresDemandes = Demande::where('statut', Demande::STATUT_CREEE)
-            ->with('demandeur')
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
+        // Semaines disponibles pour le filtre
+        $semainesDisponibles = [];
+        for ($i = 1; $i <= 52; $i++) {
+            $startOfWeek = Carbon::now()->setISODate($annee, $i)->startOfWeek();
+            $endOfWeek = Carbon::now()->setISODate($annee, $i)->endOfWeek();
+            $semainesDisponibles[$i] = "Semaine $i ({$startOfWeek->format('d/m')} - {$endOfWeek->format('d/m')})";
+        }
         
-        // Dernières notes
-        $dernieresNotes = Note::with(['demande.demandeur', 'etabliPar'])
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
+        // Années disponibles
+        $anneesDisponibles = range(Carbon::now()->year - 2, Carbon::now()->year + 1);
+        
+        // Dernières demandes reçues (avec filtre groupe)
+        $dernieresDemandesQuery = Demande::where('statut', Demande::STATUT_CREEE)->with('demandeur');
+        if (!empty($groupeIds)) {
+            $dernieresDemandesQuery->whereHas('demandeur', function($q) use ($groupeIds) {
+                $q->whereIn('groupe_id', $groupeIds);
+            });
+        }
+        $dernieresDemandes = $dernieresDemandesQuery->orderBy('created_at', 'desc')->take(5)->get();
+        
+        // Dernières notes (avec filtre groupe)
+        $dernieresNotesQuery = Note::with(['demande.demandeur', 'etabliPar']);
+        if (!empty($groupeIds)) {
+            $dernieresNotesQuery->whereHas('demande.demandeur', function($q) use ($groupeIds) {
+                $q->whereIn('groupe_id', $groupeIds);
+            });
+        }
+        $dernieresNotes = $dernieresNotesQuery->orderBy('created_at', 'desc')->take(5)->get();
         
         return view('desa.dashboard', compact(
             'demandesStats', 
@@ -86,16 +174,132 @@ class DemandeController extends Controller
             'dernieresDemandes',
             'dernieresNotes',
             'graphData',
+            'compareData',
+            'compareGraphData',
             'periode',
+            'filtre',
+            'semaine',
+            'mois',
+            'annee',
+            'groupeIds',
+            'dateDebut',
+            'dateFin',
             'topGroupes',
-            'groupes'
+            'topGroupesRetournees',
+            'groupes',
+            'semainesDisponibles',
+            'anneesDisponibles'
         ));
+    }
+
+    /**
+     * Export dashboard statistics to Excel.
+     */
+    public function exportDashboard(Request $request)
+    {
+        $data = $this->getDashboardExportData($request);
+        $periodeLabel = $data['dateDebut'] && $data['dateFin']
+            ? $data['dateDebut']->format('d/m/Y') . ' - ' . $data['dateFin']->format('d/m/Y')
+            : 'Toutes les données';
+
+        $filename = 'Statistiques_Dashboard_DESA_' . now()->format('Y-m-d_His') . '.xlsx';
+
+        return Excel::download(
+            new DashboardExport(
+                $data['demandesStats'],
+                $data['notesStats'],
+                $data['topGroupesRetournees'],
+                $data['graphData'],
+                $data['compareData'],
+                $periodeLabel
+            ),
+            $filename
+        );
+    }
+
+    /**
+     * Get dashboard data for export (same logic as dashboard, filtered subset).
+     */
+    protected function getDashboardExportData(Request $request): array
+    {
+        $filtre = $request->get('filtre', 'tout');
+        $periode = $request->get('periode', 'mois');
+        $groupeIds = $request->get('groupe_ids', []);
+        $groupeIds = is_array($groupeIds) ? array_filter($groupeIds) : [];
+        $semaine = $request->get('semaine', Carbon::now()->weekOfYear);
+        $mois = $request->get('mois', Carbon::now()->month);
+        $annee = $request->get('annee', Carbon::now()->year);
+
+        $dateDebut = null;
+        $dateFin = null;
+        switch ($filtre) {
+            case 'semaine':
+                $dateDebut = Carbon::now()->setISODate($annee, $semaine)->startOfWeek();
+                $dateFin = Carbon::now()->setISODate($annee, $semaine)->endOfWeek();
+                break;
+            case 'mois':
+                $dateDebut = Carbon::createFromDate($annee, $mois, 1)->startOfMonth();
+                $dateFin = Carbon::createFromDate($annee, $mois, 1)->endOfMonth();
+                break;
+            case 'annee':
+                $dateDebut = Carbon::createFromDate($annee, 1, 1)->startOfYear();
+                $dateFin = Carbon::createFromDate($annee, 12, 31)->endOfYear();
+                break;
+        }
+
+        $demandesQuery = Demande::query();
+        $notesQuery = Note::query();
+        if ($dateDebut && $dateFin) {
+            $demandesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
+            $notesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
+        }
+        if (!empty($groupeIds)) {
+            $demandesQuery->whereHas('demandeur', fn($q) => $q->whereIn('groupe_id', $groupeIds));
+            $notesQuery->whereHas('demande.demandeur', fn($q) => $q->whereIn('groupe_id', $groupeIds));
+        }
+
+        $demandesStats = [
+            'total' => (clone $demandesQuery)->count(),
+            'recues' => (clone $demandesQuery)->where('statut', Demande::STATUT_CREEE)->count(),
+            'en_cours' => (clone $demandesQuery)->where('statut', Demande::STATUT_EN_COURS)->count(),
+            'acceptees' => (clone $demandesQuery)->where('statut', Demande::STATUT_ACCEPTEE)->count(),
+            'retournees' => (clone $demandesQuery)->where('statut', Demande::STATUT_RETOURNEE)->count(),
+        ];
+        $notesStats = [
+            'total' => (clone $notesQuery)->count(),
+            'brouillon' => (clone $notesQuery)->where('statut', Note::STATUT_BROUILLON)->count(),
+            'en_etude' => (clone $notesQuery)->where('statut', Note::STATUT_EN_ETUDE)->count(),
+            'en_attente_verification' => (clone $notesQuery)->where('statut', Note::STATUT_EN_ATTENTE_VERIFICATION)->count(),
+            'verifiees' => (clone $notesQuery)->where('statut', Note::STATUT_VERIFIEE)->count(),
+            'en_attente_validation' => (clone $notesQuery)->where('statut', Note::STATUT_EN_ATTENTE_VALIDATION)->count(),
+            'validees' => (clone $notesQuery)->where('statut', Note::STATUT_VALIDEE)->count(),
+            'en_cours_execution' => (clone $notesQuery)->where('statut', Note::STATUT_EN_COURS_EXECUTION)->count(),
+            'executees' => (clone $notesQuery)->where('statut', Note::STATUT_EXECUTEE)->count(),
+            'retournees' => (clone $notesQuery)->where('statut', Note::STATUT_RETOURNEE)->count(),
+            'annulees' => (clone $notesQuery)->where('statut', Note::STATUT_ANNULEE)->count(),
+        ];
+
+        $graphData = $this->getNotesGraphData($periode, $groupeIds, $dateDebut, $dateFin);
+        $compareData = count($groupeIds) > 1 ? $this->getGroupesCompareData($groupeIds, $dateDebut, $dateFin) : null;
+
+        $topGroupesRetournees = Groupe::withCount(['demandes as demandes_retournees_count' => function($q) use ($dateDebut, $dateFin) {
+            $q->where('statut', Demande::STATUT_RETOURNEE);
+            if ($dateDebut && $dateFin) {
+                $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
+            }
+        }])
+        ->having('demandes_retournees_count', '>', 0)
+        ->orderByDesc('demandes_retournees_count')
+        ->take(10)
+        ->get();
+
+        return compact('demandesStats', 'notesStats', 'graphData', 'compareData', 'topGroupesRetournees', 'dateDebut', 'dateFin');
     }
     
     /**
-     * Get graph data for Notes based on period.
+     * Get graph data for Notes based on period and date range filter.
      */
-    private function getNotesGraphData($periode)
+    private function getNotesGraphData($periode, $groupeIds = [], $dateDebut = null, $dateFin = null)
     {
         $labels = [];
         $data = [
@@ -124,55 +328,274 @@ class DemandeController extends Controller
             'annulees' => Note::STATUT_ANNULEE,
         ];
         
-        switch ($periode) {
-            case 'semaine':
-                // Last 7 days
-                for ($i = 6; $i >= 0; $i--) {
-                    $date = Carbon::now()->subDays($i);
-                    $labels[] = $date->locale('fr')->isoFormat('ddd DD/MM');
+        // Helper function to add groupe filter
+        $applyGroupeFilter = function($query) use ($groupeIds) {
+            if (!empty($groupeIds)) {
+                $query->whereHas('demande.demandeur', function($q) use ($groupeIds) {
+                    $q->whereIn('groupe_id', $groupeIds);
+                });
+            }
+            return $query;
+        };
+        
+        // Si une période spécifique est filtrée, adapter les graphiques
+        if ($dateDebut && $dateFin) {
+            $diffInDays = $dateDebut->diffInDays($dateFin);
+            
+            if ($diffInDays <= 7) {
+                // Afficher jour par jour pour une semaine
+                $currentDate = $dateDebut->copy();
+                while ($currentDate <= $dateFin) {
+                    $labels[] = $currentDate->locale('fr')->isoFormat('ddd DD/MM');
                     
                     foreach (array_keys($data) as $key) {
-                        $data[$key][] = Note::where('statut', $statutMap[$key])
-                            ->whereDate('created_at', $date->toDateString())
-                            ->count();
+                        $query = Note::where('statut', $statutMap[$key])
+                            ->whereDate('created_at', $currentDate->toDateString());
+                        $data[$key][] = $applyGroupeFilter($query)->count();
                     }
+                    $currentDate->addDay();
                 }
-                break;
-                
-            case 'mois':
-                // Last 4 weeks
-                for ($i = 3; $i >= 0; $i--) {
-                    $startOfWeek = Carbon::now()->subWeeks($i)->startOfWeek();
-                    $endOfWeek = Carbon::now()->subWeeks($i)->endOfWeek();
-                    $labels[] = 'Sem. ' . $startOfWeek->weekOfYear;
+            } elseif ($diffInDays <= 31) {
+                // Afficher par semaine pour un mois
+                $currentDate = $dateDebut->copy()->startOfWeek();
+                while ($currentDate <= $dateFin) {
+                    $endOfWeek = $currentDate->copy()->endOfWeek();
+                    $labels[] = 'Sem. ' . $currentDate->weekOfYear;
                     
                     foreach (array_keys($data) as $key) {
-                        $data[$key][] = Note::where('statut', $statutMap[$key])
-                            ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
-                            ->count();
+                        $query = Note::where('statut', $statutMap[$key])
+                            ->whereBetween('created_at', [$currentDate, min($endOfWeek, $dateFin)]);
+                        $data[$key][] = $applyGroupeFilter($query)->count();
                     }
+                    $currentDate->addWeek();
                 }
-                break;
-                
-            case 'annee':
-                // Last 12 months
-                for ($i = 11; $i >= 0; $i--) {
-                    $date = Carbon::now()->subMonths($i);
-                    $labels[] = $date->locale('fr')->isoFormat('MMM YYYY');
+            } else {
+                // Afficher par mois pour une année
+                $currentDate = $dateDebut->copy()->startOfMonth();
+                while ($currentDate <= $dateFin) {
+                    $labels[] = $currentDate->locale('fr')->isoFormat('MMM YYYY');
                     
                     foreach (array_keys($data) as $key) {
-                        $data[$key][] = Note::where('statut', $statutMap[$key])
-                            ->whereYear('created_at', $date->year)
-                            ->whereMonth('created_at', $date->month)
-                            ->count();
+                        $query = Note::where('statut', $statutMap[$key])
+                            ->whereYear('created_at', $currentDate->year)
+                            ->whereMonth('created_at', $currentDate->month);
+                        $data[$key][] = $applyGroupeFilter($query)->count();
                     }
+                    $currentDate->addMonth();
                 }
-                break;
+            }
+        } else {
+            // Mode "tout" - utiliser le sélecteur de période graphique
+            switch ($periode) {
+                case 'semaine':
+                    // Last 7 days
+                    for ($i = 6; $i >= 0; $i--) {
+                        $date = Carbon::now()->subDays($i);
+                        $labels[] = $date->locale('fr')->isoFormat('ddd DD/MM');
+                        
+                        foreach (array_keys($data) as $key) {
+                            $query = Note::where('statut', $statutMap[$key])
+                                ->whereDate('created_at', $date->toDateString());
+                            $data[$key][] = $applyGroupeFilter($query)->count();
+                        }
+                    }
+                    break;
+                    
+                case 'mois':
+                    // Last 4 weeks
+                    for ($i = 3; $i >= 0; $i--) {
+                        $startOfWeek = Carbon::now()->subWeeks($i)->startOfWeek();
+                        $endOfWeek = Carbon::now()->subWeeks($i)->endOfWeek();
+                        $labels[] = 'Sem. ' . $startOfWeek->weekOfYear;
+                        
+                        foreach (array_keys($data) as $key) {
+                            $query = Note::where('statut', $statutMap[$key])
+                                ->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
+                            $data[$key][] = $applyGroupeFilter($query)->count();
+                        }
+                    }
+                    break;
+                    
+                case 'annee':
+                    // Last 12 months
+                    for ($i = 11; $i >= 0; $i--) {
+                        $date = Carbon::now()->subMonths($i);
+                        $labels[] = $date->locale('fr')->isoFormat('MMM YYYY');
+                        
+                        foreach (array_keys($data) as $key) {
+                            $query = Note::where('statut', $statutMap[$key])
+                                ->whereYear('created_at', $date->year)
+                                ->whereMonth('created_at', $date->month);
+                            $data[$key][] = $applyGroupeFilter($query)->count();
+                        }
+                    }
+                    break;
+            }
         }
         
         return [
             'labels' => $labels,
             'datasets' => $data,
+        ];
+    }
+    
+    /**
+     * Get comparison data for multiple groupes.
+     */
+    private function getGroupesCompareData($groupeIds, $dateDebut = null, $dateFin = null)
+    {
+        $compareData = [];
+        $groupes = Groupe::whereIn('id', $groupeIds)->get();
+        
+        foreach ($groupes as $groupe) {
+            $demandesQuery = Demande::whereHas('demandeur', function($q) use ($groupe) {
+                $q->where('groupe_id', $groupe->id);
+            });
+            
+            $notesQuery = Note::whereHas('demande.demandeur', function($q) use ($groupe) {
+                $q->where('groupe_id', $groupe->id);
+            });
+            
+            if ($dateDebut && $dateFin) {
+                $demandesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
+                $notesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
+            }
+            
+            $compareData[] = [
+                'groupe' => $groupe,
+                'demandes' => [
+                    'total' => (clone $demandesQuery)->count(),
+                    'creees' => (clone $demandesQuery)->where('statut', Demande::STATUT_CREEE)->count(),
+                    'en_cours' => (clone $demandesQuery)->where('statut', Demande::STATUT_EN_COURS)->count(),
+                    'acceptees' => (clone $demandesQuery)->where('statut', Demande::STATUT_ACCEPTEE)->count(),
+                    'retournees' => (clone $demandesQuery)->where('statut', Demande::STATUT_RETOURNEE)->count(),
+                ],
+                'notes' => [
+                    'total' => (clone $notesQuery)->count(),
+                    'en_etude' => (clone $notesQuery)->where('statut', Note::STATUT_EN_ETUDE)->count(),
+                    'en_verification' => (clone $notesQuery)->where('statut', Note::STATUT_EN_ATTENTE_VERIFICATION)->count(),
+                    'verifiees' => (clone $notesQuery)->where('statut', Note::STATUT_VERIFIEE)->count(),
+                    'validees' => (clone $notesQuery)->where('statut', Note::STATUT_VALIDEE)->count(),
+                    'executees' => (clone $notesQuery)->where('statut', Note::STATUT_EXECUTEE)->count(),
+                    'retournees' => (clone $notesQuery)->where('statut', Note::STATUT_RETOURNEE)->count(),
+                ],
+            ];
+        }
+        
+        return $compareData;
+    }
+    
+    /**
+     * Get graph data for comparing multiple groupes over time.
+     */
+    private function getGroupesCompareGraphData($groupeIds, $dateDebut = null, $dateFin = null)
+    {
+        $groupes = Groupe::whereIn('id', $groupeIds)->get();
+        $labels = [];
+        $datasets = [];
+        
+        // Couleurs pour chaque groupe
+        $colors = ['#2B1444', '#B3006C', '#0A91A3', '#E87400', '#0D1CB0', '#10B981', '#EF4444', '#F59E0B'];
+        
+        // Déterminer les labels (dates) basé sur la période
+        if ($dateDebut && $dateFin) {
+            $diffInDays = $dateDebut->diffInDays($dateFin);
+            
+            if ($diffInDays <= 7) {
+                // Jour par jour
+                $currentDate = $dateDebut->copy();
+                while ($currentDate <= $dateFin) {
+                    $labels[] = $currentDate->locale('fr')->isoFormat('ddd DD/MM');
+                    $currentDate->addDay();
+                }
+            } elseif ($diffInDays <= 31) {
+                // Semaine par semaine
+                $currentDate = $dateDebut->copy()->startOfWeek();
+                while ($currentDate <= $dateFin) {
+                    $labels[] = 'Sem. ' . $currentDate->weekOfYear;
+                    $currentDate->addWeek();
+                }
+            } else {
+                // Mois par mois
+                $currentDate = $dateDebut->copy()->startOfMonth();
+                while ($currentDate <= $dateFin) {
+                    $labels[] = $currentDate->locale('fr')->isoFormat('MMM YYYY');
+                    $currentDate->addMonth();
+                }
+            }
+        } else {
+            // Par défaut: 7 derniers jours
+            for ($i = 6; $i >= 0; $i--) {
+                $labels[] = Carbon::now()->subDays($i)->locale('fr')->isoFormat('ddd DD/MM');
+            }
+        }
+        
+        // Créer un dataset pour chaque groupe
+        foreach ($groupes as $index => $groupe) {
+            $data = [];
+            $color = $colors[$index % count($colors)];
+            
+            if ($dateDebut && $dateFin) {
+                $diffInDays = $dateDebut->diffInDays($dateFin);
+                
+                if ($diffInDays <= 7) {
+                    $currentDate = $dateDebut->copy();
+                    while ($currentDate <= $dateFin) {
+                        $data[] = Note::whereHas('demande.demandeur', function($q) use ($groupe) {
+                                $q->where('groupe_id', $groupe->id);
+                            })
+                            ->whereDate('created_at', $currentDate->toDateString())
+                            ->count();
+                        $currentDate->addDay();
+                    }
+                } elseif ($diffInDays <= 31) {
+                    $currentDate = $dateDebut->copy()->startOfWeek();
+                    while ($currentDate <= $dateFin) {
+                        $endOfWeek = $currentDate->copy()->endOfWeek();
+                        $data[] = Note::whereHas('demande.demandeur', function($q) use ($groupe) {
+                                $q->where('groupe_id', $groupe->id);
+                            })
+                            ->whereBetween('created_at', [$currentDate, min($endOfWeek, $dateFin)])
+                            ->count();
+                        $currentDate->addWeek();
+                    }
+                } else {
+                    $currentDate = $dateDebut->copy()->startOfMonth();
+                    while ($currentDate <= $dateFin) {
+                        $data[] = Note::whereHas('demande.demandeur', function($q) use ($groupe) {
+                                $q->where('groupe_id', $groupe->id);
+                            })
+                            ->whereYear('created_at', $currentDate->year)
+                            ->whereMonth('created_at', $currentDate->month)
+                            ->count();
+                        $currentDate->addMonth();
+                    }
+                }
+            } else {
+                // Par défaut: 7 derniers jours
+                for ($i = 6; $i >= 0; $i--) {
+                    $date = Carbon::now()->subDays($i);
+                    $data[] = Note::whereHas('demande.demandeur', function($q) use ($groupe) {
+                            $q->where('groupe_id', $groupe->id);
+                        })
+                        ->whereDate('created_at', $date->toDateString())
+                        ->count();
+                }
+            }
+            
+            $datasets[] = [
+                'label' => $groupe->nom,
+                'data' => $data,
+                'borderColor' => $color,
+                'backgroundColor' => $color . '40',
+                'tension' => 0.4,
+                'fill' => false,
+            ];
+        }
+        
+        return [
+            'labels' => $labels,
+            'datasets' => $datasets,
         ];
     }
 
@@ -183,13 +606,18 @@ class DemandeController extends Controller
     {
         $query = Demande::with(['demandeur', 'note']);
         
-        // Recherche
+        // Recherche (numéro, désignation, lieu, ouvrage à consigner)
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(numero_demande) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(designation) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(lieu_execution) like ?', ["%{$search}%"]);
+            $searchLower = strtolower($request->search);
+            $query->where(function ($q) use ($searchLower) {
+                $q->whereRaw('LOWER(numero_demande) LIKE ?', ["%{$searchLower}%"])
+                  ->orWhereRaw('LOWER(designation) LIKE ?', ["%{$searchLower}%"])
+                  ->orWhereRaw('LOWER(lieu_execution) LIKE ?', ["%{$searchLower}%"])
+                  ->orWhereRaw('LOWER(COALESCE(ouvrages_consigner_manuel, "")) LIKE ?', ["%{$searchLower}%"]);
+                // Recherche dans ouvrages_consigner_gmao (JSON)
+                if (\DB::connection()->getDriverName() === 'mysql') {
+                    $q->orWhereRaw('LOWER(CAST(COALESCE(ouvrages_consigner_gmao, "[]") AS CHAR)) LIKE ?', ["%{$searchLower}%"]);
+                }
             });
         }
         

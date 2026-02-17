@@ -29,7 +29,7 @@
                 </h2>
                 <p class="text-sm text-gray-500 mt-1">Demandes d'Autorisation pour Travaux</p>
             </div>
-            <form action="{{ route('export.dapt') }}" method="GET" class="p-5 space-y-4">
+            <form action="{{ route('exports.dapt') }}" method="GET" class="p-5 space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Date début</label>
@@ -70,7 +70,7 @@
                 </h2>
                 <p class="text-sm text-gray-500 mt-1">Notes d'Arrêt pour Travaux</p>
             </div>
-            <form action="{{ route('export.napt') }}" method="GET" class="p-5 space-y-4">
+            <form action="{{ route('exports.napt') }}" method="GET" class="p-5 space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Date début</label>

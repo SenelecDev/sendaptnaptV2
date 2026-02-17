@@ -149,42 +149,15 @@
                             @php
                                 $ouvrages = null;
                                 if ($note->demande) {
-                                    // Mode manuel
-                                    if ($note->demande->mode_saisie === 'manuel' && !empty($note->demande->ouvrages_consigner_manuel)) {
+                                    if (!empty($note->demande->ouvrages_consigner_manuel)) {
                                         $ouvrages = $note->demande->ouvrages_consigner_manuel;
-                                    } 
-                                    // Mode GMAO - Lignes Oracle
-                                    elseif (!empty($note->demande->lignes_oracle)) {
-                                        $lignesData = json_decode($note->demande->lignes_oracle, true);
-                                        if (is_array($lignesData)) {
-                                            $descriptions = [];
-                                            foreach ($lignesData as $ligne) {
-                                                $desc = is_array($ligne) ? ($ligne['description'] ?? $ligne['code'] ?? null) : $ligne;
-                                                if ($desc) $descriptions[] = $desc;
-                                            }
-                                            $ouvrages = implode(', ', $descriptions);
-                                        }
-                                    }
-                                    // Mode GMAO - Équipements Oracle
-                                    elseif (!empty($note->demande->equipements_oracle)) {
-                                        $equipementsData = json_decode($note->demande->equipements_oracle, true);
-                                        if (is_array($equipementsData)) {
-                                            $descriptions = [];
-                                            foreach ($equipementsData as $key => $data) {
-                                                if (is_array($data)) {
-                                                    foreach ($data as $eq) {
-                                                        $desc = is_array($eq) ? ($eq['description'] ?? $eq['code'] ?? null) : $eq;
-                                                        if ($desc) $descriptions[] = $desc;
-                                                    }
-                                                }
-                                            }
-                                            $ouvrages = implode(', ', $descriptions);
-                                        }
+                                    } elseif (!empty($note->demande->ouvrages_consigner_gmao) && is_array($note->demande->ouvrages_consigner_gmao)) {
+                                        $ouvrages = implode(', ', $note->demande->ouvrages_consigner_gmao);
                                     }
                                 }
                             @endphp
-                            <div class="text-sm text-gray-900" style="max-width: 300px; white-space: normal; word-wrap: break-word;">
-                                {{ $ouvrages ?? 'N/A' }}
+                            <div class="text-sm text-gray-900 max-w-xs truncate" title="{{ $ouvrages ?? 'N/A' }}">
+                                {{ Str::limit($ouvrages ?? 'N/A', 40) }}
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">

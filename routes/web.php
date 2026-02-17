@@ -62,32 +62,10 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
     
-    // Search routes
-    Route::get('/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search');
-    Route::get('/search/suggestions', [\App\Http\Controllers\SearchController::class, 'suggestions'])->name('search.suggestions');
-    
-    // Export routes
-    Route::get('/exports', [\App\Http\Controllers\ExportController::class, 'index'])->name('exports.index');
-    Route::get('/export/dapt', [\App\Http\Controllers\ExportController::class, 'exportDapt'])->name('export.dapt');
-    Route::get('/export/napt', [\App\Http\Controllers\ExportController::class, 'exportNapt'])->name('export.napt');
-    
-    // Calendrier des travaux
-    Route::get('/calendrier', [\App\Http\Controllers\CalendrierController::class, 'index'])->name('calendrier');
-    Route::get('/calendrier/events', [\App\Http\Controllers\CalendrierController::class, 'events'])->name('calendrier.events');
-    
-    // Onboarding tutorial
-    Route::post('/onboarding/complete', function () {
-        auth()->user()->update(['onboarding_completed' => true]);
-        return response()->json(['success' => true]);
-    })->name('onboarding.complete');
-    
-    // Comments / Discussion
-    Route::get('/comments', [\App\Http\Controllers\CommentController::class, 'index'])->name('comments.index');
-    Route::post('/comments', [\App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
-    Route::delete('/comments/{comment}', [\App\Http\Controllers\CommentController::class, 'destroy'])->name('comments.destroy');
-    
-    // Documentation
-    Route::get('/documentation', [\App\Http\Controllers\DocumentationController::class, 'index'])->name('documentation.index');
+    // Search route
+    Route::get('/search', function () {
+        return view('search.index');
+    })->name('search');
     
     // Profile routes
     Route::get('/profile', function () {
@@ -310,6 +288,7 @@ Route::middleware(['auth'])->group(function () {
     // ===== DESA ROUTES =====
     Route::middleware(['roleOrInterim:desa|admin'])->prefix('desa')->name('desa.')->group(function () {
         Route::get('dashboard', [\App\Http\Controllers\Desa\DemandeController::class, 'dashboard'])->name('dashboard');
+        Route::get('dashboard/export', [\App\Http\Controllers\Desa\DemandeController::class, 'exportDashboard'])->name('dashboard.export');
         Route::get('demandes/export-pdf', [\App\Http\Controllers\Desa\DemandeController::class, 'exportPdf'])->name('demandes.export-pdf');
         Route::post('demandes/{demande}/faire-napt', [\App\Http\Controllers\Desa\DemandeController::class, 'faire_napt'])->name('demandes.faire-napt');
         Route::post('demandes/{demande}/retourner-napt', [\App\Http\Controllers\Desa\DemandeController::class, 'retourner_napt'])->name('demandes.retourner-napt');

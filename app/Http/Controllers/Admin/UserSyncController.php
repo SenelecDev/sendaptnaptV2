@@ -256,38 +256,13 @@ class UserSyncController extends Controller
      */
     public function getLogs()
     {
-        $logFile = storage_path('logs/sync_oracle.log');
-        $statusFile = storage_path('logs/sync_oracle_status.json');
-        
-        $logs = [];
-        $status = [
+        $logs = Cache::get('sync_oracle_log', []);
+        $status = Cache::get('sync_oracle_status', [
             'running' => false,
             'operation' => null,
             'progress' => 0,
             'total' => 0,
-        ];
-        
-        // Lire les logs
-        if (file_exists($logFile)) {
-            $lines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            foreach ($lines as $line) {
-                $decoded = json_decode($line, true);
-                if ($decoded) {
-                    $logs[] = $decoded;
-                }
-            }
-            // Garder les 100 derniers
-            $logs = array_slice($logs, -100);
-        }
-        
-        // Lire le statut
-        if (file_exists($statusFile)) {
-            $content = file_get_contents($statusFile);
-            $decoded = json_decode($content, true);
-            if ($decoded) {
-                $status = array_merge($status, $decoded);
-            }
-        }
+        ]);
 
         return response()->json([
             'logs' => $logs,
@@ -300,15 +275,8 @@ class UserSyncController extends Controller
      */
     public function clearLogs()
     {
-        $logFile = storage_path('logs/sync_oracle.log');
-        $statusFile = storage_path('logs/sync_oracle_status.json');
-        
-        if (file_exists($logFile)) {
-            file_put_contents($logFile, '');
-        }
-        if (file_exists($statusFile)) {
-            unlink($statusFile);
-        }
+        Cache::forget('sync_oracle_log');
+        Cache::forget('sync_oracle_status');
 
         return response()->json(['success' => true]);
     }

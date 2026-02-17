@@ -28,18 +28,9 @@
     </style>
 </head>
 <body>
-    @php
-        $logoPath = public_path('img/logo.png');
-        $logoBase64 = '';
-        if (file_exists($logoPath)) {
-            $logoBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
-        }
-    @endphp
     <!-- En-tête avec logo -->
     <div class="header">
-        @if($logoBase64)
-        <img src="{{ $logoBase64 }}" alt="Senelec" style="max-width: 100px;">
-        @endif
+        <img src="{{ asset('img/logo.png') }}" alt="Senelec" style="max-width: 100px;">
         <h1>Diffusion Hebdomadaire des NAPT</h1>
         <p><strong>Semaine S{{ $semaine }} - Année {{ $annee }}</strong></p>
         <p style="font-size: 12px; color: #888;">{{ $napts->count() }} NAPT(s) - Envoyé le {{ now()->format('d/m/Y à H:i') }}</p>

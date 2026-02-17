@@ -44,7 +44,7 @@
                 <div class="flex-1 min-w-[200px]">
                     <label class="label">Recherche</label>
                     <input type="text" name="search" value="{{ request('search') }}" 
-                           placeholder="Numéro, lieu, désignation..." class="input-senelec w-full">
+                           placeholder="Numéro, lieu, désignation, ouvrage à consigner..." class="input-senelec w-full">
                 </div>
                 <div class="w-36">
                     <label class="label">Créé le</label>
