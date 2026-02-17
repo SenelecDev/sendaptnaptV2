@@ -161,7 +161,7 @@
                         Service
                     </label>
                     <input type="text" name="service" id="service" value="{{ old('service', $user->service) }}"
-                           {{ $readonlyAttr }} class="input w-full {{ $readonlyClass }} @error('service') border-red-500 @enderror">
+                           class="input w-full @error('service') border-red-500 @enderror">
                     @error('service')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                     @enderror

@@ -114,8 +114,8 @@ class UserController extends Controller
         ];
         $validated = $request->validate($rules);
 
-        // Utilisateurs LDAP/Oracle : ignorer les champs synchronisés, garder les valeurs existantes
-        $ldapOracleFields = ['matricule', 'nom', 'prenom', 'email', 'telephone', 'poste', 'service', 'direction', 'departement'];
+        // Utilisateurs LDAP/Oracle : ignorer les champs synchronisés, garder les valeurs existantes (sauf service, modifiable)
+        $ldapOracleFields = ['matricule', 'nom', 'prenom', 'email', 'telephone', 'poste', 'direction', 'departement'];
         if ($user->ldap_guid || $user->oracle_person_id) {
             foreach ($ldapOracleFields as $field) {
                 $validated[$field] = $user->$field;
