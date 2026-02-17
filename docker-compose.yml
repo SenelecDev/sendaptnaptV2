@@ -112,8 +112,7 @@ services:
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
+    # Pas d'exposition du port : Redis accessible uniquement via le réseau Docker (app, queue, scheduler)
     networks:
       - sendaptnapt_network
     healthcheck:
