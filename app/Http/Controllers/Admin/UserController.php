@@ -54,6 +54,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge(['groupe_id' => $request->groupe_id ?: null]);
         $validated = $request->validate([
             'matricule' => 'required|string|unique:users',
             'nom' => 'required|string|max:255',
@@ -63,6 +64,8 @@ class UserController extends Controller
             'telephone' => 'nullable|string',
             'poste' => 'nullable|string',
             'service' => 'nullable|string',
+            'direction' => 'nullable|string|max:255',
+            'departement' => 'nullable|string|max:255',
             'groupe_id' => 'nullable|exists:groupes,id',
             'roles' => 'array',
             'is_active' => 'boolean',
