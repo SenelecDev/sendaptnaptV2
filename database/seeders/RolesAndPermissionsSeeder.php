@@ -45,17 +45,17 @@ class RolesAndPermissionsSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
         // Create roles and assign permissions
         
         // Admin - Full access
-        $admin = Role::create(['name' => 'admin']);
+        $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $admin->givePermissionTo(Permission::all());
 
         // Demandeur - Create and view own demandes
-        $demandeur = Role::create(['name' => 'demandeur']);
+        $demandeur = Role::firstOrCreate(['name' => 'demandeur', 'guard_name' => 'web']);
         $demandeur->givePermissionTo([
             'demande.create',
             'demande.view',
@@ -63,7 +63,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // DESA (Éditeur) - Traiter demandes, créer/gérer notes
-        $desa = Role::create(['name' => 'desa']);
+        $desa = Role::firstOrCreate(['name' => 'desa', 'guard_name' => 'web']);
         $desa->givePermissionTo([
             'demande.view',
             'demande.traiter',
@@ -75,7 +75,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // Vérificateur - Vérifier notes
-        $verificateur = Role::create(['name' => 'verificateur']);
+        $verificateur = Role::firstOrCreate(['name' => 'verificateur', 'guard_name' => 'web']);
         $verificateur->givePermissionTo([
             'demande.view',
             'note.view',
@@ -83,7 +83,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // Valideur - Valider notes
-        $valideur = Role::create(['name' => 'valideur']);
+        $valideur = Role::firstOrCreate(['name' => 'valideur', 'guard_name' => 'web']);
         $valideur->givePermissionTo([
             'demande.view',
             'note.view',
@@ -91,7 +91,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // Opérateur - Exécuter notes
-        $operateur = Role::create(['name' => 'operateur']);
+        $operateur = Role::firstOrCreate(['name' => 'operateur', 'guard_name' => 'web']);
         $operateur->givePermissionTo([
             'demande.view',
             'note.view',
@@ -99,7 +99,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // Opérateur Chef - Exécuter notes + fiche manoeuvre
-        $operateurChef = Role::create(['name' => 'operateurchef']);
+        $operateurChef = Role::firstOrCreate(['name' => 'operateurchef', 'guard_name' => 'web']);
         $operateurChef->givePermissionTo([
             'demande.view',
             'note.view',
@@ -108,7 +108,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // Directeur - Consultation only
-        $directeur = Role::create(['name' => 'directeur']);
+        $directeur = Role::firstOrCreate(['name' => 'directeur', 'guard_name' => 'web']);
         $directeur->givePermissionTo([
             'demande.view',
             'note.view',

@@ -15,13 +15,22 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionsSeeder::class,
         ]);
 
-        // Create admin user
-        $admin = \App\Models\User::factory()->create([
-            'name' => 'Administrateur',
-            'email' => 'admin@senelec.sn',
-            'password' => bcrypt('password'),
-        ]);
-        $admin->assignRole('admin');
+        // Create admin user (idempotent) - matricule ADMIN pour connexion
+        $admin = \App\Models\User::firstOrCreate(
+            ['email' => 'admin@senelec.sn'],
+            [
+                'name' => 'Administrateur',
+                'matricule' => 'ADMIN',
+                'password' => bcrypt('password'),
+            ]
+        );
+        if (!$admin->matricule) {
+            $admin->matricule = 'ADMIN';
+            $admin->save();
+        }
+        if (!$admin->hasRole('admin')) {
+            $admin->assignRole('admin');
+        }
     }
 }
 
