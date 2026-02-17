@@ -17,6 +17,12 @@
         </div>
     </div>
 
+    @php
+        $isLdapOrOracle = $user->ldap_guid || $user->oracle_person_id;
+        $readonlyClass = $isLdapOrOracle ? 'bg-gray-100 cursor-not-allowed' : '';
+        $readonlyAttr = $isLdapOrOracle ? 'readonly' : '';
+    @endphp
+
     <form action="{{ route('admin.users.update', $user) }}" method="POST" class="space-y-6">
         @csrf
         @method('PUT')
@@ -25,9 +31,9 @@
         <div class="card-senelec p-6">
             <div class="flex items-center gap-6">
                 <div class="flex-shrink-0">
-                    @if($user->matricule && file_exists(public_path('profil/' . $user->matricule . '.jpg')))
+                    @if($user->photo_url)
                         <img class="h-20 w-20 rounded-full object-cover border-4 border-senelec-purple/20" 
-                             src="{{ asset('profil/' . $user->matricule . '.jpg') }}" 
+                             src="{{ $user->photo_url }}" 
                              alt="{{ $user->full_name }}">
                     @else
                         <div class="h-20 w-20 rounded-full bg-senelec-purple flex items-center justify-center text-white text-2xl font-semibold">
@@ -55,6 +61,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
                 Informations personnelles
+                @if($isLdapOrOracle)
+                    <span class="text-xs font-normal text-gray-500">(synchronisées depuis {{ $user->ldap_guid ? 'LDAP' : 'Oracle' }})</span>
+                @endif
             </h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -63,7 +72,7 @@
                         Matricule <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="matricule" id="matricule" value="{{ old('matricule', $user->matricule) }}" required
-                           class="input w-full @error('matricule') border-red-500 @enderror">
+                           {{ $readonlyAttr }} class="input w-full {{ $readonlyClass }} @error('matricule') border-red-500 @enderror">
                     @error('matricule')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                     @enderror
@@ -74,7 +83,7 @@
                         Email <span class="text-red-500">*</span>
                     </label>
                     <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required
-                           class="input w-full @error('email') border-red-500 @enderror">
+                           {{ $readonlyAttr }} class="input w-full {{ $readonlyClass }} @error('email') border-red-500 @enderror">
                     @error('email')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                     @enderror
@@ -85,7 +94,7 @@
                         Nom <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="nom" id="nom" value="{{ old('nom', $user->nom) }}" required
-                           class="input w-full @error('nom') border-red-500 @enderror">
+                           {{ $readonlyAttr }} class="input w-full {{ $readonlyClass }} @error('nom') border-red-500 @enderror">
                     @error('nom')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                     @enderror
@@ -96,7 +105,7 @@
                         Prénom <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="prenom" id="prenom" value="{{ old('prenom', $user->prenom) }}" required
-                           class="input w-full @error('prenom') border-red-500 @enderror">
+                           {{ $readonlyAttr }} class="input w-full {{ $readonlyClass }} @error('prenom') border-red-500 @enderror">
                     @error('prenom')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                     @enderror
@@ -107,7 +116,7 @@
                         Téléphone
                     </label>
                     <input type="text" name="telephone" id="telephone" value="{{ old('telephone', $user->telephone) }}"
-                           class="input w-full @error('telephone') border-red-500 @enderror">
+                           {{ $readonlyAttr }} class="input w-full {{ $readonlyClass }} @error('telephone') border-red-500 @enderror">
                     @error('telephone')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                     @enderror
@@ -130,7 +139,7 @@
                         Direction
                     </label>
                     <input type="text" name="direction" id="direction" value="{{ old('direction', $user->direction) }}"
-                           class="input w-full @error('direction') border-red-500 @enderror">
+                           {{ $readonlyAttr }} class="input w-full {{ $readonlyClass }} @error('direction') border-red-500 @enderror">
                     @error('direction')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                     @enderror
@@ -141,7 +150,7 @@
                         Département
                     </label>
                     <input type="text" name="departement" id="departement" value="{{ old('departement', $user->departement) }}"
-                           class="input w-full @error('departement') border-red-500 @enderror">
+                           {{ $readonlyAttr }} class="input w-full {{ $readonlyClass }} @error('departement') border-red-500 @enderror">
                     @error('departement')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                     @enderror
@@ -152,7 +161,7 @@
                         Service
                     </label>
                     <input type="text" name="service" id="service" value="{{ old('service', $user->service) }}"
-                           class="input w-full @error('service') border-red-500 @enderror">
+                           {{ $readonlyAttr }} class="input w-full {{ $readonlyClass }} @error('service') border-red-500 @enderror">
                     @error('service')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                     @enderror
@@ -163,7 +172,7 @@
                         Poste / Fonction
                     </label>
                     <input type="text" name="poste" id="poste" value="{{ old('poste', $user->poste) }}"
-                           class="input w-full @error('poste') border-red-500 @enderror">
+                           {{ $readonlyAttr }} class="input w-full {{ $readonlyClass }} @error('poste') border-red-500 @enderror">
                     @error('poste')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                     @enderror

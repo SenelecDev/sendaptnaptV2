@@ -97,7 +97,7 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $validated = $request->validate([
+        $rules = [
             'matricule' => 'required|string|unique:users,matricule,' . $user->id,
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
@@ -106,10 +106,21 @@ class UserController extends Controller
             'telephone' => 'nullable|string',
             'poste' => 'nullable|string',
             'service' => 'nullable|string',
+            'direction' => 'nullable|string',
+            'departement' => 'nullable|string',
             'groupe_id' => 'nullable|exists:groupes,id',
             'roles' => 'array',
             'is_active' => 'boolean',
-        ]);
+        ];
+        $validated = $request->validate($rules);
+
+        // Utilisateurs LDAP/Oracle : ignorer les champs synchronisés, garder les valeurs existantes
+        $ldapOracleFields = ['matricule', 'nom', 'prenom', 'email', 'telephone', 'poste', 'service', 'direction', 'departement'];
+        if ($user->ldap_guid || $user->oracle_person_id) {
+            foreach ($ldapOracleFields as $field) {
+                $validated[$field] = $user->$field;
+            }
+        }
         
         if ($request->filled('password')) {
             $validated['password'] = Hash::make($validated['password']);
