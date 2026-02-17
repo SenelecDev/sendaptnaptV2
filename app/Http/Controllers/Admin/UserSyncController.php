@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Process;
 
 class UserSyncController extends Controller
 {
@@ -87,16 +88,11 @@ class UserSyncController extends Controller
             ->where('matricule', '!=', '')
             ->count();
 
-        // Lancer la commande artisan en arrière-plan
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            // Windows - utiliser popen pour lancer en arrière-plan
-            $command = 'cd ' . base_path() . ' && php artisan users:sync-oracle --all';
-            pclose(popen("start /B " . $command, "r"));
-        } else {
-            // Linux/Unix
-            $command = 'cd ' . base_path() . ' && php artisan users:sync-oracle --all > /dev/null 2>&1 &';
-            exec($command);
-        }
+        // Lancer la commande artisan en arrière-plan (Process utilise proc_open, pas exec)
+        Process::path(base_path())
+            ->forever()
+            ->quietly()
+            ->start(['php', 'artisan', 'users:sync-oracle', '--all']);
 
         $message = "Synchronisation lancée en arrière-plan pour {$usersCount} utilisateurs. Consultez les logs pour suivre la progression.";
         
@@ -189,14 +185,11 @@ class UserSyncController extends Controller
             ->where('matricule', '!=', '')
             ->count();
 
-        // Lancer la commande artisan en arrière-plan
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $command = 'cd ' . base_path() . ' && php artisan users:sync-oracle --ldap';
-            pclose(popen("start /B " . $command, "r"));
-        } else {
-            $command = 'cd ' . base_path() . ' && php artisan users:sync-oracle --ldap > /dev/null 2>&1 &';
-            exec($command);
-        }
+        // Lancer la commande artisan en arrière-plan (Process utilise proc_open, pas exec)
+        Process::path(base_path())
+            ->forever()
+            ->quietly()
+            ->start(['php', 'artisan', 'users:sync-oracle', '--ldap']);
 
         $message = "Synchronisation LDAP lancée en arrière-plan pour {$usersCount} utilisateurs. Les photos de profil seront mises à jour.";
         
@@ -215,14 +208,11 @@ class UserSyncController extends Controller
             })
             ->count();
 
-        // Lancer la commande artisan en arrière-plan
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $command = 'cd ' . base_path() . ' && php artisan users:sync-oracle --photos';
-            pclose(popen("start /B " . $command, "r"));
-        } else {
-            $command = 'cd ' . base_path() . ' && php artisan users:sync-oracle --photos > /dev/null 2>&1 &';
-            exec($command);
-        }
+        // Lancer la commande artisan en arrière-plan (Process utilise proc_open, pas exec)
+        Process::path(base_path())
+            ->forever()
+            ->quietly()
+            ->start(['php', 'artisan', 'users:sync-oracle', '--photos']);
 
         $message = "Synchronisation des photos LDAP lancée en arrière-plan pour {$usersCount} utilisateurs sans photo.";
         
@@ -237,14 +227,11 @@ class UserSyncController extends Controller
      */
     public function importAll(Request $request)
     {
-        // Lancer la commande artisan en arrière-plan
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $command = 'cd ' . base_path() . ' && php artisan users:sync-oracle --import-all';
-            pclose(popen("start /B " . $command, "r"));
-        } else {
-            $command = 'cd ' . base_path() . ' && php artisan users:sync-oracle --import-all > /dev/null 2>&1 &';
-            exec($command);
-        }
+        // Lancer la commande artisan en arrière-plan (Process utilise proc_open, pas exec)
+        Process::path(base_path())
+            ->forever()
+            ->quietly()
+            ->start(['php', 'artisan', 'users:sync-oracle', '--import-all']);
 
         $message = "Importation massive lancée en arrière-plan depuis Oracle et LDAP. Les matricules viennent d'Oracle, les champs manquants et photos de LDAP. Consultez les logs pour suivre la progression.";
         
