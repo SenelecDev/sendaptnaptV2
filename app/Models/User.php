@@ -44,6 +44,7 @@ class User extends Authenticatable implements LdapAuthenticatable
         // Groupe et statut
         'groupe_id',
         'is_active',
+        'onboarding_completed',
         // Timestamps
         'last_sync_at',
         'last_activity_at',
@@ -58,6 +59,7 @@ class User extends Authenticatable implements LdapAuthenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_active' => 'boolean',
+        'onboarding_completed' => 'boolean',
         'oracle_synced_at' => 'datetime',
         'last_sync_at' => 'datetime',
         'last_activity_at' => 'datetime',
