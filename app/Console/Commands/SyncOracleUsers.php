@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use LdapRecord\Container;
 use LdapRecord\Models\Entry;
 
@@ -1189,7 +1190,7 @@ class SyncOracleUsers extends Command
     }
 
     /**
-     * Sauvegarder la photo LDAP en fichier
+     * Sauvegarder la photo LDAP en fichier (storage/app/public/profil pour persistance Docker)
      */
     protected function savePhotoToFile(string $matricule, string $photoBinary): ?string
     {
@@ -1199,15 +1200,7 @@ class SyncOracleUsers extends Command
             }
 
             $imagePath = 'profil/' . $matricule . '.jpg';
-            $profileDir = public_path('profil');
-
-            // Créer le dossier s'il n'existe pas
-            if (!file_exists($profileDir)) {
-                mkdir($profileDir, 0755, true);
-            }
-
-            // Sauvegarder l'image
-            file_put_contents(public_path($imagePath), $photoBinary);
+            Storage::disk('public')->put($imagePath, $photoBinary);
 
             return $imagePath;
 

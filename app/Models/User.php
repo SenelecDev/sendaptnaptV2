@@ -108,20 +108,29 @@ class User extends Authenticatable implements LdapAuthenticatable
 
     /**
      * URL de la photo
+     * - base64 : retourné tel quel
+     * - profil/xxx.jpg : fichier dans public/profil/ (URL /profil/xxx.jpg)
+     * - autre chemin : asset direct
+     * - si photo null : fallback profil/{matricule}.jpg si le fichier existe
      */
     public function getPhotoUrlAttribute(): ?string
     {
-        if (!$this->photo) {
-            return null;
+        if ($this->photo) {
+            if (str_starts_with($this->photo, 'data:image')) {
+                return $this->photo;
+            }
+            if (str_starts_with($this->photo, 'profil/')) {
+                return asset($this->photo);
+            }
+            return asset($this->photo);
         }
-        
-        // Si c'est du base64
-        if (str_starts_with($this->photo, 'data:image')) {
-            return $this->photo;
+
+        // Fallback : photo par matricule (synchro Oracle sans mise à jour du champ photo)
+        if ($this->matricule && file_exists(public_path('profil/' . $this->matricule . '.jpg'))) {
+            return asset('profil/' . $this->matricule . '.jpg');
         }
-        
-        // Si c'est un chemin de fichier
-        return asset($this->photo);
+
+        return null;
     }
 
     // ==================== RELATIONS ====================

@@ -90,14 +90,14 @@
                         <tr>
                             <td>
                                 <div class="flex items-center space-x-3">
-                                    @if($user->photo && file_exists(public_path('profil/' . $user->matricule . '.jpg')))
-                                        <img src="{{ asset('profil/' . $user->matricule . '.jpg') }}" 
+                                    @if($user->photo_url)
+                                        <img src="{{ $user->photo_url }}" 
                                              alt="{{ $user->full_name }}" 
-                                             class="w-10 h-10 rounded-full object-cover">
-                                    @elseif($user->photo && str_starts_with($user->photo, 'data:image'))
-                                        <img src="{{ $user->photo }}" 
-                                             alt="{{ $user->full_name }}" 
-                                             class="w-10 h-10 rounded-full object-cover">
+                                             class="w-10 h-10 rounded-full object-cover"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="w-10 h-10 rounded-full bg-senelec-purple flex items-center justify-center text-white font-semibold" style="display:none;">
+                                            {{ strtoupper(substr($user->name ?? 'U', 0, 2)) }}
+                                        </div>
                                     @else
                                         <div class="w-10 h-10 rounded-full bg-senelec-purple flex items-center justify-center text-white font-semibold">
                                             {{ strtoupper(substr($user->name ?? 'U', 0, 2)) }}
