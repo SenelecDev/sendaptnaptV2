@@ -135,6 +135,10 @@ class UserController extends Controller
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
         }
+
+        if ($user->ldap_guid || $user->oracle_person_id) {
+            return back()->with('error', 'Les utilisateurs LDAP/Oracle ne peuvent pas être supprimés.');
+        }
         
         $user->delete();
         
