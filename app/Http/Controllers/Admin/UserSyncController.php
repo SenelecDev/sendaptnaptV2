@@ -88,15 +88,8 @@ class UserSyncController extends Controller
             ->where('matricule', '!=', '')
             ->count();
 
-        // Lancer la commande artisan en arrière-plan (Process utilise proc_open, pas exec)
-        Process::path(base_path())
-            ->forever()
-            ->quietly()
-            ->start(['php', 'artisan', 'users:sync-oracle', '--all']);
-
         $message = "Synchronisation lancée en arrière-plan pour {$usersCount} utilisateurs. Consultez les logs pour suivre la progression.";
-        
-        return back()->with('success', $message);
+        return $this->runSyncInBackground(['php', 'artisan', 'users:sync-oracle', '--all'], $message);
     }
 
     /**
@@ -185,15 +178,8 @@ class UserSyncController extends Controller
             ->where('matricule', '!=', '')
             ->count();
 
-        // Lancer la commande artisan en arrière-plan (Process utilise proc_open, pas exec)
-        Process::path(base_path())
-            ->forever()
-            ->quietly()
-            ->start(['php', 'artisan', 'users:sync-oracle', '--ldap']);
-
         $message = "Synchronisation LDAP lancée en arrière-plan pour {$usersCount} utilisateurs. Les photos de profil seront mises à jour.";
-        
-        return back()->with('success', $message);
+        return $this->runSyncInBackground(['php', 'artisan', 'users:sync-oracle', '--ldap'], $message);
     }
 
     /**
@@ -208,15 +194,8 @@ class UserSyncController extends Controller
             })
             ->count();
 
-        // Lancer la commande artisan en arrière-plan (Process utilise proc_open, pas exec)
-        Process::path(base_path())
-            ->forever()
-            ->quietly()
-            ->start(['php', 'artisan', 'users:sync-oracle', '--photos']);
-
         $message = "Synchronisation des photos LDAP lancée en arrière-plan pour {$usersCount} utilisateurs sans photo.";
-        
-        return back()->with('success', $message);
+        return $this->runSyncInBackground(['php', 'artisan', 'users:sync-oracle', '--photos'], $message);
     }
 
     /**
@@ -227,15 +206,28 @@ class UserSyncController extends Controller
      */
     public function importAll(Request $request)
     {
-        // Lancer la commande artisan en arrière-plan (Process utilise proc_open, pas exec)
-        Process::path(base_path())
-            ->forever()
-            ->quietly()
-            ->start(['php', 'artisan', 'users:sync-oracle', '--import-all']);
-
         $message = "Importation massive lancée en arrière-plan depuis Oracle et LDAP. Les matricules viennent d'Oracle, les champs manquants et photos de LDAP. Consultez les logs pour suivre la progression.";
-        
-        return back()->with('success', $message);
+        return $this->runSyncInBackground(['php', 'artisan', 'users:sync-oracle', '--import-all'], $message);
+    }
+
+    /**
+     * Lancer la sync : envoie la réponse au client puis exécute la commande.
+     * Process::start() tue l'enfant à la fin de la requête, donc on envoie
+     * la réponse d'abord puis run() dans le même worker.
+     */
+    protected function runSyncInBackground(array $command, string $message)
+    {
+        $response = redirect()->back()->with('success', $message);
+        $response->send();
+
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        }
+        ignore_user_abort(true);
+
+        Process::path(base_path())->forever()->quietly()->run($command);
+
+        exit;
     }
 
     /**
