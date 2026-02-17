@@ -58,6 +58,7 @@ case $MODE in
         echo -e "${YELLOW}🔐 Réglage des permissions storage...${NC}"
         sudo chown -R 48:48 storage bootstrap/cache 2>/dev/null || chown -R 48:48 storage bootstrap/cache
         chmod -R 775 storage bootstrap/cache 2>/dev/null || sudo chmod -R 775 storage bootstrap/cache
+        $DOCKER_COMPOSE exec -T app sh -c "mkdir -p storage/framework/views storage/framework/cache storage/framework/sessions && chown -R 48:48 storage/framework && chmod -R 775 storage/framework" 2>/dev/null || true
 
         # Attendre que PostgreSQL soit prêt
         echo -e "${YELLOW}⏳ Attente de PostgreSQL...${NC}"
@@ -114,6 +115,7 @@ case $MODE in
         echo -e "${YELLOW}🔐 Réglage des permissions storage...${NC}"
         sudo chown -R 48:48 storage bootstrap/cache 2>/dev/null || chown -R 48:48 storage bootstrap/cache
         chmod -R 775 storage bootstrap/cache 2>/dev/null || sudo chmod -R 775 storage bootstrap/cache
+        $DOCKER_COMPOSE exec -T app sh -c "mkdir -p storage/framework/views storage/framework/cache storage/framework/sessions && chown -R 48:48 storage/framework && chmod -R 775 storage/framework" 2>/dev/null || true
 
         # Composer (vendor peut être absent si volume monté depuis host)
         echo -e "${YELLOW}📦 Installation des dépendances Composer...${NC}"
