@@ -67,6 +67,10 @@ case $MODE in
         echo -e "${YELLOW}📦 Installation des dépendances Composer...${NC}"
         $DOCKER_COMPOSE exec -T app composer install --no-dev --optimize-autoloader
 
+        # Build des assets Vite (CSS/JS)
+        echo -e "${YELLOW}🎨 Compilation des assets Vite...${NC}"
+        docker run --rm -v "$(pwd):/app" -w /app node:20-alpine sh -c "npm ci && npm run build"
+
         # Initialisation Laravel
         echo -e "${YELLOW}🔑 Génération de la clé d'application...${NC}"
         $DOCKER_COMPOSE exec -T app php artisan key:generate --force
@@ -114,6 +118,10 @@ case $MODE in
         # Composer (vendor peut être absent si volume monté depuis host)
         echo -e "${YELLOW}📦 Installation des dépendances Composer...${NC}"
         $DOCKER_COMPOSE exec -T app composer install --no-dev --optimize-autoloader
+
+        # Build des assets Vite (CSS/JS)
+        echo -e "${YELLOW}🎨 Compilation des assets Vite...${NC}"
+        docker run --rm -v "$(pwd):/app" -w /app node:20-alpine sh -c "npm ci && npm run build"
 
         # Migrations
         echo -e "${YELLOW}📊 Exécution des migrations...${NC}"
