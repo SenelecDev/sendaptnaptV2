@@ -2,6 +2,7 @@
     use App\Models\Demande;
     use App\Models\Note;
     use Carbon\Carbon;
+    use Illuminate\Support\Facades\DB;
     
     $user = auth()->user();
     $startOfMonth = Carbon::now()->startOfMonth();
@@ -14,9 +15,12 @@
     $naptExecutees = Note::where('statut', 'executée')->where('updated_at', '>=', $startOfMonth)->count();
     
     // Temps moyen de traitement (en jours)
+    $avgRaw = DB::getDriverName() === 'pgsql'
+        ? 'AVG((updated_at::date - created_at::date)) as avg_days'
+        : 'AVG(DATEDIFF(updated_at, created_at)) as avg_days';
     $avgTraitementDapt = Demande::where('statut', 'acceptée')
         ->whereNotNull('updated_at')
-        ->selectRaw('AVG(DATEDIFF(updated_at, created_at)) as avg_days')
+        ->selectRaw($avgRaw)
         ->value('avg_days') ?? 0;
         
     // NAPT en retard (date_fin dépassée et pas exécutée)

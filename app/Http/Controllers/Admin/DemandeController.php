@@ -110,14 +110,14 @@ class DemandeController extends Controller
     {
         // Stats par mois
         $parMois = Demande::select(
-            DB::raw('MONTH(created_at) as mois'),
-            DB::raw('YEAR(created_at) as annee'),
+            DB::raw('EXTRACT(MONTH FROM created_at)::integer as mois'),
+            DB::raw('EXTRACT(YEAR FROM created_at)::integer as annee'),
             DB::raw('COUNT(*) as total'),
             DB::raw("SUM(CASE WHEN statut = 'acceptée' THEN 1 ELSE 0 END) as acceptees"),
             DB::raw("SUM(CASE WHEN statut = 'retournée' THEN 1 ELSE 0 END) as retournees")
         )
         ->whereYear('created_at', $request->get('annee', now()->year))
-        ->groupBy(DB::raw('MONTH(created_at)'), DB::raw('YEAR(created_at)'))
+        ->groupBy(DB::raw('EXTRACT(MONTH FROM created_at)'), DB::raw('EXTRACT(YEAR FROM created_at)'))
         ->orderBy('annee')
         ->orderBy('mois')
         ->get();
@@ -134,9 +134,12 @@ class DemandeController extends Controller
         ->get();
         
         // Délai moyen de traitement
+        $delaiRaw = DB::getDriverName() === 'pgsql'
+            ? 'AVG((date_traitement::date - created_at::date)) as delai_moyen'
+            : 'AVG(DATEDIFF(date_traitement, created_at)) as delai_moyen';
         $delaiMoyen = Demande::whereIn('statut', ['acceptée', 'retournée'])
             ->whereNotNull('date_traitement')
-            ->selectRaw('AVG(DATEDIFF(date_traitement, created_at)) as delai_moyen')
+            ->selectRaw($delaiRaw)
             ->first();
         
         return view('admin.demandes.statistiques', compact('parMois', 'parDemandeur', 'delaiMoyen'));

@@ -132,14 +132,14 @@ class NoteController extends Controller
         
         // Stats par mois
         $parMois = Note::select(
-            DB::raw('MONTH(created_at) as mois'),
-            DB::raw('YEAR(created_at) as annee'),
+            DB::raw('EXTRACT(MONTH FROM created_at)::integer as mois'),
+            DB::raw('EXTRACT(YEAR FROM created_at)::integer as annee'),
             DB::raw('COUNT(*) as total'),
             DB::raw("SUM(CASE WHEN statut = 'exécutée' THEN 1 ELSE 0 END) as executees"),
             DB::raw("SUM(CASE WHEN statut = 'retournée' THEN 1 ELSE 0 END) as retournees")
         )
         ->whereYear('created_at', $annee)
-        ->groupBy(DB::raw('MONTH(created_at)'), DB::raw('YEAR(created_at)'))
+        ->groupBy(DB::raw('EXTRACT(MONTH FROM created_at)'), DB::raw('EXTRACT(YEAR FROM created_at)'))
         ->orderBy('annee')
         ->orderBy('mois')
         ->get();
@@ -181,9 +181,12 @@ class NoteController extends Controller
         ->get();
         
         // Délai moyen de traitement complet (de création à exécution)
+        $delaiRaw = DB::getDriverName() === 'pgsql'
+            ? 'AVG((drex::date - created_at::date)) as delai_moyen'
+            : 'AVG(DATEDIFF(drex, created_at)) as delai_moyen';
         $delaiMoyen = Note::where('statut', 'exécutée')
             ->whereNotNull('drex')
-            ->selectRaw('AVG(DATEDIFF(drex, created_at)) as delai_moyen')
+            ->selectRaw($delaiRaw)
             ->first();
         
         // Taux de réussite (exécutées / total soumises)
