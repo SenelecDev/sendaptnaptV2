@@ -13,24 +13,11 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolesAndPermissionsSeeder::class,
+            GroupesSeeder::class,
+            ServiceDestSeeder::class,
+            CorrespondantsSeeder::class,
+            AdminUserSeeder::class,
         ]);
-
-        // Create admin user (idempotent) - matricule ADMIN pour connexion
-        $admin = \App\Models\User::firstOrCreate(
-            ['email' => 'admin@senelec.sn'],
-            [
-                'name' => 'Administrateur',
-                'matricule' => 'ADMIN',
-                'password' => bcrypt('password'),
-            ]
-        );
-        if (!$admin->matricule) {
-            $admin->matricule = 'ADMIN';
-            $admin->save();
-        }
-        if (!$admin->hasRole('admin')) {
-            $admin->assignRole('admin');
-        }
     }
 }
 
