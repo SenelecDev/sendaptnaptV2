@@ -240,7 +240,7 @@
                             <td style="border: 1px solid #ccc;">
                                 <strong>Fonction :</strong> {{ $demande->demandeur->user_title ?? $demande->demandeur->poste ?? '-' }}<br>
                                 <strong>Téléphone :</strong> {{ $demande->telephone_demandeur ?? '-' }}<br><br>
-                                <strong>Appartenance :</strong> {{ $demande->demandeur->service ?? '-' }}
+                                <strong>Appartenance :</strong> {{ $demande->demandeur->appartenance ?? '-' }}
                             </td>
                         </tr>
 
@@ -250,7 +250,7 @@
                                 <strong>Fonction :</strong> {{ $demande->chargeTravaux->user_title ?? $demande->chargeTravaux->poste ?? '-' }}
                             </td>
                             <td style="border: 1px solid #ccc;">
-                                <strong>Appartenance :</strong> {{ $demande->chargeTravaux->service ?? '-' }}<br><br>
+                                <strong>Appartenance :</strong> {{ optional($demande->chargeTravaux)->appartenance ?? optional($demande->chargeTravauxExterne)->service ?? '-' }}<br><br>
                                 <strong>Téléphone :</strong> {{ $demande->telephone_charge ?? '-' }}
                             </td>
                         </tr>

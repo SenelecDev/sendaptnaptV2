@@ -224,7 +224,7 @@
                         <td style="border: 1px solid #ccc;">
                             <strong>Fonction :</strong> {{ $demande->demandeur->user_title ?? $demande->demandeur->poste ?? '-' }}<br>
                             <strong>Téléphone :</strong> {{ $demande->telephone_demandeur ?? '-' }}<br><br>
-                            <strong>Appartenance :</strong> {{ $demande->demandeur->service ?? '-' }}
+                            <strong>Appartenance :</strong> {{ $demande->demandeur->appartenance ?? '-' }}
                         </td>
                     </tr>
 

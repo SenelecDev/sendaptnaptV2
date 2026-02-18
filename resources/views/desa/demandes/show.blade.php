@@ -284,7 +284,7 @@
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Service</dt>
-                        <dd class="text-gray-900">{{ $demande->demandeur->service ?? '-' }}</dd>
+                        <dd class="text-gray-900">{{ $demande->demandeur->appartenance ?? '-' }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Email</dt>

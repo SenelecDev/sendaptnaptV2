@@ -147,7 +147,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Demandeur - Service</dt>
-                        <dd class="mt-1 text-gray-900">{{ $demande->demandeur->name ?? '-' }} - {{ $demande->demandeur->service ?? '-' }}</dd>
+                        <dd class="mt-1 text-gray-900">{{ $demande->demandeur->name ?? '-' }} - {{ $demande->demandeur->appartenance ?? '-' }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Chargé de travaux</dt>

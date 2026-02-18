@@ -715,7 +715,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Service</label>
                                 <input type="text" class="input-senelec bg-gray-50" name="appartenance" id="appartenance" 
-                                       value="{{ old('appartenance', isset($demande) ? ($demande->demandeur->service ?? $demande->demandeur->departement ?? '') : (Auth::user()->service ?? Auth::user()->departement ?? '')) }}" readonly>
+                                       value="{{ old('appartenance', isset($demande) ? ($demande->demandeur->appartenance ?? '') : (Auth::user()->appartenance ?? '')) }}" readonly>
                             </div>
                         </div>
                     </div>

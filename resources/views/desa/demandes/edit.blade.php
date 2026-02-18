@@ -188,7 +188,7 @@
                         <dt class="text-sm font-medium text-gray-500">Demandeur</dt>
                         <dd class="text-gray-900 font-medium">{{ $demande->demandeur->name ?? '-' }}</dd>
                         @if($demande->demandeur)
-                            <dd class="text-xs text-gray-500 mt-1">{{ $demande->demandeur->service ?? '' }} • {{ $demande->demandeur->user_title ?? '' }}</dd>
+                            <dd class="text-xs text-gray-500 mt-1">{{ $demande->demandeur->appartenance ?? '' }} • {{ $demande->demandeur->user_title ?? '' }}</dd>
                         @endif
                     </div>
                     <div class="space-y-1">
@@ -553,7 +553,7 @@
                     </div>
                     <div class="p-3 bg-gray-50 rounded-lg">
                         <dt class="text-xs font-medium text-gray-500 mb-1">Service</dt>
-                        <dd class="text-gray-900">{{ $demande->demandeur->service ?? '-' }}</dd>
+                        <dd class="text-gray-900">{{ $demande->demandeur->appartenance ?? '-' }}</dd>
                     </div>
                     <div class="p-3 bg-gray-50 rounded-lg">
                         <dt class="text-xs font-medium text-gray-500 mb-1">Téléphone</dt>

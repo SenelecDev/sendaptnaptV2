@@ -76,6 +76,14 @@ class User extends Authenticatable implements LdapAuthenticatable
     }
 
     /**
+     * Service ou département (appartenance) - affiche l'un si l'autre est vide
+     */
+    public function getAppartenanceAttribute(): ?string
+    {
+        return $this->service ?? $this->departement ?? null;
+    }
+
+    /**
      * Retourne les initiales de l'utilisateur
      */
     public function getInitialsAttribute(): string
