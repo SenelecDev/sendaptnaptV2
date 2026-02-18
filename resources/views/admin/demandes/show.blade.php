@@ -151,15 +151,17 @@
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Demandeur</h3>
                 @if($demande->demandeur)
                     <div class="flex items-center gap-4">
-                        @if($demande->demandeur->photo_url)
-                            <img class="h-12 w-12 rounded-full object-cover" 
-                                 src="{{ $demande->demandeur->photo_url }}" 
-                                 alt="{{ $demande->demandeur->full_name }}">
-                        @else
-                            <div class="h-12 w-12 rounded-full bg-senelec-purple flex items-center justify-center text-white font-semibold">
+                        <span class="inline-flex">
+                            @if($demande->demandeur->photo_url)
+                                <img class="h-12 w-12 rounded-full object-cover" 
+                                     src="{{ $demande->demandeur->photo_url }}" 
+                                     alt="{{ $demande->demandeur->full_name }}"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            @endif
+                            <div class="h-12 w-12 rounded-full bg-senelec-purple flex items-center justify-center text-white font-semibold" style="{{ $demande->demandeur->photo_url ? 'display:none' : '' }}">
                                 {{ $demande->demandeur->initials }}
                             </div>
-                        @endif
+                        </span>
                         <div>
                             <div class="font-medium text-gray-900">{{ $demande->demandeur->full_name }}</div>
                             <div class="text-sm text-gray-500">{{ $demande->demandeur->matricule }}</div>

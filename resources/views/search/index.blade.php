@@ -157,13 +157,14 @@
                 @foreach($results['users'] as $user)
                 <a href="{{ route('admin.users.show', $user) }}" class="block p-4 hover:bg-gray-50 transition-colors">
                     <div class="flex items-center gap-4">
-                        @if($user->photo_url)
-                            <img src="{{ $user->photo_url }}" alt="{{ $user->name }}" class="w-10 h-10 rounded-full object-cover">
-                        @else
-                            <div class="w-10 h-10 rounded-full bg-senelec-purple/10 flex items-center justify-center text-senelec-purple font-bold">
+                        <span class="inline-flex">
+                            @if($user->photo_url)
+                                <img src="{{ $user->photo_url }}" alt="{{ $user->name }}" class="w-10 h-10 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            @endif
+                            <div class="w-10 h-10 rounded-full bg-senelec-purple/10 flex items-center justify-center text-senelec-purple font-bold" style="{{ $user->photo_url ? 'display:none' : '' }}">
                                 {{ $user->initials }}
                             </div>
-                        @endif
+                        </span>
                         <div class="flex-1 min-w-0">
                             <p class="font-medium text-gray-900">{{ $user->name }}</p>
                             <p class="text-sm text-gray-500">{{ $user->matricule }} • {{ $user->email }}</p>

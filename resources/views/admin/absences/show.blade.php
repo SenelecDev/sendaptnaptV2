@@ -48,13 +48,14 @@
                 <div class="bg-gray-50 rounded-lg p-5">
                     <h3 class="text-sm font-medium text-gray-500 uppercase mb-4">Titulaire (absent)</h3>
                     <div class="flex items-center gap-6">
-                        @if($absence->user->photo_url)
-                            <img src="{{ $absence->user->photo_url }}" alt="{{ $absence->user->name }}" class="w-14 h-14 rounded-full object-cover flex-shrink-0">
-                        @else
-                            <div class="w-14 h-14 rounded-full bg-blue-500 text-white flex items-center justify-center flex-shrink-0">
+                        <span class="inline-flex flex-shrink-0">
+                            @if($absence->user->photo_url)
+                                <img src="{{ $absence->user->photo_url }}" alt="{{ $absence->user->name }}" class="w-14 h-14 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            @endif
+                            <div class="w-14 h-14 rounded-full bg-blue-500 text-white flex items-center justify-center" style="{{ $absence->user->photo_url ? 'display:none' : '' }}">
                                 <span class="text-lg font-bold">{{ $absence->user->initials ?? 'U' }}</span>
                             </div>
-                        @endif
+                        </span>
                         <div class="space-y-1">
                             <p class="font-semibold text-gray-900 text-lg">{{ $absence->user->name ?? 'N/A' }}</p>
                             <p class="text-sm text-gray-500">{{ $absence->user->matricule ?? '-' }}</p>
@@ -67,13 +68,14 @@
                 <div class="bg-gray-50 rounded-lg p-5">
                     <h3 class="text-sm font-medium text-gray-500 uppercase mb-4">Intérimaire</h3>
                     <div class="flex items-center gap-6">
-                        @if($absence->interim->photo_url)
-                            <img src="{{ $absence->interim->photo_url }}" alt="{{ $absence->interim->name }}" class="w-14 h-14 rounded-full object-cover flex-shrink-0">
-                        @else
-                            <div class="w-14 h-14 rounded-full bg-green-500 text-white flex items-center justify-center flex-shrink-0">
+                        <span class="inline-flex flex-shrink-0">
+                            @if($absence->interim->photo_url)
+                                <img src="{{ $absence->interim->photo_url }}" alt="{{ $absence->interim->name }}" class="w-14 h-14 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            @endif
+                            <div class="w-14 h-14 rounded-full bg-green-500 text-white flex items-center justify-center" style="{{ $absence->interim->photo_url ? 'display:none' : '' }}">
                                 <span class="text-lg font-bold">{{ $absence->interim->initials ?? 'U' }}</span>
                             </div>
-                        @endif
+                        </span>
                         <div class="space-y-1">
                             <p class="font-semibold text-gray-900 text-lg">{{ $absence->interim->name ?? 'N/A' }}</p>
                             <p class="text-sm text-gray-500">{{ $absence->interim->matricule ?? '-' }}</p>

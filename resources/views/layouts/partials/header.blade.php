@@ -163,15 +163,17 @@
                         class="-m-1.5 flex items-center p-1.5"
                         @click="open = !open">
                     <span class="sr-only">Menu utilisateur</span>
-                    @if(auth()->user()->photo)
-                        <img class="h-9 w-9 rounded-full object-cover shadow-md" 
-                             src="{{ asset(auth()->user()->photo) }}" 
-                             alt="{{ auth()->user()->full_name }}">
-                    @else
-                        <div class="h-9 w-9 rounded-full bg-white/20 flex items-center justify-center text-white text-sm font-bold shadow-md">
-                            {{ substr(auth()->user()->prenom ?? 'U', 0, 1) }}{{ substr(auth()->user()->nom ?? '', 0, 1) }}
+                    <span class="avatar-wrapper inline-flex">
+                        @if(auth()->user()->photo_url)
+                            <img class="h-9 w-9 rounded-full object-cover shadow-md" 
+                                 src="{{ auth()->user()->photo_url }}" 
+                                 alt="{{ auth()->user()->full_name }}"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        @endif
+                        <div class="h-9 w-9 rounded-full bg-white/20 flex items-center justify-center text-white text-sm font-bold shadow-md" style="{{ auth()->user()->photo_url ? 'display:none' : '' }}">
+                            {{ auth()->user()->initials }}
                         </div>
-                    @endif
+                    </span>
                     <span class="hidden lg:flex lg:items-center">
                         <span class="ml-4 text-sm font-semibold leading-6 text-white" aria-hidden="true">
                             {{ auth()->user()->prenom ?: auth()->user()->name }}

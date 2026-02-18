@@ -19,15 +19,17 @@
         <div class="flex items-start gap-6">
             <!-- Photo de profil -->
             <div class="flex-shrink-0">
-                @if(auth()->user()->photo_url)
-                    <img class="h-24 w-24 rounded-full object-cover" 
-                         src="{{ auth()->user()->photo_url }}" 
-                         alt="{{ auth()->user()->full_name }}">
-                @else
-                    <div class="h-24 w-24 rounded-full bg-senelec-purple flex items-center justify-center text-white text-2xl font-semibold">
+                <span class="inline-flex">
+                    @if(auth()->user()->photo_url)
+                        <img class="h-24 w-24 rounded-full object-cover" 
+                             src="{{ auth()->user()->photo_url }}" 
+                             alt="{{ auth()->user()->full_name }}"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    @endif
+                    <div class="h-24 w-24 rounded-full bg-senelec-purple flex items-center justify-center text-white text-2xl font-semibold" style="{{ auth()->user()->photo_url ? 'display:none' : '' }}">
                         {{ auth()->user()->initials }}
                     </div>
-                @endif
+                </span>
             </div>
 
             <!-- Détails -->

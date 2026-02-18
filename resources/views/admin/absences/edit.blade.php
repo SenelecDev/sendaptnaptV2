@@ -174,7 +174,7 @@ $(document).ready(function() {
         
         var avatarHtml;
         if (photo) {
-            avatarHtml = '<img src="' + photo + '" class="w-8 h-8 rounded-full object-cover" alt="">';
+            avatarHtml = '<span class="avatar-wrapper inline-flex"><img src="' + photo + '" class="w-8 h-8 rounded-full object-cover" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><span class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold" style="display:none">' + initials + '</span></span>';
         } else {
             avatarHtml = '<div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">' + initials + '</div>';
         }

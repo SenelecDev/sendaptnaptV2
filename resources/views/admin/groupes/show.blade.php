@@ -113,8 +113,8 @@
                             <option value="{{ $user->id }}" 
                                     data-matricule="{{ $user->matricule }}"
                                     data-service="{{ $user->service }}"
-                                    data-initials="{{ strtoupper(substr($user->name, 0, 2)) }}"
-                                    data-photo="{{ $user->matricule && file_exists(public_path('profil/' . $user->matricule . '.jpg')) ? asset('profil/' . $user->matricule . '.jpg') : '' }}">
+                                    data-photo="{{ $user->photo_url ?? '' }}"
+                                    data-initials="{{ $user->initials }}">
                                 {{ $user->name }} {{ $user->matricule ? '('.$user->matricule.')' : '' }}
                             </option>
                         @endforeach
@@ -230,7 +230,7 @@ $(document).ready(function() {
         
         var avatarHtml;
         if (photo) {
-            avatarHtml = '<img src="' + photo + '" class="w-8 h-8 rounded-full object-cover" alt="">';
+            avatarHtml = '<span class="avatar-wrapper inline-flex"><img src="' + photo + '" class="w-8 h-8 rounded-full object-cover" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><span class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold" style="display:none">' + initials + '</span></span>';
         } else {
             avatarHtml = '<div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">' + initials + '</div>';
         }

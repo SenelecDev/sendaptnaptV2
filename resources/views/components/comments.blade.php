@@ -21,13 +21,14 @@
         <form @submit.prevent="submitComment()">
             <div class="flex gap-3">
                 <div class="flex-shrink-0">
-                    @if(auth()->user()->photo_url)
-                        <img src="{{ auth()->user()->photo_url }}" alt="" class="w-10 h-10 rounded-full object-cover">
-                    @else
-                        <div class="w-10 h-10 rounded-full bg-senelec-purple/10 flex items-center justify-center text-senelec-purple font-bold text-sm">
+                    <span class="inline-flex">
+                        @if(auth()->user()->photo_url)
+                            <img src="{{ auth()->user()->photo_url }}" alt="" class="w-10 h-10 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        @endif
+                        <div class="w-10 h-10 rounded-full bg-senelec-purple/10 flex items-center justify-center text-senelec-purple font-bold text-sm" style="{{ auth()->user()->photo_url ? 'display:none' : '' }}">
                             {{ auth()->user()->initials }}
                         </div>
-                    @endif
+                    </span>
                 </div>
                 <div class="flex-1">
                     <textarea x-model="newComment" 
@@ -80,14 +81,15 @@
             <div class="p-4">
                 <div class="flex gap-3">
                     <div class="flex-shrink-0">
-                        <template x-if="comment.user.photo_url">
-                            <img :src="comment.user.photo_url" alt="" class="w-10 h-10 rounded-full object-cover">
-                        </template>
-                        <template x-if="!comment.user.photo_url">
+                        <span class="inline-flex">
+                            <template x-if="comment.user.photo_url">
+                                <img :src="comment.user.photo_url" alt="" class="w-10 h-10 rounded-full object-cover" @error="$event.target.style.display='none'; $event.target.nextElementSibling.style.display='flex';">
+                            </template>
                             <div class="w-10 h-10 rounded-full bg-senelec-purple/10 flex items-center justify-center text-senelec-purple font-bold text-sm"
-                                 x-text="comment.user.name?.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()">
+                                 :style="comment.user.photo_url ? 'display:none' : ''"
+                                 x-text="(comment.user.initials || (comment.user.name||'').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() || '?')">
                             </div>
-                        </template>
+                        </span>
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">

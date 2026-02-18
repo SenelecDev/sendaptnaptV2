@@ -215,13 +215,14 @@
                         <div class="flex items-center justify-center w-8 h-8 rounded-full {{ $index === 0 ? 'bg-yellow-100 text-yellow-600' : ($index === 1 ? 'bg-gray-200 text-gray-600' : ($index === 2 ? 'bg-orange-100 text-orange-600' : 'bg-gray-100 text-gray-500')) }} font-bold text-sm">
                             {{ $index + 1 }}
                         </div>
-                        @if($demandeur->photo_url)
-                            <img src="{{ $demandeur->photo_url }}" alt="{{ $demandeur->name }}" class="w-10 h-10 rounded-full object-cover">
-                        @else
-                            <div class="w-10 h-10 rounded-full bg-senelec-purple/10 flex items-center justify-center text-senelec-purple font-bold">
+                        <span class="inline-flex">
+                            @if($demandeur->photo_url)
+                                <img src="{{ $demandeur->photo_url }}" alt="{{ $demandeur->name }}" class="w-10 h-10 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            @endif
+                            <div class="w-10 h-10 rounded-full bg-senelec-purple/10 flex items-center justify-center text-senelec-purple font-bold" style="{{ $demandeur->photo_url ? 'display:none' : '' }}">
                                 {{ $demandeur->initials }}
                             </div>
-                        @endif
+                        </span>
                         <div>
                             <p class="font-medium text-gray-900 {{ $demandeur->id === Auth::id() ? 'text-senelec-purple' : '' }}">
                                 {{ $demandeur->name }}

@@ -96,11 +96,11 @@
                                              class="w-10 h-10 rounded-full object-cover"
                                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                         <div class="w-10 h-10 rounded-full bg-senelec-purple flex items-center justify-center text-white font-semibold" style="display:none;">
-                                            {{ strtoupper(substr($user->name ?? 'U', 0, 2)) }}
+                                            {{ $user->initials }}
                                         </div>
                                     @else
                                         <div class="w-10 h-10 rounded-full bg-senelec-purple flex items-center justify-center text-white font-semibold">
-                                            {{ strtoupper(substr($user->name ?? 'U', 0, 2)) }}
+                                            {{ $user->initials }}
                                         </div>
                                     @endif
                                     <div>

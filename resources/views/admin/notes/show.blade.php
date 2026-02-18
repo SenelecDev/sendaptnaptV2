@@ -252,15 +252,17 @@
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Établi par</h3>
                 @if($note->etabli)
                     <div class="flex items-center gap-4">
-                        @if($note->etabli->photo_url)
-                            <img class="h-12 w-12 rounded-full object-cover" 
-                                 src="{{ $note->etabli->photo_url }}" 
-                                 alt="{{ $note->etabli->full_name }}">
-                        @else
-                            <div class="h-12 w-12 rounded-full bg-senelec-purple flex items-center justify-center text-white font-semibold">
+                        <span class="inline-flex">
+                            @if($note->etabli->photo_url)
+                                <img class="h-12 w-12 rounded-full object-cover" 
+                                     src="{{ $note->etabli->photo_url }}" 
+                                     alt="{{ $note->etabli->full_name }}"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            @endif
+                            <div class="h-12 w-12 rounded-full bg-senelec-purple flex items-center justify-center text-white font-semibold" style="{{ $note->etabli->photo_url ? 'display:none' : '' }}">
                                 {{ $note->etabli->initials }}
                             </div>
-                        @endif
+                        </span>
                         <div>
                             <div class="font-medium text-gray-900">{{ $note->etabli->full_name }}</div>
                             <div class="text-sm text-gray-500">{{ $note->etabli->matricule }}</div>
