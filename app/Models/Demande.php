@@ -132,9 +132,12 @@ class Demande extends Model
         // Chercher le dernier numéro existant pour ce groupe et cette année
         $pattern = $nomGroupe . '-%-%' . $currentYear;
         $pos = strlen($nomGroupe) + 2;
-        // CAST AS INTEGER compatible MySQL et PostgreSQL (UNSIGNED n'existe pas en PostgreSQL)
+        // CAST AS INTEGER (UNSIGNED n'existe pas en PostgreSQL)
+        $orderSql = \Illuminate\Support\Facades\DB::getDriverName() === 'pgsql'
+            ? "CAST(SUBSTRING(numero_demande::text, {$pos}, 5) AS INTEGER) DESC"
+            : "CAST(SUBSTRING(numero_demande, {$pos}, 5) AS UNSIGNED) DESC";
         $lastNumero = static::where('numero_demande', 'LIKE', $pattern)
-            ->orderByRaw("CAST(SUBSTRING(numero_demande FROM {$pos} FOR 5) AS INTEGER) DESC")
+            ->orderByRaw($orderSql)
             ->value('numero_demande');
         
         if ($lastNumero) {
