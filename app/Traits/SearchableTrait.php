@@ -29,11 +29,21 @@ trait SearchableTrait
 
     /**
      * Exprime une colonne pour la recherche (cast en texte pour colonnes numériques).
+     * Pour PostgreSQL, quote les colonnes avec majuscules (ex: renseignementN).
      */
     protected function searchColumnExpr(string $col, string $driver): string
     {
+        $quotedCol = $col;
+        if ($driver === 'pgsql' && preg_match('/[A-Z]/', $col)) {
+            $parts = explode('.', $col, 2);
+            if (count($parts) === 2) {
+                $quotedCol = $parts[0] . '."' . $parts[1] . '"';
+            } else {
+                $quotedCol = '"' . $col . '"';
+            }
+        }
         if ($driver === 'pgsql') {
-            return "COALESCE({$col}::text, '')";
+            return "COALESCE({$quotedCol}::text, '')";
         }
         return "COALESCE(CAST({$col} AS CHAR), '')";
     }
