@@ -1,6 +1,6 @@
 # ==============================================
 # SENDAPTNAPT - Dockerfile Production
-# PHP 8.3-FPM + OCI8 (Oracle) + LDAP + PostgreSQL
+# PHP 8.3-FPM + OCI8 (Oracle) + SQL Server (GMAO) + LDAP + PostgreSQL
 # Multi-stage: Oracle Instant Client depuis donvito + php:8.3-fpm
 # ==============================================
 
@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends libaio-dev \
     && docker-php-ext-enable oci8 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Installer les dépendances (PostgreSQL, LDAP, GD, ZIP, Redis)
+# Installer les dépendances (PostgreSQL, LDAP, GD, ZIP, Redis, SQL Server)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     libldap2-dev \
@@ -38,10 +38,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     libzip-dev \
+    gnupg2 \
+    curl \
+    apt-transport-https \
+    unixodbc-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) pdo_pgsql pgsql ldap gd zip \
     && pecl install redis \
     && docker-php-ext-enable redis \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Installer Microsoft ODBC Driver 18 pour SQL Server (GMAO)
+RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/microsoft.asc.gpg \
+    && echo "deb [arch=amd64,arm64] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 \
+    && pecl install sqlsrv pdo_sqlsrv \
+    && docker-php-ext-enable sqlsrv pdo_sqlsrv \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Installer Composer
