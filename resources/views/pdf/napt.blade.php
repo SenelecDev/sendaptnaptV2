@@ -513,7 +513,7 @@ table, th, td {
                         Etablie par : <b>
                         @php
                             $etabliUser = $note->etabliPar;
-                            $isInterimEtabli = $etabliUser && method_exists($etabliUser, 'estInterimaireA') && $etabliUser->estInterimaireA($note->date, 'desa');
+                            $isInterimEtabli = $etabliUser && method_exists($etabliUser, 'estInterimaireA') && $etabliUser->estInterimaireA('desa', $note->date);
                         @endphp
                         @if($isInterimEtabli)
                             {{ $etabliUser->name }} <span style="color: red;">(PI)</span>
@@ -938,7 +938,7 @@ table, th, td {
                                         <div class="signature">
                                             @php
                                                 $etabliUser = $note->etabliPar;
-                                                $isInterimEtabli = $etabliUser && method_exists($etabliUser, 'estInterimaireA') && $etabliUser->estInterimaireA($note->date, 'desa');
+                                                $isInterimEtabli = $etabliUser && method_exists($etabliUser, 'estInterimaireA') && $etabliUser->estInterimaireA('desa', $note->date);
                                                 $signatureEtabli = $etabliUser && $etabliUser->signature ? $etabliUser->signature : ($signatureN1 ?? null);
                                             @endphp
                                             @if($note->statut == 'en attente de vérification' || $note->statut == 'vérifiée' || $note->statut == 'en cours d\'exécution' || $note->statut == 'validée' || $note->statut == 'executée' || $note->statut == 'annulée')
@@ -966,7 +966,7 @@ table, th, td {
                                         <div class="signature">
                                             @php
                                                 $verifieUser = $note->verifiePar;
-                                                $isInterimVerifie = $verifieUser && method_exists($verifieUser, 'estInterimaireA') && $verifieUser->estInterimaireA($note->date, 'verificateur');
+                                                $isInterimVerifie = $verifieUser && method_exists($verifieUser, 'estInterimaireA') && $verifieUser->estInterimaireA('verificateur', $note->date);
                                                 $signatureVerifie = $verifieUser && $verifieUser->signature ? $verifieUser->signature : ($signatureN2 ?? null);
                                             @endphp
                                             @if($note->statut == 'vérifiée' || $note->statut == 'en cours d\'exécution' || $note->statut == 'validée' || $note->statut == 'executée' || $note->statut == 'annulée')
@@ -994,7 +994,7 @@ table, th, td {
                                         <div class="signature">
                                             @php
                                                 $valideUser = $note->validePar;
-                                                $isInterimValide = $valideUser && method_exists($valideUser, 'estInterimaireA') && $valideUser->estInterimaireA($note->date, 'valideur');
+                                                $isInterimValide = $valideUser && method_exists($valideUser, 'estInterimaireA') && $valideUser->estInterimaireA('valideur', $note->date);
                                                 $signatureValide = $valideUser && $valideUser->signature ? $valideUser->signature : ($signatureN3 ?? null);
                                             @endphp
                                             @if($note->statut == 'validée' || $note->statut == 'en cours d\'exécution' || $note->statut == 'executée' || $note->statut == 'annulée')
@@ -1059,7 +1059,7 @@ table, th, td {
                 @endunless
                 @php
                     $userBtns = Auth::user();
-                    $isVerificateurBtn = $userBtns && ($userBtns->hasRole('verificateur') || $userBtns->hasRole('admin') || $userBtns->estInterimaireA($note->date, 'verificateur'));
+                    $isVerificateurBtn = $userBtns && ($userBtns->hasRole('verificateur') || $userBtns->hasRole('admin') || $userBtns->estInterimaireA('verificateur', $note->date));
                     $isOperateurRouteBtn = Request::is('operateur*') || Request::is('operateurchef*');
                     $isOperateurViewBtn = in_array(request()->query('view'), ['operateur', 'operateurchef']);
                 @endphp
@@ -1087,9 +1087,9 @@ table, th, td {
                 @endif
                 @php
                     $userBtnsVal = Auth::user();
-                    $isValideurBtn = $userBtnsVal && ($userBtnsVal->hasRole('valideur') || $userBtnsVal->hasRole('admin') || $userBtnsVal->estInterimaireA($note->date, 'valideur'));
+                    $isValideurBtn = $userBtnsVal && ($userBtnsVal->hasRole('valideur') || $userBtnsVal->hasRole('admin') || $userBtnsVal->estInterimaireA('valideur', $note->date));
                 @endphp
-                @if($isValideurBtn && !auth()->user()->estInterimaireA($note->date, 'verificateur'))
+                @if($isValideurBtn && !auth()->user()->estInterimaireA('verificateur', $note->date))
                     @if($note->statut === 'vérifiée')
                         <form action="{{ route('valideur.notes.update', $note) }}" method="POST" style="display: inline;" target="_top">
                             @csrf
@@ -1229,7 +1229,7 @@ table, th, td {
 
                 @php
                     $user = Auth::user();
-                    $isVerificateur = $user && ($user->hasRole('verificateur') || $user->hasRole('admin') || $user->estInterimaireA($note->date, 'verificateur'));
+                    $isVerificateur = $user && ($user->hasRole('verificateur') || $user->hasRole('admin') || $user->estInterimaireA('verificateur', $note->date));
                     $isOperateurRoute = Request::is('operateur*') || Request::is('operateurchef*');
                     $isOperateurView = in_array(request()->query('view'), ['operateur', 'operateurchef']);
                 @endphp
@@ -1317,11 +1317,11 @@ table, th, td {
 
                 @php
                     $user = Auth::user();
-                    $isValideur = $user && ($user->hasRole('valideur') || $user->hasRole('admin') || $user->estInterimaireA($note->date, 'valideur'));
+                    $isValideur = $user && ($user->hasRole('valideur') || $user->hasRole('admin') || $user->estInterimaireA('valideur', $note->date));
                     $isOperateurRoute = Request::is('operateur*') || Request::is('operateurchef*');
                     $isOperateurView = in_array(request()->query('view'), ['operateur', 'operateurchef']);
                 @endphp
-                @if($isValideur && !$isOperateurRoute && !$isOperateurView && !auth()->user()->estInterimaireA($note->date, 'verificateur') && $note->statut !== 'en attente de vérification')
+                @if($isValideur && !$isOperateurRoute && !$isOperateurView && !auth()->user()->estInterimaireA('verificateur', $note->date) && $note->statut !== 'en attente de vérification')
                     <!-- Modal Valideur -->
                 <div class="modal fade" id="retourModalValideur" tabindex="-1" aria-labelledby="retourModalValideurLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
@@ -1352,7 +1352,7 @@ table, th, td {
 
                 {{-- @php
                     $user = Auth::user();
-                    $isVerificateur = $user && ($user->hasRole('verificateur') || $user->estInterimaireA($note->date, 'verificateur'));
+                    $isVerificateur = $user && ($user->hasRole('verificateur') || $user->estInterimaireA('verificateur', $note->date));
                 @endphp
                 @if($isVerificateur && $note->statut !== 'vérifiée' && $note->statut !== 'validée')
                 <a
@@ -1363,7 +1363,7 @@ table, th, td {
 
                 @php
                     $user = Auth::user();
-                    $isVerificateur = $user && ($user->hasRole('verificateur') || $user->estInterimaireA($note->date, 'verificateur'));
+                    $isVerificateur = $user && ($user->hasRole('verificateur') || $user->estInterimaireA('verificateur', $note->date));
                 @endphp
 
                 @role('operateur')

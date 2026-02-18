@@ -408,7 +408,7 @@
                     
                     @php
                         $etabliUser = $note->etabliPar;
-                        $isInterimEtabli = $etabliUser && method_exists($etabliUser, 'estInterimaireA') && $etabliUser->estInterimaireA($note->date, 'desa');
+                        $isInterimEtabli = $etabliUser && method_exists($etabliUser, 'estInterimaireA') && $etabliUser->estInterimaireA('desa', $note->date);
                     @endphp
                     <p class="info-line">
                         Etablie par : <b>
@@ -620,7 +620,7 @@
                                     @php
                                         $etabliUser = $note->etabliPar;
                                         $signatureEtabli = $etabliUser && $etabliUser->signature ? $etabliUser->signature : null;
-                                        $isInterimEtabli = $etabliUser && method_exists($etabliUser, 'estInterimaireA') && $etabliUser->estInterimaireA($note->date, 'desa');
+                                        $isInterimEtabli = $etabliUser && method_exists($etabliUser, 'estInterimaireA') && $etabliUser->estInterimaireA('desa', $note->date);
                                         // Convertir en base64 pour Dompdf
                                         $signatureEtabliBase64 = null;
                                         if ($signatureEtabli && !Str::startsWith($signatureEtabli, ['http://', 'https://'])) {
@@ -643,7 +643,7 @@
                                     @php
                                         $verifieUser = $note->verifiePar;
                                         $signatureVerifie = $verifieUser && $verifieUser->signature ? $verifieUser->signature : null;
-                                        $isInterimVerifie = $verifieUser && method_exists($verifieUser, 'estInterimaireA') && $verifieUser->estInterimaireA($note->date, 'verificateur');
+                                        $isInterimVerifie = $verifieUser && method_exists($verifieUser, 'estInterimaireA') && $verifieUser->estInterimaireA('verificateur', $note->date);
                                         // Convertir en base64 pour Dompdf
                                         $signatureVerifieBase64 = null;
                                         if ($signatureVerifie && !Str::startsWith($signatureVerifie, ['http://', 'https://'])) {
@@ -666,7 +666,7 @@
                                     @php
                                         $valideUser = $note->validePar;
                                         $signatureValide = $valideUser && $valideUser->signature ? $valideUser->signature : null;
-                                        $isInterimValide = $valideUser && method_exists($valideUser, 'estInterimaireA') && $valideUser->estInterimaireA($note->date, 'valideur');
+                                        $isInterimValide = $valideUser && method_exists($valideUser, 'estInterimaireA') && $valideUser->estInterimaireA('valideur', $note->date);
                                         // Convertir en base64 pour Dompdf
                                         $signatureValideBase64 = null;
                                         if ($signatureValide && !Str::startsWith($signatureValide, ['http://', 'https://'])) {
