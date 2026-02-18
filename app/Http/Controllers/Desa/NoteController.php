@@ -223,9 +223,17 @@ class NoteController extends Controller
             $message = 'Note mise en cours d\'étude.';
         } elseif ($statut === Note::STATUT_EN_ATTENTE_VERIFICATION) {
             $message = 'Note envoyée en vérification.';
+            // Mettre à jour la période acceptée sur la DAPT (dates + heures extraites du datetime)
+            $demande->dda = $note->ddt;
+            $demande->hda = $note->ddt ? \Carbon\Carbon::parse($note->ddt)->format('H:i') : null;
+            $demande->dfa = $note->dft;
+            $demande->hfa = $note->dft ? \Carbon\Carbon::parse($note->dft)->format('H:i') : null;
+            $demande->save();
             // Régénérer le PDF de la DAPT avec les dates acceptées
-            $this->regenerateDaptPdf($demande);            // Notification aux vérificateurs
-            app(NotificationService::class)->notifyNaptSubmitted($note);        }
+            $this->regenerateDaptPdf($demande);
+            // Notification aux vérificateurs
+            app(NotificationService::class)->notifyNaptSubmitted($note);
+        }
         
         return redirect()->route('desa.notes.show', $note)
                          ->with('success', $message . ' Numéro: ' . $note->numero_note);
@@ -318,8 +326,14 @@ class NoteController extends Controller
                                  ->with('error', 'Un document est obligatoire pour une NAPT nécessitant une étude.');
             }
             $note->statut = Note::STATUT_EN_ATTENTE_VERIFICATION;
-            $note->etabli_id = Auth::id(); // Enregistrer qui a établi/soumis la note
+            $note->etabli_id = Auth::id();
             $message = 'Note envoyée en vérification.';
+            // Mettre à jour la période acceptée sur la DAPT (dates + heures extraites du datetime)
+            $note->demande->dda = $note->ddt;
+            $note->demande->hda = $note->ddt ? \Carbon\Carbon::parse($note->ddt)->format('H:i') : null;
+            $note->demande->dfa = $note->dft;
+            $note->demande->hfa = $note->dft ? \Carbon\Carbon::parse($note->dft)->format('H:i') : null;
+            $note->demande->save();
             // Régénérer le PDF de la DAPT avec les dates acceptées
             $this->regenerateDaptPdf($note->demande);
         } elseif ($action === 'en_cours_etude') {
