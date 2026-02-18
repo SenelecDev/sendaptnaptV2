@@ -682,8 +682,24 @@
                         alert('Un fichier joint est obligatoire pour une NAPT nécessitant une étude avant de l\'envoyer en vérification.');
                         return false;
                     }
+                    showLoadingOverlay('Envoi en vérification en cours...');
+                } else if (submitter && submitter.value === 'en_cours_etude') {
+                    showLoadingOverlay('Mise en cours d\'étude...');
                 }
             });
+        }
+
+        function showLoadingOverlay(message) {
+            var overlay = '<div id="loadingOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center">' +
+                '<div class="bg-white rounded-xl p-8 shadow-2xl flex flex-col items-center gap-4 max-w-sm mx-4">' +
+                '<div class="relative">' +
+                '<div class="w-16 h-16 border-4 border-senelec-purple/20 rounded-full"></div>' +
+                '<div class="w-16 h-16 border-4 border-senelec-purple border-t-transparent rounded-full absolute top-0 left-0 animate-spin"></div>' +
+                '</div>' +
+                '<p class="text-gray-700 font-medium text-center">' + message + '</p>' +
+                '<p class="text-gray-400 text-sm">Veuillez patienter...</p>' +
+                '</div></div>';
+            document.body.insertAdjacentHTML('beforeend', overlay);
         }
     }
 </script>
