@@ -6,22 +6,24 @@ use App\Http\Controllers\Controller;
 use App\Models\Absence;
 use App\Models\User;
 use App\Services\NotificationService;
+use App\Traits\SearchableTrait;
 use Illuminate\Http\Request;
 
 class AbsenceController extends Controller
 {
+    use SearchableTrait;
+
     public function index(Request $request)
     {
         $query = Absence::with(['user', 'interim']);
-        
+
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->whereHas('user', function ($q) use ($search) {
-                $q->whereRaw('LOWER(name) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(matricule) like ?', ["%{$search}%"]);
-            })->orWhereHas('interim', function ($q) use ($search) {
-                $q->whereRaw('LOWER(name) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(matricule) like ?', ["%{$search}%"]);
+            $query->where(function ($q) use ($request) {
+                $q->whereHas('user', function ($q2) use ($request) {
+                    $this->applySimpleSearch($q2, $request->search, ['name', 'matricule'], []);
+                })->orWhereHas('interim', function ($q2) use ($request) {
+                    $this->applySimpleSearch($q2, $request->search, ['name', 'matricule'], []);
+                });
             });
         }
         

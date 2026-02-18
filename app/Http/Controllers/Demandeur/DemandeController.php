@@ -12,6 +12,7 @@ use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use App\Mail\StatutDemandeMail;
 use App\Http\Controllers\Controller;
+use App\Traits\SearchableTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -20,6 +21,7 @@ use Carbon\Carbon;
 
 class DemandeController extends Controller
 {
+    use SearchableTrait;
     /**
      * Display the demandeur dashboard with statistics and graphs.
      */
@@ -183,19 +185,9 @@ class DemandeController extends Controller
         
         // Recherche
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(numero_demande) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(designation) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(lieu_execution) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(statut) like ?', ["%{$search}%"])
-                  ->orWhereHas('demandeur', function ($q) use ($search) {
-                      $q->whereRaw('LOWER(name) like ?', ["%{$search}%"]);
-                  })
-                  ->orWhereHas('chargeTravaux', function ($q) use ($search) {
-                      $q->whereRaw('LOWER(name) like ?', ["%{$search}%"]);
-                  });
-            });
+            $this->applySimpleSearch($query, $request->search,
+                ['numero_demande', 'designation', 'lieu_execution', 'statut'],
+                ['demandeur' => ['name', 'matricule'], 'chargeTravaux' => ['name', 'matricule']]);
         }
         
         // Filtre par statut

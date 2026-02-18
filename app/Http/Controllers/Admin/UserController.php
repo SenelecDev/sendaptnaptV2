@@ -4,26 +4,21 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Traits\SearchableTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    use SearchableTrait;
+
     public function index(Request $request)
     {
         $query = User::with(['roles', 'groupe']);
-        
-        // Filters
+
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(matricule) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(name) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(nom) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(prenom) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(email) like ?', ["%{$search}%"]);
-            });
+            $this->applySearch($query, $request->search, ['matricule', 'name', 'nom', 'prenom', 'email'], [], true);
         }
         
         if ($request->filled('role')) {

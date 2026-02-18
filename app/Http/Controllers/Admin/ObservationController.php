@@ -3,22 +3,20 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\SearchableTrait;
 use App\Models\Observation;
 use App\Notifications\WorkflowNotification;
 use Illuminate\Http\Request;
 
 class ObservationController extends Controller
 {
+    use SearchableTrait;
     public function index(Request $request)
     {
         $query = Observation::with(['user', 'traitePar']);
         
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(sujet) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(description) like ?', ["%{$search}%"]);
-            });
+            $this->applySimpleSearch($query, $request->search, ['sujet', 'description'], []);
         }
         
         if ($request->filled('statut')) {

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\SearchableTrait;
 
 /**
  * Chargé de Travaux externe (ne se connecte pas à l'application)
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ChargeTravaux extends Model
 {
-    use HasFactory;
+    use HasFactory, SearchableTrait;
 
     protected $table = 'charges_travaux';
 
@@ -36,15 +37,12 @@ class ChargeTravaux extends Model
     }
 
     /**
-     * Recherche par nom ou téléphone
+     * Recherche par nom, téléphone ou entreprise (insensible casse/accents)
      */
     public function scopeSearch($query, $search)
     {
-        return $query->where(function ($q) use ($search) {
-            $q->where('nom', 'like', "%{$search}%")
-              ->orWhere('telephone', 'like', "%{$search}%")
-              ->orWhere('entreprise', 'like', "%{$search}%");
-        });
+        $this->applySimpleSearch($query, $search, ['nom', 'telephone', 'entreprise'], []);
+        return $query;
     }
 
     /**

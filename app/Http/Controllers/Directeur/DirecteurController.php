@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Directeur;
 
 use App\Http\Controllers\Controller;
+use App\Traits\SearchableTrait;
 use App\Models\Demande;
 use App\Models\Note;
 use App\Models\User;
@@ -16,6 +17,7 @@ use Carbon\Carbon;
 
 class DirecteurController extends Controller
 {
+    use SearchableTrait;
     /**
      * Dashboard avec statistiques complètes pour le directeur
      */
@@ -154,12 +156,7 @@ class DirecteurController extends Controller
         
         // Recherche
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(numero_demande) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(designation) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(lieu_execution) like ?', ["%{$search}%"]);
-            });
+            $this->applySimpleSearch($query, $request->search, ['numero_demande', 'designation', 'lieu_execution'], []);
         }
         
         // Filtre par statut
@@ -215,13 +212,7 @@ class DirecteurController extends Controller
         
         // Recherche
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(numero_note) like ?', ["%{$search}%"])
-                  ->orWhereHas('demande', function ($q) use ($search) {
-                      $q->whereRaw('LOWER(numero_demande) like ?', ["%{$search}%"]);
-                  });
-            });
+            $this->applySimpleSearch($query, $request->search, ['numero_note'], ['demande' => ['numero_demande']]);
         }
         
         // Filtre par statut

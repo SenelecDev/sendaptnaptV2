@@ -5,17 +5,19 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Groupe;
 use App\Models\User;
+use App\Traits\SearchableTrait;
 use Illuminate\Http\Request;
 
 class GroupeController extends Controller
 {
+    use SearchableTrait;
+
     public function index(Request $request)
     {
         $query = Groupe::withCount('users');
-        
+
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->whereRaw('LOWER(nom) like ?', ["%{$search}%"]);
+            $this->applySimpleSearch($query, $request->search, ['nom'], []);
         }
         
         $groupes = $query->orderBy('nom')->paginate(20);

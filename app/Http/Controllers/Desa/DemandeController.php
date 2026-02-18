@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Desa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Demande;
+use App\Traits\SearchableTrait;
 use App\Models\Note;
 use App\Models\Observation;
 use App\Models\Groupe;
@@ -12,12 +13,14 @@ use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 
 class DemandeController extends Controller
 {
+    use SearchableTrait;
     /**
      * Display the DESA dashboard.
      */
@@ -618,17 +621,17 @@ class DemandeController extends Controller
         
         // Recherche (numéro, désignation, lieu, ouvrage à consigner)
         if ($request->filled('search')) {
-            $searchLower = strtolower($request->search);
-            $query->where(function ($q) use ($searchLower) {
-                $q->whereRaw('LOWER(numero_demande) LIKE ?', ["%{$searchLower}%"])
-                  ->orWhereRaw('LOWER(designation) LIKE ?', ["%{$searchLower}%"])
-                  ->orWhereRaw('LOWER(lieu_execution) LIKE ?', ["%{$searchLower}%"])
-                  ->orWhereRaw('LOWER(COALESCE(ouvrages_consigner_manuel, "")) LIKE ?', ["%{$searchLower}%"]);
-                // Recherche dans ouvrages_consigner_gmao (JSON)
-                if (\DB::connection()->getDriverName() === 'mysql') {
-                    $q->orWhereRaw('LOWER(CAST(COALESCE(ouvrages_consigner_gmao, "[]") AS CHAR)) LIKE ?', ["%{$searchLower}%"]);
-                }
-            });
+            $driver = DB::connection()->getDriverName();
+            $this->applySimpleSearch($query, $request->search,
+                ['numero_demande', 'designation', 'lieu_execution', 'ouvrages_consigner_manuel'],
+                [],
+                function ($q, $pattern) use ($driver) {
+                    if ($driver === 'mysql') {
+                        $q->orWhereRaw('LOWER(CAST(COALESCE(ouvrages_consigner_gmao, "[]") AS CHAR)) LIKE ?', [$pattern]);
+                    } elseif ($driver === 'pgsql') {
+                        $q->orWhereRaw('LOWER(COALESCE(ouvrages_consigner_gmao::text, \'[]\')) LIKE ?', [$pattern]);
+                    }
+                });
         }
         
         // Filtre par statut
@@ -882,12 +885,7 @@ class DemandeController extends Controller
         
         // Appliquer les mêmes filtres que l'index
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(numero_demande) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(designation) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(lieu_execution) like ?', ["%{$search}%"]);
-            });
+            $this->applySimpleSearch($query, $request->search, ['numero_demande', 'designation', 'lieu_execution'], []);
         }
         
         if ($request->filled('statut')) {

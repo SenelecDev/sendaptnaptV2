@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\SearchHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +35,8 @@ class SqlServerEquipementController extends Controller
                 
                 $params = [];
                 if (!empty($search)) {
-                    $query .= " AND (ereq_description LIKE ? OR ereq_code LIKE ?)";
+                    // SQL Server: COLLATE Latin1_General_CI_AI = insensible casse et accents
+                    $query .= " AND (ereq_description COLLATE Latin1_General_CI_AI LIKE ? OR ereq_code COLLATE Latin1_General_CI_AI LIKE ?)";
                     $params = ["%{$search}%", "%{$search}%"];
                 }
                 
@@ -321,9 +323,11 @@ class SqlServerEquipementController extends Controller
             return $demoData;
         }
 
-        return array_values(array_filter($demoData, function ($item) use ($search) {
-            return stripos($item['description'], $search) !== false || 
-                   stripos($item['code'], $search) !== false;
+        $searchNorm = SearchHelper::normalize($search);
+        return array_values(array_filter($demoData, function ($item) use ($searchNorm) {
+            $descNorm = SearchHelper::normalize($item['description'] ?? '');
+            $codeNorm = SearchHelper::normalize($item['code'] ?? '');
+            return str_contains($descNorm, $searchNorm) || str_contains($codeNorm, $searchNorm);
         }));
     }
 

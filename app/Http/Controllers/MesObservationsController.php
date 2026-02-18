@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Observation;
+use App\Traits\SearchableTrait;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class MesObservationsController extends Controller
 {
+    use SearchableTrait;
     /**
      * Display a listing of the user's observations.
      */
@@ -36,11 +38,7 @@ class MesObservationsController extends Controller
 
         // Recherche
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(sujet) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(description) like ?', ["%{$search}%"]);
-            });
+            $this->applySimpleSearch($query, $request->search, ['sujet', 'description'], []);
         }
 
         $observations = $query->paginate(15);

@@ -4,22 +4,18 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Correspondant;
+use App\Traits\SearchableTrait;
 use Illuminate\Http\Request;
 
 class CorrespondantController extends Controller
 {
+    use SearchableTrait;
     public function index(Request $request)
     {
         $query = Correspondant::query();
         
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(nom) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(matricule) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(fonction) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(adresse) like ?', ["%{$search}%"]);
-            });
+            $this->applySimpleSearch($query, $request->search, ['nom', 'matricule', 'fonction', 'adresse'], []);
         }
         
         $correspondants = $query->orderBy('nom')->paginate(20);

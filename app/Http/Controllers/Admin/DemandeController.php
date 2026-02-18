@@ -4,23 +4,20 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Demande;
+use App\Traits\SearchableTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DemandeController extends Controller
 {
+    use SearchableTrait;
+
     public function index(Request $request)
     {
         $query = Demande::with(['demandeur', 'notes']);
-        
-        // Recherche
+
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(numero) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(objet) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(description) like ?', ["%{$search}%"]);
-            });
+            $this->applySimpleSearch($query, $request->search, ['numero_demande', 'designation', 'lieu_execution'], ['demandeur' => ['name', 'matricule']]);
         }
         
         // Filtre par statut

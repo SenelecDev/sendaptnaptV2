@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Desa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Observation;
+use App\Traits\SearchableTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ObservationController extends Controller
 {
+    use SearchableTrait;
     /**
      * Display a listing of observations.
      * Admin sees all, other users see only their own.
@@ -43,11 +45,7 @@ class ObservationController extends Controller
 
         // Recherche
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(sujet) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(description) like ?', ["%{$search}%"]);
-            });
+            $this->applySimpleSearch($query, $request->search, ['sujet', 'description'], []);
         }
 
         $observations = $query->paginate(15);

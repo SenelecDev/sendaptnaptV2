@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Demande;
 use App\Models\Note;
 use App\Models\User;
+use App\Traits\SearchableTrait;
 use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
+    use SearchableTrait;
     public function index(Request $request)
     {
         $query = $request->get('q', '');
@@ -22,17 +24,10 @@ class SearchController extends Controller
             $user = auth()->user();
 
             // Recherche DAPT
-            $demandesQuery = Demande::with(['demandeur', 'chargeTravaux'])
-                ->where(function ($q) use ($query) {
-                    $q->where('numero_demande', 'like', "%{$query}%")
-                      ->orWhere('designation', 'like', "%{$query}%")
-                      ->orWhere('lieu_execution', 'like', "%{$query}%")
-                      ->orWhere('destinataire', 'like', "%{$query}%")
-                      ->orWhereHas('demandeur', function ($q2) use ($query) {
-                          $q2->where('name', 'like', "%{$query}%")
-                             ->orWhere('matricule', 'like', "%{$query}%");
-                      });
-                });
+            $demandesQuery = Demande::with(['demandeur', 'chargeTravaux']);
+            $this->applySimpleSearch($demandesQuery, $query,
+                ['numero_demande', 'designation', 'lieu_execution', 'destinataire'],
+                ['demandeur' => ['name', 'matricule']]);
 
             // Filtrer selon le rôle
             if ($user->hasRole('demandeur') && !$user->hasRole(['admin', 'desa'])) {
@@ -42,28 +37,19 @@ class SearchController extends Controller
             $results['demandes'] = $demandesQuery->latest()->limit(10)->get();
 
             // Recherche NAPT
-            $notesQuery = Note::with(['demande.demandeur', 'etabliPar'])
-                ->where(function ($q) use ($query) {
-                    $q->where('numero_note', 'like', "%{$query}%")
-                      ->orWhere('numero_semaine', 'like', "%{$query}%")
-                      ->orWhere('renseignementN', 'like', "%{$query}%")
-                      ->orWhereHas('demande', function ($q2) use ($query) {
-                          $q2->where('numero_demande', 'like', "%{$query}%")
-                             ->orWhere('designation', 'like', "%{$query}%");
-                      });
-                });
+            $notesQuery = Note::with(['demande.demandeur', 'etabliPar']);
+            $this->applySimpleSearch($notesQuery, $query,
+                ['numero_note', 'numero_semaine', 'renseignementN'],
+                ['demande' => ['numero_demande', 'designation']]);
 
             $results['notes'] = $notesQuery->latest()->limit(10)->get();
 
             // Recherche Utilisateurs (admin seulement)
             if ($user->hasRole('admin')) {
-                $results['users'] = User::where(function ($q) use ($query) {
-                    $q->where('name', 'like', "%{$query}%")
-                      ->orWhere('matricule', 'like', "%{$query}%")
-                      ->orWhere('email', 'like', "%{$query}%")
-                      ->orWhere('nom', 'like', "%{$query}%")
-                      ->orWhere('prenom', 'like', "%{$query}%");
-                })->limit(10)->get();
+                $usersQuery = User::query();
+                $this->applySimpleSearch($usersQuery, $query,
+                    ['name', 'matricule', 'email', 'nom', 'prenom'], []);
+                $results['users'] = $usersQuery->limit(10)->get();
             }
         }
 
@@ -82,10 +68,9 @@ class SearchController extends Controller
 
         if (strlen($query) >= 2) {
             // DAPT
-            $demandes = Demande::where('numero_demande', 'like', "%{$query}%")
-                ->orWhere('designation', 'like', "%{$query}%")
-                ->limit(5)
-                ->get(['id', 'numero_demande', 'designation']);
+            $demandesQuery = Demande::query();
+            $this->applySimpleSearch($demandesQuery, $query, ['numero_demande', 'designation'], []);
+            $demandes = $demandesQuery->limit(5)->get(['id', 'numero_demande', 'designation']);
 
             foreach ($demandes as $d) {
                 $suggestions[] = [
@@ -97,9 +82,9 @@ class SearchController extends Controller
             }
 
             // NAPT
-            $notes = Note::where('numero_note', 'like', "%{$query}%")
-                ->limit(5)
-                ->get(['id', 'numero_note', 'numero_semaine']);
+            $notesQuery = Note::query();
+            $this->applySimpleSearch($notesQuery, $query, ['numero_note'], []);
+            $notes = $notesQuery->limit(5)->get(['id', 'numero_note', 'numero_semaine']);
 
             foreach ($notes as $n) {
                 $suggestions[] = [

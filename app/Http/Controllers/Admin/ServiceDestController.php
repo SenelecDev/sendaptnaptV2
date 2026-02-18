@@ -4,21 +4,18 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ServiceDest;
+use App\Traits\SearchableTrait;
 use Illuminate\Http\Request;
 
 class ServiceDestController extends Controller
 {
+    use SearchableTrait;
     public function index(Request $request)
     {
         $query = ServiceDest::query();
         
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(nom) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(responsable) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(email) like ?', ["%{$search}%"]);
-            });
+            $this->applySimpleSearch($query, $request->search, ['nom', 'responsable', 'email'], []);
         }
         
         $services = $query->orderBy('nom')->paginate(20);

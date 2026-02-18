@@ -4,23 +4,20 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Note;
+use App\Traits\SearchableTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class NoteController extends Controller
 {
+    use SearchableTrait;
+
     public function index(Request $request)
     {
         $query = Note::with(['demande', 'etabli', 'verifie', 'valide', 'execute']);
-        
-        // Recherche
+
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(numero_note) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(motif) like ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(renseignementN) like ?', ["%{$search}%"]);
-            });
+            $this->applySimpleSearch($query, $request->search, ['numero_note', 'motif', 'renseignementN'], []);
         }
         
         // Filtre par statut

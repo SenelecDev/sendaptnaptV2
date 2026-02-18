@@ -9,10 +9,11 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
+use App\Traits\SearchableTrait;
 
 class User extends Authenticatable implements LdapAuthenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, AuthenticatesWithLdap;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, AuthenticatesWithLdap, SearchableTrait;
 
     protected $fillable = [
         'name',
@@ -361,15 +362,11 @@ class User extends Authenticatable implements LdapAuthenticatable
     }
 
     /**
-     * Scope pour rechercher par matricule, nom ou email
+     * Scope pour rechercher par matricule, nom ou email (insensible casse/accents)
      */
     public function scopeSearch($query, string $search)
     {
-        return $query->where(function ($q) use ($search) {
-            $q->where('matricule', 'like', "%{$search}%")
-              ->orWhere('nom', 'like', "%{$search}%")
-              ->orWhere('prenom', 'like', "%{$search}%")
-              ->orWhere('email', 'like', "%{$search}%");
-        });
+        $this->applySimpleSearch($query, $search, ['matricule', 'nom', 'prenom', 'email', 'name'], []);
+        return $query;
     }
 }

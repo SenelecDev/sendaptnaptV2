@@ -550,9 +550,11 @@ class OracleHRService
                 ->leftJoin('APPS.PER_JOBS as pj', 'paaf.JOB_ID', '=', 'pj.JOB_ID')
                 ->whereRaw('SYSDATE BETWEEN papf.EFFECTIVE_START_DATE AND papf.EFFECTIVE_END_DATE')
                 ->where(function($q) use ($query) {
-                    $q->where('papf.EMPLOYEE_NUMBER', 'like', "%{$query}%")
-                      ->orWhere('papf.LAST_NAME', 'like', "%{$query}%")
-                      ->orWhere('papf.FIRST_NAME', 'like', "%{$query}%");
+                    // Oracle: UPPER pour insensibilité à la casse
+                    $pattern = '%' . $query . '%';
+                    $q->whereRaw('UPPER(papf.EMPLOYEE_NUMBER) LIKE UPPER(?)', [$pattern])
+                      ->orWhereRaw('UPPER(papf.LAST_NAME) LIKE UPPER(?)', [$pattern])
+                      ->orWhereRaw('UPPER(papf.FIRST_NAME) LIKE UPPER(?)', [$pattern]);
                 })
                 ->select([
                     'papf.PERSON_ID as person_id',

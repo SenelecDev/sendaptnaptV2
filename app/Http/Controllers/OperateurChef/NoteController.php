@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\OperateurChef;
 
 use App\Http\Controllers\Controller;
+use App\Traits\SearchableTrait;
 use App\Models\Note;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ use Carbon\Carbon;
 
 class NoteController extends Controller
 {
+    use SearchableTrait;
     /**
      * Display the dashboard for operateur chef.
      */
@@ -117,13 +119,7 @@ class NoteController extends Controller
         
         // Recherche
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(numero_note) like ?', ["%{$search}%"])
-                  ->orWhereHas('demande', function ($q) use ($search) {
-                      $q->whereRaw('LOWER(numero_demande) like ?', ["%{$search}%"]);
-                  });
-            });
+            $this->applySimpleSearch($query, $request->search, ['numero_note'], ['demande' => ['numero_demande']]);
         }
         
         // Filtre par statut
