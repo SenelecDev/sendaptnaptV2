@@ -155,19 +155,24 @@
                                 @else
                                     @php
                                         $ouvragesList = [];
-                                        $lignesOracle = $note->demande->lignes_oracle ? (is_array($note->demande->lignes_oracle) ? $note->demande->lignes_oracle : json_decode($note->demande->lignes_oracle, true)) : [];
-                                        if (is_array($lignesOracle)) {
-                                            foreach ($lignesOracle as $ligne) {
+                                        $lignesData = $note->demande->lignes_oracle ? (is_string($note->demande->lignes_oracle) ? json_decode($note->demande->lignes_oracle, true) : $note->demande->lignes_oracle) : [];
+                                        if (is_array($lignesData)) {
+                                            foreach ($lignesData as $ligne) {
                                                 $ouvragesList[] = is_array($ligne) ? ($ligne['description'] ?? $ligne['code'] ?? '') : $ligne;
                                             }
                                         }
-                                        $equipementsOracle = $note->demande->equipements_oracle ? (is_array($note->demande->equipements_oracle) ? $note->demande->equipements_oracle : json_decode($note->demande->equipements_oracle, true)) : [];
-                                        if (is_array($equipementsOracle)) {
-                                            foreach ($equipementsOracle as $levelEquipements) {
-                                                if (is_array($levelEquipements)) {
-                                                    foreach ($levelEquipements as $eq) {
-                                                        $ouvragesList[] = is_array($eq) ? ($eq['description'] ?? $eq['code'] ?? '') : $eq;
-                                                    }
+                                        $eqRaw = $note->demande->equipements_oracle ? (is_string($note->demande->equipements_oracle) ? json_decode($note->demande->equipements_oracle, true) : $note->demande->equipements_oracle) : [];
+                                        if (is_array($eqRaw)) {
+                                            $niveauxAvecData = [];
+                                            foreach ($eqRaw as $levelKey => $levelData) {
+                                                if (preg_match('/level_(\d+)/', $levelKey, $m) && is_array($levelData) && !empty($levelData)) {
+                                                    $niveauxAvecData[(int)$m[1]] = $levelData;
+                                                }
+                                            }
+                                            if (!empty($niveauxAvecData)) {
+                                                $dernierNiveau = max(array_keys($niveauxAvecData));
+                                                foreach ($niveauxAvecData[$dernierNiveau] as $eq) {
+                                                    $ouvragesList[] = is_array($eq) ? ($eq['description'] ?? $eq['code'] ?? '') : $eq;
                                                 }
                                             }
                                         }

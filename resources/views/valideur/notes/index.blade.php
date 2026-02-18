@@ -157,50 +157,36 @@
                                                 $ouvragesDisplay = $note->demande->ouvrages_consigner_manuel ?? '-';
                                             } else {
                                                 $ouvrages = [];
-                                                // Check equipements_oracle first (GMAO data)
-                                                if ($note->demande->equipements_oracle) {
-                                                    $eqData = is_string($note->demande->equipements_oracle) 
-                                                        ? json_decode($note->demande->equipements_oracle, true) 
-                                                        : $note->demande->equipements_oracle;
-                                                    if (is_array($eqData)) {
-                                                        foreach (['equipements_consigner_level_1', 'equipements_consigner_level_2', 'equipements_consigner_level_3'] as $level) {
-                                                            if (isset($eqData[$level]) && is_array($eqData[$level])) {
-                                                                foreach ($eqData[$level] as $item) {
-                                                                    if (isset($item['description'])) {
-                                                                        $ouvrages[] = $item['description'];
-                                                                    }
-                                                                }
-                                                            }
+                                                $lignesData = $note->demande->lignes_oracle ? (is_string($note->demande->lignes_oracle) ? json_decode($note->demande->lignes_oracle, true) : $note->demande->lignes_oracle) : [];
+                                                if (is_array($lignesData)) {
+                                                    foreach ($lignesData as $item) {
+                                                        $ouvrages[] = is_array($item) ? ($item['description'] ?? $item['code'] ?? '') : $item;
+                                                    }
+                                                }
+                                                $eqRaw = $note->demande->equipements_oracle ? (is_string($note->demande->equipements_oracle) ? json_decode($note->demande->equipements_oracle, true) : $note->demande->equipements_oracle) : [];
+                                                if (is_array($eqRaw)) {
+                                                    $niveauxAvecData = [];
+                                                    foreach ($eqRaw as $levelKey => $levelData) {
+                                                        if (preg_match('/level_(\d+)/', $levelKey, $m) && is_array($levelData) && !empty($levelData)) {
+                                                            $niveauxAvecData[(int)$m[1]] = $levelData;
+                                                        }
+                                                    }
+                                                    if (!empty($niveauxAvecData)) {
+                                                        $dernierNiveau = max(array_keys($niveauxAvecData));
+                                                        foreach ($niveauxAvecData[$dernierNiveau] as $eq) {
+                                                            $ouvrages[] = is_array($eq) ? ($eq['description'] ?? $eq['code'] ?? '') : $eq;
                                                         }
                                                     }
                                                 }
-                                                // Check lignes_oracle (for ligne type)
-                                                if (empty($ouvrages) && $note->demande->lignes_oracle) {
-                                                    $lignesData = is_string($note->demande->lignes_oracle) 
-                                                        ? json_decode($note->demande->lignes_oracle, true) 
-                                                        : $note->demande->lignes_oracle;
-                                                    if (is_array($lignesData)) {
-                                                        foreach ($lignesData as $item) {
-                                                            if (is_array($item) && isset($item['description'])) {
-                                                                $ouvrages[] = $item['description'];
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                // Fallback to ouvrages_consigner_gmao
                                                 if (empty($ouvrages) && $note->demande->ouvrages_consigner_gmao) {
-                                                    $gmaoData = is_string($note->demande->ouvrages_consigner_gmao) 
-                                                        ? json_decode($note->demande->ouvrages_consigner_gmao, true) 
-                                                        : $note->demande->ouvrages_consigner_gmao;
+                                                    $gmaoData = is_string($note->demande->ouvrages_consigner_gmao) ? json_decode($note->demande->ouvrages_consigner_gmao, true) : $note->demande->ouvrages_consigner_gmao;
                                                     if (is_array($gmaoData)) {
                                                         foreach ($gmaoData as $item) {
-                                                            if (is_array($item) && isset($item['description'])) {
-                                                                $ouvrages[] = $item['description'];
-                                                            }
+                                                            $ouvrages[] = is_array($item) ? ($item['description'] ?? '') : $item;
                                                         }
                                                     }
                                                 }
-                                                $ouvragesDisplay = implode(', ', $ouvrages) ?: '-';
+                                                $ouvragesDisplay = implode(', ', array_filter($ouvrages)) ?: '-';
                                             }
                                         }
                                     @endphp

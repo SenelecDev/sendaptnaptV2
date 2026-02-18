@@ -148,13 +148,49 @@
                         <td class="px-6 py-4">
                             <div class="text-sm text-gray-900 max-w-xs truncate">
                                 @if($note->demande)
-                                    @if($note->demande->ouvrages_consigner_manuel)
-                                        {{ Str::limit($note->demande->ouvrages_consigner_manuel, 30) }}
-                                    @elseif($note->demande->ouvrages_consigner_gmao && count($note->demande->ouvrages_consigner_gmao) > 0)
-                                        {{ implode(', ', array_slice($note->demande->ouvrages_consigner_gmao, 0, 2)) }}
-                                        @if(count($note->demande->ouvrages_consigner_gmao) > 2)
-                                            +{{ count($note->demande->ouvrages_consigner_gmao) - 2 }}
-                                        @endif
+                                    @php
+                                        $ouvragesList = [];
+                                        if ($note->demande->mode_saisie === 'manuel' || $note->demande->mode_saisie === 'manuelle') {
+                                            if ($note->demande->ouvrages_consigner_manuel) {
+                                                $ouvragesList[] = $note->demande->ouvrages_consigner_manuel;
+                                            }
+                                        } else {
+                                            $lignesData = $note->demande->lignes_oracle ? (is_string($note->demande->lignes_oracle) ? json_decode($note->demande->lignes_oracle, true) : $note->demande->lignes_oracle) : [];
+                                            if (is_array($lignesData)) {
+                                                foreach ($lignesData as $ligne) {
+                                                    $ouvragesList[] = is_array($ligne) ? ($ligne['description'] ?? $ligne['code'] ?? '') : $ligne;
+                                                }
+                                            }
+                                            $eqRaw = $note->demande->equipements_oracle ? (is_string($note->demande->equipements_oracle) ? json_decode($note->demande->equipements_oracle, true) : $note->demande->equipements_oracle) : [];
+                                            if (is_array($eqRaw)) {
+                                                $niveauxAvecData = [];
+                                                foreach ($eqRaw as $levelKey => $levelData) {
+                                                    if (preg_match('/level_(\d+)/', $levelKey, $m) && is_array($levelData) && !empty($levelData)) {
+                                                        $niveauxAvecData[(int)$m[1]] = $levelData;
+                                                    }
+                                                }
+                                                if (!empty($niveauxAvecData)) {
+                                                    $dernierNiveau = max(array_keys($niveauxAvecData));
+                                                    foreach ($niveauxAvecData[$dernierNiveau] as $eq) {
+                                                        $ouvragesList[] = is_array($eq) ? ($eq['description'] ?? $eq['code'] ?? '') : $eq;
+                                                    }
+                                                }
+                                            }
+                                            if (empty($ouvragesList) && $note->demande->ouvrages_consigner_gmao) {
+                                                $gmaoData = is_string($note->demande->ouvrages_consigner_gmao) ? json_decode($note->demande->ouvrages_consigner_gmao, true) : $note->demande->ouvrages_consigner_gmao;
+                                                if (is_array($gmaoData)) {
+                                                    foreach ($gmaoData as $item) {
+                                                        $ouvragesList[] = is_array($item) ? ($item['description'] ?? '') : $item;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        $ouvragesList = array_filter($ouvragesList);
+                                    @endphp
+                                    @if(count($ouvragesList) > 0)
+                                        <span title="{{ implode(', ', $ouvragesList) }}">
+                                            {{ Str::limit(implode(', ', $ouvragesList), 50) }}
+                                        </span>
                                     @else
                                         <span class="text-gray-400">N/A</span>
                                     @endif

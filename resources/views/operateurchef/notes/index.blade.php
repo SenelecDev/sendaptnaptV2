@@ -195,40 +195,42 @@
                                 @php
                                     $ouvrages = [];
                                     $demande = $note->demande;
-                                    // Mode manuel
-                                    if ($demande && $demande->ouvrages_consigner_manuel) {
-                                        $ouvrages[] = $demande->ouvrages_consigner_manuel;
-                                    }
-                                    // Mode GMAO - equipements_oracle
-                                    if ($demande && $demande->equipements_oracle) {
-                                        $equipementsData = is_string($demande->equipements_oracle) ? json_decode($demande->equipements_oracle, true) : $demande->equipements_oracle;
-                                        if ($equipementsData) {
-                                            foreach (['equipements_consigner_level_1', 'equipements_consigner_level_2', 'equipements_consigner_level_3'] as $level) {
-                                                if (isset($equipementsData[$level]) && is_array($equipementsData[$level])) {
-                                                    foreach ($equipementsData[$level] as $eq) {
-                                                        if (isset($eq['description'])) {
-                                                            $ouvrages[] = $eq['description'];
-                                                        } elseif (isset($eq['code'])) {
-                                                            $ouvrages[] = $eq['code'];
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                    if ($demande && ($demande->mode_saisie === 'manuel' || $demande->mode_saisie === 'manuelle')) {
+                                        if ($demande->ouvrages_consigner_manuel) {
+                                            $ouvrages[] = $demande->ouvrages_consigner_manuel;
                                         }
-                                    }
-                                    // Mode GMAO - lignes_oracle
-                                    if ($demande && $demande->lignes_oracle) {
-                                        $lignesData = is_string($demande->lignes_oracle) ? json_decode($demande->lignes_oracle, true) : $demande->lignes_oracle;
-                                        if ($lignesData && is_array($lignesData)) {
+                                    } elseif ($demande) {
+                                        $lignesData = $demande->lignes_oracle ? (is_string($demande->lignes_oracle) ? json_decode($demande->lignes_oracle, true) : $demande->lignes_oracle) : [];
+                                        if (is_array($lignesData)) {
                                             foreach ($lignesData as $ligne) {
-                                                if (isset($ligne['description'])) {
-                                                    $ouvrages[] = $ligne['description'];
-                                                } elseif (isset($ligne['code'])) {
-                                                    $ouvrages[] = $ligne['code'];
+                                                $ouvrages[] = is_array($ligne) ? ($ligne['description'] ?? $ligne['code'] ?? '') : $ligne;
+                                            }
+                                        }
+                                        $eqRaw = $demande->equipements_oracle ? (is_string($demande->equipements_oracle) ? json_decode($demande->equipements_oracle, true) : $demande->equipements_oracle) : [];
+                                        if (is_array($eqRaw)) {
+                                            $niveauxAvecData = [];
+                                            foreach ($eqRaw as $levelKey => $levelData) {
+                                                if (preg_match('/level_(\d+)/', $levelKey, $m) && is_array($levelData) && !empty($levelData)) {
+                                                    $niveauxAvecData[(int)$m[1]] = $levelData;
+                                                }
+                                            }
+                                            if (!empty($niveauxAvecData)) {
+                                                $dernierNiveau = max(array_keys($niveauxAvecData));
+                                                foreach ($niveauxAvecData[$dernierNiveau] as $eq) {
+                                                    $ouvrages[] = is_array($eq) ? ($eq['description'] ?? $eq['code'] ?? '') : $eq;
+                                                }
+                                            }
+                                        }
+                                        if (empty($ouvrages) && $demande->ouvrages_consigner_gmao) {
+                                            $gmaoData = is_string($demande->ouvrages_consigner_gmao) ? json_decode($demande->ouvrages_consigner_gmao, true) : $demande->ouvrages_consigner_gmao;
+                                            if (is_array($gmaoData)) {
+                                                foreach ($gmaoData as $item) {
+                                                    $ouvrages[] = is_array($item) ? ($item['description'] ?? '') : $item;
                                                 }
                                             }
                                         }
                                     }
+                                    $ouvrages = array_filter($ouvrages);
                                 @endphp
                                 @if(count($ouvrages) > 0)
                                     {{ implode(', ', array_slice($ouvrages, 0, 3)) }}
