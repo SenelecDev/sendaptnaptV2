@@ -16,6 +16,8 @@ services:
         GROUP_ID: 48
     container_name: sendaptnapt_app
     restart: unless-stopped
+    # Réseau hôte pour accéder à GMAO (srv-bddomtech) - l'hôte peut joindre GMAO, pas le bridge Docker
+    network_mode: host
     working_dir: /var/www/html
     volumes:
       - .:/var/www/html
@@ -28,12 +30,12 @@ services:
       - APP_ENV=${APP_ENV:-production}
       - APP_DEBUG=${APP_DEBUG:-false}
       - DB_CONNECTION=pgsql
-      - DB_HOST=postgres
+      - DB_HOST=127.0.0.1
       - DB_PORT=5432
       - DB_DATABASE=${DB_DATABASE:-sendaptnapt}
       - DB_USERNAME=${DB_USERNAME:-sendaptnapt}
       - DB_PASSWORD=${DB_PASSWORD:-secret}
-      - REDIS_HOST=redis
+      - REDIS_HOST=127.0.0.1
       - REDIS_PORT=6379
       - CACHE_DRIVER=redis
       - SESSION_DRIVER=redis
@@ -43,8 +45,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    networks:
-      - sendaptnapt_network
     healthcheck:
       test: ["CMD", "php-fpm", "-t"]
       interval: 30s
@@ -58,6 +58,8 @@ services:
     image: nginx:alpine
     container_name: sendaptnapt_nginx
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "${APP_PORT:-80}:80"
       - "${APP_SSL_PORT:-443}:443"
@@ -111,9 +113,11 @@ services:
     container_name: sendaptnapt_redis
     restart: unless-stopped
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
     volumes:
       - redis_data:/data
-    # Pas d'exposition du port : Redis accessible uniquement via le réseau Docker (app, queue, scheduler)
+    # Exposé pour l'app en network_mode: host (127.0.0.1:6379)
     networks:
       - sendaptnapt_network
     healthcheck:

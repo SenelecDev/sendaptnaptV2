@@ -106,6 +106,8 @@ return [
             'prefix_indexes' => true,
             'encrypt' => 'no',
             'trust_server_certificate' => true,
+            'ConnectionPooling' => false,
+            'ConnectTimeout' => env('GMAO_DB_TIMEOUT', 30),
         ],
 
         // Connexion Oracle pour les données utilisateurs externes

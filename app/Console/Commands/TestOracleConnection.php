@@ -70,6 +70,9 @@ class TestOracleConnection extends Command
         if ($this->option('gmao')) {
             $this->newLine();
             $this->info('=== Test connexion GMAO SQL Server (équipements) ===');
+            $gmaoHost = config('database.connections.sqlsrv_gmao.host');
+            $gmaoPort = config('database.connections.sqlsrv_gmao.port');
+            $this->line("   Cible: {$gmaoHost}:{$gmaoPort}");
             try {
                 DB::connection('sqlsrv_gmao')->getPdo();
                 $this->info('   ✓ Connexion GMAO établie.');
