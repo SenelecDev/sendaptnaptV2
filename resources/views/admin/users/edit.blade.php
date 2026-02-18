@@ -118,9 +118,13 @@
                 <div>
                     <label for="telephone" class="block text-sm font-medium text-gray-700 mb-1">
                         Téléphone
+                        @if($isLdapOrOracle)
+                            <span class="text-xs font-normal text-gray-500">(modifiable pour compléter si vide)</span>
+                        @endif
                     </label>
                     <input type="text" name="telephone" id="telephone" value="{{ old('telephone', $user->telephone) }}"
-                           {{ $readonlyAttr }} class="input w-full {{ $readonlyClass }} @error('telephone') border-red-500 @enderror">
+                           class="input w-full @error('telephone') border-red-500 @enderror"
+                           placeholder="{{ $isLdapOrOracle && !$user->telephone ? 'Saisir le téléphone...' : '' }}">
                     @error('telephone')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                     @enderror
