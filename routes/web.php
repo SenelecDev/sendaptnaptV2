@@ -64,6 +64,14 @@ Route::middleware(['auth'])->group(function () {
     
     // Search route
     Route::get('/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search');
+
+    // Outils communs à tous les profils
+    Route::get('/calendrier', [\App\Http\Controllers\CalendrierController::class, 'index'])->name('calendrier');
+    Route::get('/calendrier/events', [\App\Http\Controllers\CalendrierController::class, 'events'])->name('calendrier.events');
+    Route::get('/exports', [\App\Http\Controllers\ExportController::class, 'index'])->name('exports.index');
+    Route::get('/exports/dapt', [\App\Http\Controllers\ExportController::class, 'exportDapt'])->name('exports.dapt');
+    Route::get('/exports/napt', [\App\Http\Controllers\ExportController::class, 'exportNapt'])->name('exports.napt');
+    Route::get('/documentation', [\App\Http\Controllers\DocumentationController::class, 'index'])->name('documentation');
     
     // Profile routes
     Route::get('/profile', function () {
