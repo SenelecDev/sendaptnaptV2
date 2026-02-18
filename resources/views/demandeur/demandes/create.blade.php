@@ -673,10 +673,10 @@
                                 <option value="{{ Auth::user()->id }}" 
                                         data-matricule="{{ Auth::user()->matricule }}"
                                         data-fonction="{{ Auth::user()->poste }}"
-                                        data-service="{{ Auth::user()->service }}"
+                                        data-service="{{ Auth::user()->service ?? Auth::user()->departement ?? '' }}"
                                         data-telephone="{{ Auth::user()->telephone }}"
                                         {{ old('demandeur_id', isset($demande) ? $demande->demandeur_id : Auth::user()->id) == Auth::user()->id ? 'selected' : '' }}>
-                                    {{ Auth::user()->name }} @if(Auth::user()->matricule)({{ Auth::user()->matricule }})@endif @if(Auth::user()->service)- {{ Auth::user()->service }}@endif
+                                    {{ Auth::user()->name }} @if(Auth::user()->matricule)({{ Auth::user()->matricule }})@endif @if(Auth::user()->service ?? Auth::user()->departement)- {{ Auth::user()->service ?? Auth::user()->departement }}@endif
                                 </option>
                                 @if(isset($demandeurs))
                                     @foreach ($demandeurs as $dem)
@@ -684,10 +684,10 @@
                                         <option value="{{ $dem->id }}"
                                                 data-matricule="{{ $dem->matricule }}"
                                                 data-fonction="{{ $dem->poste }}"
-                                                data-service="{{ $dem->service }}"
+                                                data-service="{{ $dem->service ?? $dem->departement ?? '' }}"
                                                 data-telephone="{{ $dem->telephone }}"
                                                 {{ old('demandeur_id', isset($demande) ? $demande->demandeur_id : '') == $dem->id ? 'selected' : '' }}>
-                                            {{ $dem->name }} @if($dem->matricule)({{ $dem->matricule }})@endif @if($dem->service)- {{ $dem->service }}@endif
+                                            {{ $dem->name }} @if($dem->matricule)({{ $dem->matricule }})@endif @if($dem->service ?? $dem->departement)- {{ $dem->service ?? $dem->departement }}@endif
                                         </option>
                                         @endif
                                     @endforeach
@@ -715,7 +715,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Service</label>
                                 <input type="text" class="input-senelec bg-gray-50" name="appartenance" id="appartenance" 
-                                       value="{{ old('appartenance', isset($demande) ? $demande->demandeur->service ?? '' : Auth::user()->service ?? '') }}" readonly>
+                                       value="{{ old('appartenance', isset($demande) ? ($demande->demandeur->service ?? $demande->demandeur->departement ?? '') : (Auth::user()->service ?? Auth::user()->departement ?? '')) }}" readonly>
                             </div>
                         </div>
                     </div>
@@ -744,10 +744,10 @@
                                                         data-matricule="{{ $c->matricule }}"
                                                         data-telephone="{{ $c->telephone }}"
                                                         data-entreprise="{{ $c->entreprise ?? 'SENELEC' }}"
-                                                        data-service="{{ $c->service }}"
+                                                        data-service="{{ $c->service ?? $c->departement ?? '' }}"
                                                         data-fonction="{{ $c->poste }}"
                                                         {{ old('charge_travaux_id', isset($demande) ? $demande->charge_travaux_id : '') == $c->id ? 'selected' : '' }}>
-                                                    {{ $c->name }} @if($c->matricule)({{ $c->matricule }})@endif @if($c->service)- {{ $c->service }}@endif
+                                                    {{ $c->name }} @if($c->matricule)({{ $c->matricule }})@endif @if($c->service ?? $c->departement)- {{ $c->service ?? $c->departement }}@endif
                                                 </option>
                                             @endforeach
                                             </optgroup>
