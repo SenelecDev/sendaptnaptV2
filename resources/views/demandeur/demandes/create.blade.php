@@ -373,7 +373,7 @@
                     </div>
                     <div id="lieu_execution_manuel_section" style="display: none;">
                         <textarea class="input-senelec w-full" name="lieu_execution_manuel" id="lieu_execution_manuel" 
-                                  rows="2" placeholder="Saisissez le lieu d'exécution">{{ isset($demande) ? old('lieu_execution_manuel', $demande->lieu_execution_manuel) : old('lieu_execution_manuel') }}</textarea>
+                                  rows="2" placeholder="Saisissez le lieu d'exécution">{{ isset($demande) ? old('lieu_execution_manuel', $demande->lieu_execution_manuel ?? $demande->lieu_execution) : old('lieu_execution_manuel') }}</textarea>
                     </div>
                 </div>
             </div>
@@ -1450,14 +1450,15 @@ $(document).ready(function() {
             lignesInstaller: existingLignesInstaller
         });
         
-        // Si mode GMAO et lieu sélectionné
-        if (existingModeSaisie === 'gmao' && existingLieuCode) {
+        // Si mode GMAO et lieu sélectionné (lieu_code ou lieu_execution en fallback)
+        var effectiveLieuCode = existingLieuCode || existingLieuDescription;
+        if (existingModeSaisie === 'gmao' && effectiveLieuCode) {
             setTimeout(function() {
-                // Ajouter le lieu comme option et le sélectionner
-                var newOption = new Option(existingLieuDescription, existingLieuCode, true, true);
+                // Ajouter le lieu comme option et le sélectionner (lieu_code ou lieu_execution en fallback)
+                var newOption = new Option(existingLieuDescription, effectiveLieuCode, true, true);
                 $('#lieu_execution').append(newOption).trigger('change');
                 $('#hidden_lieu_execution').val(existingLieuDescription);
-                $('#hidden_lieu_code').val(existingLieuCode);
+                $('#hidden_lieu_code').val(effectiveLieuCode);
                 
                 // Déterminer si ligne ou poste
                 var isLigne = existingOuvrageType === 'ligne' || existingOuvrageType === 'ligne_installer';
@@ -1468,8 +1469,8 @@ $(document).ready(function() {
                     $('#radio_ligne_installer').prop('checked', true).trigger('change');
                     
                     // Charger les lignes et pré-sélectionner
-                    loadAllLignesWithExisting('ligne_disponible_consigner', existingLieuCode, existingLignesConsigner);
-                    loadAllLignesWithExisting('ligne_disponible_installer', existingLieuCode, existingLignesInstaller);
+                    loadAllLignesWithExisting('ligne_disponible_consigner', effectiveLieuCode, existingLignesConsigner);
+                    loadAllLignesWithExisting('ligne_disponible_installer', effectiveLieuCode, existingLignesInstaller);
                 } else {
                     // Mode Poste
                     $('#radio_poste').prop('checked', true).trigger('change');
@@ -1477,8 +1478,8 @@ $(document).ready(function() {
                     
                     // Charger les niveaux d'équipements avec pré-sélection
                     setTimeout(function() {
-                        loadEquipementsWithExisting('consigner', existingLieuCode, existingEquipementsConsigner);
-                        loadEquipementsWithExisting('installer', existingLieuCode, existingEquipementsInstaller);
+                        loadEquipementsWithExisting('consigner', effectiveLieuCode, existingEquipementsConsigner);
+                        loadEquipementsWithExisting('installer', effectiveLieuCode, existingEquipementsInstaller);
                     }, 300);
                 }
                 

@@ -494,7 +494,13 @@ class DemandeController extends Controller
         
         $cts = User::orderBy('name')->get();
         
-        return view('demandeur.demandes.create', compact('demande', 'demandeurs', 'cts'));
+        // Chargés de travaux externes (requis pour pré-sélectionner le CT en édition)
+        $ctsExternes = ChargeTravaux::actif()->orderBy('nom')->get();
+        
+        // Charger les relations pour le formulaire
+        $demande->load(['chargeTravaux', 'chargeTravauxExterne']);
+        
+        return view('demandeur.demandes.create', compact('demande', 'demandeurs', 'cts', 'ctsExternes'));
     }
 
     /**
@@ -515,7 +521,7 @@ class DemandeController extends Controller
                              ->with('error', 'Cette demande ne peut plus être modifiée.');
         }
         
-        // Validation
+        // Validation (alignée sur store : CT interne OU externe)
         $rules = [
             'date' => 'required|date',
             'destinataire' => 'required|string|max:255|in:DESA,DD',
@@ -529,9 +535,16 @@ class DemandeController extends Controller
             'mcce' => 'required|in:oui,non',
             'etape' => 'required|in:ue,de',
             'demandeur_id' => 'required|exists:users,id',
-            'charge_travaux_id' => 'required|exists:users,id',
+            'charge_travaux_id' => 'nullable|exists:users,id',
+            'charge_travaux_externe_id' => 'nullable|exists:charges_travaux,id',
+            'ct_externe_nom' => 'nullable|string|max:255',
+            'ct_externe_telephone' => 'nullable|string|max:50',
+            'ct_externe_entreprise' => 'nullable|string|max:255',
+            'ct_externe_service' => 'nullable|string|max:255',
             'renseignement' => 'nullable|string',
             'schema' => 'nullable|file|mimes:pdf,png,jpg,jpeg|max:10240',
+            'telephone_demandeur' => 'nullable|string|max:50',
+            'telephone_charge' => 'nullable|string|max:50',
         ];
         
         if ($request->input('mode_saisie') === 'manuel') {
@@ -543,6 +556,31 @@ class DemandeController extends Controller
         }
         
         $validated = $request->validate($rules);
+        
+        // Vérifier qu'on a soit un CT interne, soit un CT externe
+        if (empty($validated['charge_travaux_id']) && empty($validated['charge_travaux_externe_id']) && empty($validated['ct_externe_nom'])) {
+            return back()->withErrors(['charge_travaux_id' => 'Veuillez sélectionner ou ajouter un chargé de travaux.'])->withInput();
+        }
+        
+        // Gérer le chargé de travaux externe (comme dans store)
+        $chargeTravauxExterneId = null;
+        if (!empty($validated['charge_travaux_externe_id'])) {
+            $chargeTravauxExterneId = $validated['charge_travaux_externe_id'];
+        } elseif (!empty($validated['ct_externe_nom'])) {
+            $ctExterne = ChargeTravaux::where('nom', $validated['ct_externe_nom'])
+                ->where('telephone', $validated['ct_externe_telephone'] ?? null)
+                ->first();
+            if (!$ctExterne) {
+                $ctExterne = ChargeTravaux::create([
+                    'nom' => $validated['ct_externe_nom'],
+                    'telephone' => $validated['ct_externe_telephone'] ?? null,
+                    'entreprise' => $validated['ct_externe_entreprise'] ?? null,
+                    'service' => $validated['ct_externe_service'] ?? null,
+                    'actif' => true,
+                ]);
+            }
+            $chargeTravauxExterneId = $ctExterne->id;
+        }
         
         // Mettre à jour les champs
         $demande->date = $validated['date'];
@@ -557,7 +595,8 @@ class DemandeController extends Controller
         $demande->mcce = $validated['mcce'];
         $demande->etape = $validated['etape'];
         $demande->demandeur_id = $validated['demandeur_id'];
-        $demande->charge_travaux_id = $validated['charge_travaux_id'];
+        $demande->charge_travaux_id = $validated['charge_travaux_id'] ?? null;
+        $demande->charge_travaux_externe_id = $chargeTravauxExterneId;
         $demande->renseignement = $validated['renseignement'] ?? null;
         $demande->telephone_demandeur = $request->input('telephone_demandeur');
         $demande->telephone_charge = $request->input('telephone_charge');
