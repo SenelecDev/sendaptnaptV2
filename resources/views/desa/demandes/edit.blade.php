@@ -652,19 +652,19 @@
                         <h4 class="text-sm font-medium text-green-700 mb-3">Période acceptée</h4>
                         <div class="grid grid-cols-2 gap-3 mb-4">
                             <div>
-                                <label class="label text-green-700 text-xs">Date début *</label>
+                                <label class="label text-green-700 text-xs">Date début <span class="text-red-500">*</span></label>
                                 <input type="date" name="dda" value="{{ old('dda', $demande->ddp ? \Carbon\Carbon::parse($demande->ddp)->format('Y-m-d') : '') }}" class="input-senelec w-full text-sm" required>
                             </div>
                             <div>
-                                <label class="label text-green-700 text-xs">Heure début *</label>
+                                <label class="label text-green-700 text-xs">Heure début <span class="text-red-500">*</span></label>
                                 <input type="time" name="hda" value="{{ old('hda', $demande->hdp) }}" class="input-senelec w-full text-sm" required>
                             </div>
                             <div>
-                                <label class="label text-green-700 text-xs">Date fin *</label>
+                                <label class="label text-green-700 text-xs">Date fin <span class="text-red-500">*</span></label>
                                 <input type="date" name="dfa" value="{{ old('dfa', $demande->dfp ? \Carbon\Carbon::parse($demande->dfp)->format('Y-m-d') : '') }}" class="input-senelec w-full text-sm" required>
                             </div>
                             <div>
-                                <label class="label text-green-700 text-xs">Heure fin *</label>
+                                <label class="label text-green-700 text-xs">Heure fin <span class="text-red-500">*</span></label>
                                 <input type="time" name="hfa" value="{{ old('hfa', $demande->hfp) }}" class="input-senelec w-full text-sm" required>
                             </div>
                         </div>
@@ -700,7 +700,7 @@
                         @endif
                         
                         <div class="flex-1">
-                            <label class="label text-red-700">Motif du retour * <span class="text-xs font-normal">(min. 2 caractères)</span></label>
+                            <label class="label text-red-700">Motif du retour <span class="text-red-500">*</span> <span class="text-xs font-normal">(min. 2 caractères)</span></label>
                             <textarea name="comment" rows="5" class="input-senelec w-full @if($errors->has('comment')) border-red-500 @endif" placeholder="Expliquez pourquoi la demande est retournée..." required minlength="2">{{ old('comment') }}</textarea>
                         </div>
                         

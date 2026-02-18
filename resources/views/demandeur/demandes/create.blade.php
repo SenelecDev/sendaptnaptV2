@@ -946,15 +946,15 @@
             <div class="space-y-4">
                 <div>
                     <label for="renseignement" class="block text-sm font-medium text-gray-700 mb-1">
-                        Renseignements ou informations complémentaires
+                        Renseignements ou informations complémentaires <span class="text-red-500">*</span>
                     </label>
                     <textarea id="renseignement" name="renseignement" rows="3" 
-                              class="input-senelec" placeholder="Informations supplémentaires...">{{ old('renseignement', isset($demande) ? $demande->renseignement : '') }}</textarea>
+                              class="input-senelec" placeholder="Informations supplémentaires..." required>{{ old('renseignement', isset($demande) ? $demande->renseignement : '') }}</textarea>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label for="schema" class="block text-sm font-medium text-gray-700 mb-1">Schéma (image uniquement : PNG, JPG)</label>
+                        <label for="schema" class="block text-sm font-medium text-gray-700 mb-1">Schéma (image uniquement : PNG, JPG) <span class="text-red-500">*</span></label>
                         <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-senelec-purple/50 transition-colors">
                             <div class="space-y-1 text-center">
                                 <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
@@ -963,7 +963,7 @@
                                 <div class="flex text-sm text-gray-600">
                                     <label for="schema" class="relative cursor-pointer bg-white rounded-md font-medium text-senelec-purple hover:text-senelec-magenta">
                                         <span>Télécharger une image</span>
-                                        <input type="file" id="schema" name="schema" accept=".png,.jpg,.jpeg" class="sr-only">
+                                        <input type="file" id="schema" name="schema" accept=".png,.jpg,.jpeg" class="sr-only" required>
                                     </label>
                                     <p class="pl-1">ou glisser-déposer</p>
                                 </div>

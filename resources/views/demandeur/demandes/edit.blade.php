@@ -55,18 +55,18 @@
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="label" for="date">Date de la demande *</label>
+                    <label class="label" for="date">Date de la demande <span class="text-red-500">*</span></label>
                     <input type="date" id="date" name="date" value="{{ old('date', $demande->date) }}" 
                            class="input-senelec w-full" required>
                 </div>
                 <div>
-                    <label class="label" for="destinataire">Destinataire *</label>
+                    <label class="label" for="destinataire">Destinataire <span class="text-red-500">*</span></label>
                     <input type="text" id="destinataire" name="destinataire" 
                            value="{{ old('destinataire', $demande->destinataire) }}" 
                            class="input-senelec w-full" placeholder="Service destinataire" required>
                 </div>
                 <div class="md:col-span-2">
-                    <label class="label" for="designation">Désignation des travaux *</label>
+                    <label class="label" for="designation">Désignation des travaux <span class="text-red-500">*</span></label>
                     <textarea id="designation" name="designation" rows="3" 
                               class="input-senelec w-full" placeholder="Description détaillée des travaux" required>{{ old('designation', $demande->designation) }}</textarea>
                 </div>
@@ -84,13 +84,13 @@
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="label" for="lieu_execution">Lieu d'exécution *</label>
+                    <label class="label" for="lieu_execution">Lieu d'exécution <span class="text-red-500">*</span></label>
                     <input type="text" id="lieu_execution" name="lieu_execution" 
                            value="{{ old('lieu_execution', $demande->lieu_execution) }}" 
                            class="input-senelec w-full" placeholder="Localisation des travaux" required>
                 </div>
                 <div>
-                    <label class="label" for="ouvrage_type">Type d'ouvrage *</label>
+                    <label class="label" for="ouvrage_type">Type d'ouvrage <span class="text-red-500">*</span></label>
                     <select id="ouvrage_type" name="ouvrage_type" class="select-senelec w-full" required>
                         <option value="ligne" {{ old('ouvrage_type', $demande->ouvrage_type) == 'ligne' ? 'selected' : '' }}>Ligne</option>
                         <option value="poste" {{ old('ouvrage_type', $demande->ouvrage_type) == 'poste' ? 'selected' : '' }}>Poste</option>
@@ -109,7 +109,7 @@
             </h2>
             
             <div class="mb-4">
-                <label class="label">Mode de saisie *</label>
+                <label class="label">Mode de saisie <span class="text-red-500">*</span></label>
                 <div class="flex gap-4">
                     <label class="inline-flex items-center">
                         <input type="radio" name="mode_saisie" value="manuel" 
@@ -150,22 +150,22 @@
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                    <label class="label" for="ddp">Date début prévue *</label>
+                    <label class="label" for="ddp">Date début prévue <span class="text-red-500">*</span></label>
                     <input type="date" id="ddp" name="ddp" value="{{ old('ddp', $demande->ddp) }}" 
                            class="input-senelec w-full" required>
                 </div>
                 <div>
-                    <label class="label" for="hdp">Heure début *</label>
+                    <label class="label" for="hdp">Heure début <span class="text-red-500">*</span></label>
                     <input type="time" id="hdp" name="hdp" value="{{ old('hdp', $demande->hdp) }}" 
                            class="input-senelec w-full" required>
                 </div>
                 <div>
-                    <label class="label" for="dfp">Date fin prévue *</label>
+                    <label class="label" for="dfp">Date fin prévue <span class="text-red-500">*</span></label>
                     <input type="date" id="dfp" name="dfp" value="{{ old('dfp', $demande->dfp) }}" 
                            class="input-senelec w-full" required>
                 </div>
                 <div>
-                    <label class="label" for="hfp">Heure fin *</label>
+                    <label class="label" for="hfp">Heure fin <span class="text-red-500">*</span></label>
                     <input type="time" id="hfp" name="hfp" value="{{ old('hfp', $demande->hfp) }}" 
                            class="input-senelec w-full" required>
                 </div>
@@ -195,7 +195,7 @@
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="label" for="etape">Type d'étape *</label>
+                    <label class="label" for="etape">Type d'étape <span class="text-red-500">*</span></label>
                     <select id="etape" name="etape" class="select-senelec w-full" required>
                         <option value="ue" {{ old('etape', $demande->etape) == 'ue' ? 'selected' : '' }}>Une étape (UE)</option>
                         <option value="de" {{ old('etape', $demande->etape) == 'de' ? 'selected' : '' }}>Deux étapes (DE)</option>
