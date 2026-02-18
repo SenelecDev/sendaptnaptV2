@@ -123,16 +123,30 @@
 </head>
 <body>
     @php
-        $logoPath = public_path('img/logo.png');
         $logoBase64 = '';
-        if (file_exists($logoPath)) {
-            $logoBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
+        $logoPaths = [
+            public_path('img/logo.png'),
+            public_path('img/logo.jpg'),
+            public_path('images/logo.png'),
+            base_path('public/img/logo.png'),
+        ];
+        foreach ($logoPaths as $logoPath) {
+            if (file_exists($logoPath)) {
+                $ext = pathinfo($logoPath, PATHINFO_EXTENSION);
+                $mime = $ext === 'png' ? 'image/png' : 'image/jpeg';
+                $logoBase64 = "data:{$mime};base64," . base64_encode(file_get_contents($logoPath));
+                break;
+            }
         }
     @endphp
     <div class="email-container">
         <div class="header">
             @if($logoBase64)
             <img src="{{ $logoBase64 }}" alt="Senelec">
+            @else
+            <div style="display: inline-block; background: rgba(255,255,255,0.15); padding: 10px 20px; border-radius: 10px; margin-bottom: 5px;">
+                <span style="color: #ffffff; font-size: 20px; font-weight: bold; letter-spacing: 2px;">SENELEC</span>
+            </div>
             @endif
             <h1>{{ config('app.name') }}</h1>
             <p>Système de gestion des DAPT et NAPT</p>

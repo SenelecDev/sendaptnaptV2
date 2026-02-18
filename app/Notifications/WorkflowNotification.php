@@ -2,22 +2,19 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\HtmlString;
 
-class WorkflowNotification extends Notification implements ShouldQueue
+class WorkflowNotification extends Notification
 {
-    use Queueable;
-
-    protected string $type;
-    protected string $title;
-    protected string $message;
-    protected ?string $actionUrl;
-    protected ?string $actionText;
-    protected array $data;
+    public string $type;
+    public string $title;
+    public string $message;
+    public ?string $actionUrl;
+    public ?string $actionText;
+    public array $data;
 
     /**
      * Types disponibles:
@@ -44,7 +41,6 @@ class WorkflowNotification extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        // Notification interne toujours, email si l'utilisateur a un email
         $channels = ['database'];
         
         if ($notifiable->email) {
@@ -52,6 +48,17 @@ class WorkflowNotification extends Notification implements ShouldQueue
         }
         
         return $channels;
+    }
+
+    /**
+     * Handle failed notification (log mail errors without breaking database notifications)
+     */
+    public function failed(\Exception $e): void
+    {
+        Log::error('WorkflowNotification failed: ' . $e->getMessage(), [
+            'type' => $this->type,
+            'title' => $this->title,
+        ]);
     }
 
     public function toMail(object $notifiable): MailMessage
