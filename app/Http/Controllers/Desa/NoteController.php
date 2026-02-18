@@ -529,7 +529,7 @@ class NoteController extends Controller
     private function regenerateDaptPdf(Demande $demande): void
     {
         try {
-            $demande->load(['demandeur.n1', 'chargeTravaux']);
+            $demande->load(['demandeur', 'chargeTravaux']);
             
             // Récupérer le schéma en base64 si existe
             $schema = null;
@@ -539,14 +539,7 @@ class NoteController extends Controller
                 $schema = 'data:image/' . pathinfo($schemaPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode($schemaContent);
             }
 
-            // Récupérer la signature du N+1 si existe
-            $n1 = $demande->demandeur->n1 ?? null;
             $signatureN1 = null;
-            if ($n1 && $n1->signature && Storage::disk('public')->exists($n1->signature)) {
-                $signaturePath = storage_path('app/public/' . $n1->signature);
-                $signatureContent = file_get_contents($signaturePath);
-                $signatureN1 = 'data:image/' . pathinfo($signaturePath, PATHINFO_EXTENSION) . ';base64,' . base64_encode($signatureContent);
-            }
 
             // Configurer Dompdf
             $options = new Options();
