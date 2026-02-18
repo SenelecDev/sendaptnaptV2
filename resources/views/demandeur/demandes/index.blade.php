@@ -18,28 +18,29 @@
         </a>
     </div>
 
-    <!-- Stats rapides -->
+    <!-- Stats rapides (cliquables pour filtrer) -->
+    @php $statutActif = request('statut'); @endphp
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div class="stat-card-purple">
+        <a href="{{ route('demandeur.demandes.index') }}" class="stat-card-purple hover:scale-105 transition-transform cursor-pointer block {{ !$statutActif ? 'ring-2 ring-senelec-purple ring-offset-2' : '' }}">
             <div class="stat-value">{{ $stats['total'] }}</div>
             <div class="stat-label">Total</div>
-        </div>
-        <div class="stat-card-blue">
+        </a>
+        <a href="{{ route('demandeur.demandes.index', ['statut' => 'créée']) }}" class="stat-card-blue hover:scale-105 transition-transform cursor-pointer block {{ $statutActif === 'créée' ? 'ring-2 ring-blue-500 ring-offset-2' : '' }}">
             <div class="stat-value">{{ $stats['creees'] }}</div>
             <div class="stat-label">Créées</div>
-        </div>
-        <div class="stat-card-orange">
+        </a>
+        <a href="{{ route('demandeur.demandes.index', ['statut' => 'en cours de traitement']) }}" class="stat-card-orange hover:scale-105 transition-transform cursor-pointer block {{ $statutActif === 'en cours de traitement' ? 'ring-2 ring-orange-500 ring-offset-2' : '' }}">
             <div class="stat-value">{{ $stats['en_cours'] }}</div>
             <div class="stat-label">En cours</div>
-        </div>
-        <div class="stat-card-green">
+        </a>
+        <a href="{{ route('demandeur.demandes.index', ['statut' => 'acceptée']) }}" class="stat-card-green hover:scale-105 transition-transform cursor-pointer block {{ $statutActif === 'acceptée' ? 'ring-2 ring-green-500 ring-offset-2' : '' }}">
             <div class="stat-value">{{ $stats['acceptees'] }}</div>
             <div class="stat-label">Acceptées</div>
-        </div>
-        <div class="card-senelec p-4 border-l-4 border-red-500">
+        </a>
+        <a href="{{ route('demandeur.demandes.index', ['statut' => 'retournée']) }}" class="card-senelec p-4 border-l-4 border-red-500 hover:scale-105 transition-transform cursor-pointer block {{ $statutActif === 'retournée' ? 'ring-2 ring-red-500 ring-offset-2' : '' }}">
             <div class="stat-value text-red-600">{{ $stats['retournees'] }}</div>
             <div class="stat-label">Retournées</div>
-        </div>
+        </a>
     </div>
 
     <!-- Filtres -->
