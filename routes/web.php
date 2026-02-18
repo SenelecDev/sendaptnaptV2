@@ -63,9 +63,7 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
     
     // Search route
-    Route::get('/search', function () {
-        return view('search.index');
-    })->name('search');
+    Route::get('/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search');
     
     // Profile routes
     Route::get('/profile', function () {
