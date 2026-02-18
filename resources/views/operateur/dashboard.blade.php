@@ -36,7 +36,7 @@
                 </div>
             </div>
             <div class="p-3">
-                <div class="grid grid-cols-5 gap-1">
+                <div class="grid grid-cols-5 gap-1" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.25rem;">
                     <a href="{{ route('operateur.notes.index', ['date_debut' => $debutSemaineM1->format('Y-m-d'), 'date_fin' => $finSemaineM1->format('Y-m-d')]) }}" class="text-center p-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors">
                         <p class="text-lg font-bold text-gray-900">{{ $statsSemaineM1['total'] }}</p>
                         <p class="text-[10px] text-gray-500">Total</p>
@@ -69,32 +69,32 @@
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
-                        <span class="font-semibold">Semaine en cours</span>
+                        <span class="font-semibold text-sm">Semaine en cours</span>
                     </div>
-                    <span class="text-sm opacity-90">{{ $debutSemaine->format('d/m') }} - {{ $finSemaine->format('d/m/Y') }}</span>
+                    <span class="text-xs opacity-90">{{ $debutSemaine->format('d/m') }} - {{ $finSemaine->format('d/m') }}</span>
                 </div>
             </div>
-            <div class="p-4">
-                <div class="grid grid-cols-5 gap-2">
-                    <a href="{{ route('operateur.notes.index', ['date_debut' => $debutSemaine->format('Y-m-d'), 'date_fin' => $finSemaine->format('Y-m-d')]) }}" class="text-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                        <p class="text-2xl font-bold text-gray-900">{{ $statsSemaineCourante['total'] }}</p>
-                        <p class="text-xs text-gray-500">Total</p>
+            <div class="p-3">
+                <div class="grid grid-cols-5 gap-1" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.25rem;">
+                    <a href="{{ route('operateur.notes.index', ['date_debut' => $debutSemaine->format('Y-m-d'), 'date_fin' => $finSemaine->format('Y-m-d')]) }}" class="text-center p-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors">
+                        <p class="text-lg font-bold text-gray-900">{{ $statsSemaineCourante['total'] }}</p>
+                        <p class="text-[10px] text-gray-500">Total</p>
                     </a>
-                    <a href="{{ route('operateur.notes.index', ['statut' => 'validée', 'date_debut' => $debutSemaine->format('Y-m-d'), 'date_fin' => $finSemaine->format('Y-m-d')]) }}" class="text-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer">
-                        <p class="text-2xl font-bold text-blue-600">{{ $statsSemaineCourante['a_executer'] }}</p>
-                        <p class="text-xs text-gray-500">À exécuter</p>
+                    <a href="{{ route('operateur.notes.index', ['statut' => 'validée', 'date_debut' => $debutSemaine->format('Y-m-d'), 'date_fin' => $finSemaine->format('Y-m-d')]) }}" class="text-center p-2 bg-blue-50 rounded hover:bg-blue-100 transition-colors">
+                        <p class="text-lg font-bold text-blue-600">{{ $statsSemaineCourante['a_executer'] }}</p>
+                        <p class="text-[10px] text-gray-500">À exéc.</p>
                     </a>
-                    <a href="{{ route('operateur.notes.index', ['statut' => "en cours d'exécution", 'date_debut' => $debutSemaine->format('Y-m-d'), 'date_fin' => $finSemaine->format('Y-m-d')]) }}" class="text-center p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors cursor-pointer">
-                        <p class="text-2xl font-bold text-orange-600">{{ $statsSemaineCourante['en_cours'] }}</p>
-                        <p class="text-xs text-gray-500">En cours</p>
+                    <a href="{{ route('operateur.notes.index', ['statut' => "en cours d'exécution", 'date_debut' => $debutSemaine->format('Y-m-d'), 'date_fin' => $finSemaine->format('Y-m-d')]) }}" class="text-center p-2 bg-orange-50 rounded hover:bg-orange-100 transition-colors">
+                        <p class="text-lg font-bold text-orange-600">{{ $statsSemaineCourante['en_cours'] }}</p>
+                        <p class="text-[10px] text-gray-500">En cours</p>
                     </a>
-                    <a href="{{ route('operateur.notes.index', ['statut' => 'exécutée', 'date_debut' => $debutSemaine->format('Y-m-d'), 'date_fin' => $finSemaine->format('Y-m-d')]) }}" class="text-center p-3 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors cursor-pointer">
-                        <p class="text-2xl font-bold text-emerald-600">{{ $statsSemaineCourante['executees'] }}</p>
-                        <p class="text-xs text-gray-500">Exécutées</p>
+                    <a href="{{ route('operateur.notes.index', ['statut' => 'exécutée', 'date_debut' => $debutSemaine->format('Y-m-d'), 'date_fin' => $finSemaine->format('Y-m-d')]) }}" class="text-center p-2 bg-emerald-50 rounded hover:bg-emerald-100 transition-colors">
+                        <p class="text-lg font-bold text-emerald-600">{{ $statsSemaineCourante['executees'] }}</p>
+                        <p class="text-[10px] text-gray-500">Exec.</p>
                     </a>
-                    <a href="{{ route('operateur.notes.index', ['statut' => 'annulée', 'date_debut' => $debutSemaine->format('Y-m-d'), 'date_fin' => $finSemaine->format('Y-m-d')]) }}" class="text-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer">
-                        <p class="text-2xl font-bold text-gray-600">{{ $statsSemaineCourante['annulees'] }}</p>
-                        <p class="text-xs text-gray-500">Annulées</p>
+                    <a href="{{ route('operateur.notes.index', ['statut' => 'annulée', 'date_debut' => $debutSemaine->format('Y-m-d'), 'date_fin' => $finSemaine->format('Y-m-d')]) }}" class="text-center p-2 bg-gray-100 rounded hover:bg-gray-200 transition-colors">
+                        <p class="text-lg font-bold text-gray-600">{{ $statsSemaineCourante['annulees'] }}</p>
+                        <p class="text-[10px] text-gray-500">Annul.</p>
                     </a>
                 </div>
             </div>
@@ -110,41 +110,32 @@
                         </svg>
                         <span class="font-semibold text-sm">Semaine S+1</span>
                     </div>
-                    <span class="text-xs opacity-90">{{ $debutSemaineS1->format('d/m') }} - {{ $finSemaineS1->format('d/m/Y') }}</span>
+                    <span class="text-xs opacity-90">{{ $debutSemaineS1->format('d/m') }} - {{ $finSemaineS1->format('d/m') }}</span>
                 </div>
             </div>
-            <div class="p-4">
-                @if($statsSemaineS1['total'] > 0)
-                <div class="grid grid-cols-5 gap-2">
-                    <a href="{{ route('operateur.notes.index', ['date_debut' => $debutSemaineS1->format('Y-m-d'), 'date_fin' => $finSemaineS1->format('Y-m-d')]) }}" class="text-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                        <p class="text-2xl font-bold text-gray-900">{{ $statsSemaineS1['total'] }}</p>
-                        <p class="text-xs text-gray-500">Total</p>
+            <div class="p-3">
+                <div class="grid grid-cols-5 gap-1" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.25rem;">
+                    <a href="{{ route('operateur.notes.index', ['date_debut' => $debutSemaineS1->format('Y-m-d'), 'date_fin' => $finSemaineS1->format('Y-m-d')]) }}" class="text-center p-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors">
+                        <p class="text-lg font-bold text-gray-900">{{ $statsSemaineS1['total'] }}</p>
+                        <p class="text-[10px] text-gray-500">Total</p>
                     </a>
-                    <a href="{{ route('operateur.notes.index', ['statut' => 'validée', 'date_debut' => $debutSemaineS1->format('Y-m-d'), 'date_fin' => $finSemaineS1->format('Y-m-d')]) }}" class="text-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer">
-                        <p class="text-2xl font-bold text-blue-600">{{ $statsSemaineS1['a_executer'] }}</p>
-                        <p class="text-xs text-gray-500">À exécuter</p>
+                    <a href="{{ route('operateur.notes.index', ['statut' => 'validée', 'date_debut' => $debutSemaineS1->format('Y-m-d'), 'date_fin' => $finSemaineS1->format('Y-m-d')]) }}" class="text-center p-2 bg-blue-50 rounded hover:bg-blue-100 transition-colors">
+                        <p class="text-lg font-bold text-blue-600">{{ $statsSemaineS1['a_executer'] }}</p>
+                        <p class="text-[10px] text-gray-500">À exéc.</p>
                     </a>
-                    <a href="{{ route('operateur.notes.index', ['statut' => "en cours d'exécution", 'date_debut' => $debutSemaineS1->format('Y-m-d'), 'date_fin' => $finSemaineS1->format('Y-m-d')]) }}" class="text-center p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors cursor-pointer">
-                        <p class="text-2xl font-bold text-orange-600">{{ $statsSemaineS1['en_cours'] }}</p>
-                        <p class="text-xs text-gray-500">En cours</p>
+                    <a href="{{ route('operateur.notes.index', ['statut' => "en cours d'exécution", 'date_debut' => $debutSemaineS1->format('Y-m-d'), 'date_fin' => $finSemaineS1->format('Y-m-d')]) }}" class="text-center p-2 bg-orange-50 rounded hover:bg-orange-100 transition-colors">
+                        <p class="text-lg font-bold text-orange-600">{{ $statsSemaineS1['en_cours'] }}</p>
+                        <p class="text-[10px] text-gray-500">En cours</p>
                     </a>
-                    <a href="{{ route('operateur.notes.index', ['statut' => 'exécutée', 'date_debut' => $debutSemaineS1->format('Y-m-d'), 'date_fin' => $finSemaineS1->format('Y-m-d')]) }}" class="text-center p-3 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors cursor-pointer">
-                        <p class="text-2xl font-bold text-emerald-600">{{ $statsSemaineS1['executees'] }}</p>
-                        <p class="text-xs text-gray-500">Exécutées</p>
+                    <a href="{{ route('operateur.notes.index', ['statut' => 'exécutée', 'date_debut' => $debutSemaineS1->format('Y-m-d'), 'date_fin' => $finSemaineS1->format('Y-m-d')]) }}" class="text-center p-2 bg-emerald-50 rounded hover:bg-emerald-100 transition-colors">
+                        <p class="text-lg font-bold text-emerald-600">{{ $statsSemaineS1['executees'] }}</p>
+                        <p class="text-[10px] text-gray-500">Exec.</p>
                     </a>
-                    <a href="{{ route('operateur.notes.index', ['statut' => 'annulée', 'date_debut' => $debutSemaineS1->format('Y-m-d'), 'date_fin' => $finSemaineS1->format('Y-m-d')]) }}" class="text-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer">
-                        <p class="text-2xl font-bold text-gray-600">{{ $statsSemaineS1['annulees'] }}</p>
-                        <p class="text-xs text-gray-500">Annulées</p>
+                    <a href="{{ route('operateur.notes.index', ['statut' => 'annulée', 'date_debut' => $debutSemaineS1->format('Y-m-d'), 'date_fin' => $finSemaineS1->format('Y-m-d')]) }}" class="text-center p-2 bg-gray-100 rounded hover:bg-gray-200 transition-colors">
+                        <p class="text-lg font-bold text-gray-600">{{ $statsSemaineS1['annulees'] }}</p>
+                        <p class="text-[10px] text-gray-500">Annul.</p>
                     </a>
                 </div>
-                @else
-                <div class="text-center py-6 text-gray-500">
-                    <svg class="mx-auto h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <p class="mt-2 text-sm">Aucune NAPT programmée</p>
-                </div>
-                @endif
             </div>
         </div>
     </div>
