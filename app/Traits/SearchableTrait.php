@@ -28,6 +28,17 @@ trait SearchableTrait
     }
 
     /**
+     * Exprime une colonne pour la recherche (cast en texte pour colonnes numériques).
+     */
+    protected function searchColumnExpr(string $col, string $driver): string
+    {
+        if ($driver === 'pgsql') {
+            return "COALESCE({$col}::text, '')";
+        }
+        return "COALESCE(CAST({$col} AS CHAR), '')";
+    }
+
+    /**
      * Vérifie si l'extension unaccent est disponible (PostgreSQL).
      */
     protected function hasUnaccentExtension(): bool
@@ -64,20 +75,21 @@ trait SearchableTrait
                 $pattern = '%' . $term . '%';
                 $q->where(function ($q2) use ($pattern, $columns, $relations, $useUnaccent, $driver) {
                     foreach ($columns as $col) {
-                        $tableCol = str_contains($col, '.') ? $col : $col;
+                        $colExpr = $this->searchColumnExpr($col, $driver);
                         if ($useUnaccent) {
-                            $q2->orWhereRaw("unaccent(LOWER(COALESCE({$tableCol},''))) ILIKE unaccent(?)", [$pattern]);
+                            $q2->orWhereRaw("unaccent(LOWER({$colExpr})) ILIKE unaccent(?)", [$pattern]);
                         } else {
-                            $q2->orWhereRaw("LOWER(COALESCE({$tableCol},'')) LIKE ?", [$pattern]);
+                            $q2->orWhereRaw("LOWER({$colExpr}) LIKE ?", [$pattern]);
                         }
                     }
                     foreach ($relations as $relation => $relCols) {
                         $q2->orWhereHas($relation, function ($q3) use ($pattern, $relCols, $useUnaccent, $driver) {
                             foreach ($relCols as $col) {
+                                $colExpr = $this->searchColumnExpr($col, $driver);
                                 if ($useUnaccent) {
-                                    $q3->orWhereRaw("unaccent(LOWER(COALESCE({$col},''))) ILIKE unaccent(?)", [$pattern]);
+                                    $q3->orWhereRaw("unaccent(LOWER({$colExpr})) ILIKE unaccent(?)", [$pattern]);
                                 } else {
-                                    $q3->orWhereRaw("LOWER(COALESCE({$col},'')) LIKE ?", [$pattern]);
+                                    $q3->orWhereRaw("LOWER({$colExpr}) LIKE ?", [$pattern]);
                                 }
                             }
                         });
@@ -104,19 +116,21 @@ trait SearchableTrait
 
         $query->where(function ($q) use ($pattern, $columns, $relations, $useUnaccent, $driver, $extraCallback) {
             foreach ($columns as $col) {
+                $colExpr = $this->searchColumnExpr($col, $driver);
                 if ($useUnaccent) {
-                    $q->orWhereRaw("unaccent(LOWER(COALESCE({$col},''))) ILIKE unaccent(?)", [$pattern]);
+                    $q->orWhereRaw("unaccent(LOWER({$colExpr})) ILIKE unaccent(?)", [$pattern]);
                 } else {
-                    $q->orWhereRaw("LOWER(COALESCE({$col},'')) LIKE ?", [$pattern]);
+                    $q->orWhereRaw("LOWER({$colExpr}) LIKE ?", [$pattern]);
                 }
             }
             foreach ($relations as $relation => $relCols) {
                 $q->orWhereHas($relation, function ($q2) use ($pattern, $relCols, $useUnaccent, $driver) {
                     foreach ($relCols as $col) {
+                        $colExpr = $this->searchColumnExpr($col, $driver);
                         if ($useUnaccent) {
-                            $q2->orWhereRaw("unaccent(LOWER(COALESCE({$col},''))) ILIKE unaccent(?)", [$pattern]);
+                            $q2->orWhereRaw("unaccent(LOWER({$colExpr})) ILIKE unaccent(?)", [$pattern]);
                         } else {
-                            $q2->orWhereRaw("LOWER(COALESCE({$col},'')) LIKE ?", [$pattern]);
+                            $q2->orWhereRaw("LOWER({$colExpr}) LIKE ?", [$pattern]);
                         }
                     }
                 });
