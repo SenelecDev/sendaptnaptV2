@@ -118,7 +118,7 @@ class DemandeController extends Controller
         }]);
         
         $topGroupes = $topGroupesQuery
-            ->having('demandes_count', '>', 0)
+            ->whereHas('demandes')
             ->orderByDesc('demandes_count')
             ->take(5)
             ->get();
@@ -130,7 +130,12 @@ class DemandeController extends Controller
                 $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
             }
         }])
-        ->having('demandes_retournees_count', '>', 0)
+        ->whereHas('demandes', function($q) use ($dateDebut, $dateFin) {
+            $q->where('statut', Demande::STATUT_RETOURNEE);
+            if ($dateDebut && $dateFin) {
+                $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
+            }
+        })
         ->orderByDesc('demandes_retournees_count')
         ->take(10)
         ->get();
@@ -288,7 +293,12 @@ class DemandeController extends Controller
                 $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
             }
         }])
-        ->having('demandes_retournees_count', '>', 0)
+        ->whereHas('demandes', function($q) use ($dateDebut, $dateFin) {
+            $q->where('statut', Demande::STATUT_RETOURNEE);
+            if ($dateDebut && $dateFin) {
+                $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
+            }
+        })
         ->orderByDesc('demandes_retournees_count')
         ->take(10)
         ->get();

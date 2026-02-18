@@ -65,7 +65,7 @@ class DemandeController extends Controller
         if ($user->groupe_id) {
             $topDemandeurs = User::where('groupe_id', $user->groupe_id)
                 ->withCount('demandes')
-                ->having('demandes_count', '>', 0)
+                ->whereHas('demandes')
                 ->orderByDesc('demandes_count')
                 ->take(5)
                 ->get();
