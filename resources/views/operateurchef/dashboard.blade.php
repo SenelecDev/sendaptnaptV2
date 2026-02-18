@@ -36,7 +36,7 @@
                 </div>
             </div>
             <div class="p-3">
-                <div class="grid grid-cols-5 gap-1">
+                <div class="grid grid-cols-5 gap-1" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.25rem;">
                     <a href="{{ route('operateurchef.notes.index', ['date_debut' => $debutSemaineM1->format('Y-m-d'), 'date_fin' => $finSemaineM1->format('Y-m-d')]) }}" class="text-center p-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors">
                         <p class="text-lg font-bold text-gray-900">{{ $statsSemaineM1['total'] }}</p>
                         <p class="text-[10px] text-gray-500">Total</p>
@@ -75,7 +75,7 @@
                 </div>
             </div>
             <div class="p-4">
-                <div class="grid grid-cols-5 gap-2">
+                <div class="grid grid-cols-5 gap-2" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.5rem;">
                     <a href="{{ route('operateurchef.notes.index', ['date_debut' => $debutSemaine->format('Y-m-d'), 'date_fin' => $finSemaine->format('Y-m-d')]) }}" class="text-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                         <p class="text-2xl font-bold text-gray-900">{{ $statsSemaineCourante['total'] }}</p>
                         <p class="text-xs text-gray-500">Total</p>
@@ -115,7 +115,7 @@
             </div>
             <div class="p-4">
                 @if($statsSemaineS1['total'] > 0)
-                <div class="grid grid-cols-5 gap-2">
+                <div class="grid grid-cols-5 gap-2" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.5rem;">
                     <a href="{{ route('operateurchef.notes.index', ['date_debut' => $debutSemaineS1->format('Y-m-d'), 'date_fin' => $finSemaineS1->format('Y-m-d')]) }}" class="text-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                         <p class="text-2xl font-bold text-gray-900">{{ $statsSemaineS1['total'] }}</p>
                         <p class="text-xs text-gray-500">Total</p>

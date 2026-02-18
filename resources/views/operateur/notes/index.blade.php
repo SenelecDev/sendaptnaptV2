@@ -146,18 +146,57 @@
                             <div class="text-sm font-medium text-gray-900">{{ $note->numero_note }}</div>
                         </td>
                         <td class="px-6 py-4">
-                            @php
-                                $ouvrages = null;
-                                if ($note->demande) {
-                                    if (!empty($note->demande->ouvrages_consigner_manuel)) {
-                                        $ouvrages = $note->demande->ouvrages_consigner_manuel;
-                                    } elseif (!empty($note->demande->ouvrages_consigner_gmao) && is_array($note->demande->ouvrages_consigner_gmao)) {
-                                        $ouvrages = implode(', ', $note->demande->ouvrages_consigner_gmao);
-                                    }
-                                }
-                            @endphp
-                            <div class="text-sm text-gray-900 max-w-xs truncate" title="{{ $ouvrages ?? 'N/A' }}">
-                                {{ Str::limit($ouvrages ?? 'N/A', 40) }}
+                            <div class="text-sm text-gray-900 max-w-xs">
+                            @if($note->demande)
+                                @if($note->demande->mode_saisie === 'manuel' || $note->demande->mode_saisie === 'manuelle')
+                                    <span class="truncate block" title="{{ $note->demande->ouvrages_consigner_manuel ?? '' }}">
+                                        {{ Str::limit($note->demande->ouvrages_consigner_manuel ?: 'N/A', 50) }}
+                                    </span>
+                                @else
+                                    @php
+                                        $ouvragesList = [];
+                                        $lignesOracle = $note->demande->lignes_oracle ? (is_array($note->demande->lignes_oracle) ? $note->demande->lignes_oracle : json_decode($note->demande->lignes_oracle, true)) : [];
+                                        if (is_array($lignesOracle)) {
+                                            foreach ($lignesOracle as $ligne) {
+                                                $ouvragesList[] = is_array($ligne) ? ($ligne['description'] ?? $ligne['code'] ?? '') : $ligne;
+                                            }
+                                        }
+                                        $equipementsOracle = $note->demande->equipements_oracle ? (is_array($note->demande->equipements_oracle) ? $note->demande->equipements_oracle : json_decode($note->demande->equipements_oracle, true)) : [];
+                                        if (is_array($equipementsOracle)) {
+                                            foreach ($equipementsOracle as $levelEquipements) {
+                                                if (is_array($levelEquipements)) {
+                                                    foreach ($levelEquipements as $eq) {
+                                                        $ouvragesList[] = is_array($eq) ? ($eq['description'] ?? $eq['code'] ?? '') : $eq;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (empty($ouvragesList) && $note->demande->ouvrages_consigner_gmao) {
+                                            $gmaoData = is_array($note->demande->ouvrages_consigner_gmao)
+                                                ? $note->demande->ouvrages_consigner_gmao
+                                                : json_decode($note->demande->ouvrages_consigner_gmao, true);
+                                            if (is_array($gmaoData)) {
+                                                foreach ($gmaoData as $item) {
+                                                    $ouvragesList[] = is_array($item) ? ($item['description'] ?? '') : $item;
+                                                }
+                                            }
+                                        }
+                                        if (empty($ouvragesList) && !empty($note->demande->ouvrages_consigner_manuel)) {
+                                            $ouvragesList[] = $note->demande->ouvrages_consigner_manuel;
+                                        }
+                                        $ouvragesList = array_filter($ouvragesList);
+                                    @endphp
+                                    @if(count($ouvragesList) > 0)
+                                        <span class="truncate block" title="{{ implode(', ', $ouvragesList) }}">
+                                            {{ Str::limit(implode(', ', $ouvragesList), 50) }}
+                                        </span>
+                                    @else
+                                        <span class="text-gray-400">N/A</span>
+                                    @endif
+                                @endif
+                            @else
+                                <span class="text-gray-400">N/A</span>
+                            @endif
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
