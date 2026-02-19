@@ -359,7 +359,25 @@ class DirecteurController extends Controller
             ->selectRaw($delaiRaw)
             ->first();
         
-        return view('directeur.dapt.statistiques', compact('parMois', 'parDemandeur', 'delaiMoyen'));
+        // Top groupes par nombre de demandes
+        $parGroupe = Demande::select(
+            'users.groupe_id',
+            DB::raw('COUNT(*) as total'),
+            DB::raw("SUM(CASE WHEN demandes.statut = 'acceptée' THEN 1 ELSE 0 END) as acceptees"),
+            DB::raw("SUM(CASE WHEN demandes.statut = 'retournée' THEN 1 ELSE 0 END) as retournees")
+        )
+        ->join('users', 'demandes.demandeur_id', '=', 'users.id')
+        ->whereNotNull('users.groupe_id')
+        ->groupBy('users.groupe_id')
+        ->orderByDesc('total')
+        ->limit(10)
+        ->get()
+        ->map(function ($item) {
+            $item->groupe = \App\Models\Groupe::find($item->groupe_id);
+            return $item;
+        });
+        
+        return view('directeur.dapt.statistiques', compact('parMois', 'parDemandeur', 'delaiMoyen', 'parGroupe'));
     }
 
     /**
