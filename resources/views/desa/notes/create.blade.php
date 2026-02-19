@@ -275,7 +275,7 @@
             <select name="demande_id" id="demande_id" class="select2 w-full" required>
                 <option value="">-- Choisir une demande --</option>
                 @foreach($demandesAcceptees as $dem)
-                    <option value="{{ $dem->id }}">{{ $dem->numero_demande }} - {{ Str::limit($dem->designation, 60) }}</option>
+                    <option value="{{ $dem->id }}" {{ old('demande_id') == $dem->id ? 'selected' : '' }}>{{ $dem->numero_demande }} - {{ Str::limit($dem->designation, 60) }}</option>
                 @endforeach
             </select>
         </div>
@@ -408,12 +408,17 @@
             </h2>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                @php
+                    $oldCharges = old('charges_consignation', []);
+                    $oldCorrespondants = old('correspondants', []);
+                    $oldServices = old('services', []);
+                @endphp
                 <div>
                     <label for="charges_consignation" class="label">Chargé(s) de consignation</label>
                     <select name="charges_consignation[]" id="charges_consignation" class="select2 w-full" multiple>
-                        <option value="0">N/A</option>
+                        <option value="0" {{ in_array('0', $oldCharges) ? 'selected' : '' }}>N/A</option>
                         @foreach($chargecons as $cc)
-                            <option value="{{ $cc->id }}">{{ $cc->nom }}</option>
+                            <option value="{{ $cc->id }}" {{ in_array($cc->id, $oldCharges) ? 'selected' : '' }}>{{ $cc->nom }}</option>
                         @endforeach
                     </select>
                     <div class="mt-3">
@@ -426,9 +431,9 @@
                 <div>
                     <label for="correspondants" class="label">Correspondants</label>
                     <select name="correspondants[]" id="correspondants" class="select2 w-full" multiple>
-                        <option value="0">N/A</option>
+                        <option value="0" {{ in_array('0', $oldCorrespondants) ? 'selected' : '' }}>N/A</option>
                         @foreach($correspondants as $corr)
-                            <option value="{{ $corr->id }}">{{ $corr->nom }}</option>
+                            <option value="{{ $corr->id }}" {{ in_array($corr->id, $oldCorrespondants) ? 'selected' : '' }}>{{ $corr->nom }}</option>
                         @endforeach
                     </select>
                     <div class="mt-3">
@@ -442,7 +447,7 @@
                     <label for="services" class="label">Destinataires</label>
                     <select name="services[]" id="services" class="select2 w-full" multiple>
                         @foreach($services as $service)
-                            <option value="{{ $service->id }}">{{ $service->nom }}</option>
+                            <option value="{{ $service->id }}" {{ in_array($service->id, $oldServices) ? 'selected' : '' }}>{{ $service->nom }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -475,12 +480,14 @@
                 <div class="mt-2 flex">
                     <label class="inline-flex items-center" style="margin-right: 10px;">
                         <input type="radio" name="etude" value="oui" id="etude_oui" 
-                               class="form-radio text-senelec-purple" onclick="toggleFileInput()">
+                               class="form-radio text-senelec-purple" onclick="toggleFileInput()"
+                               {{ old('etude') === 'oui' ? 'checked' : '' }}>
                         <span class="ml-2">Oui</span>
                     </label>
                     <label class="inline-flex items-center">
                         <input type="radio" name="etude" value="non" id="etude_non" 
-                               class="form-radio text-senelec-purple" onclick="toggleFileInput()" checked>
+                               class="form-radio text-senelec-purple" onclick="toggleFileInput()"
+                               {{ old('etude', 'non') === 'non' ? 'checked' : '' }}>
                         <span class="ml-2">Non</span>
                     </label>
                 </div>
