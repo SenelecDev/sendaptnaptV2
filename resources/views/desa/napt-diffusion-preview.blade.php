@@ -112,7 +112,11 @@
                                         }
                                     }
                                     
-                                    // Éviter les doublons
+                                    // Fallback vers lieu_execution si rien trouvé
+                                    if (empty($installations) && !empty($napt->demande->lieu_execution)) {
+                                        $installations[] = $napt->demande->lieu_execution;
+                                    }
+                                    
                                     $installations = array_unique(array_filter($installations));
                                 @endphp
                                 {{ !empty($installations) ? Str::limit(implode(', ', $installations), 100) : 'N/A' }}
