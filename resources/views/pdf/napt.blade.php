@@ -94,11 +94,16 @@ table, th, td {
 }
 .signataire-table tbody td {
     text-align: center;
-    padding: 10px;
+    padding: 5px;
     border: 1px solid #ccc;
+    overflow: hidden;
+    vertical-align: top;
+    max-width: 25%;
 }
 .signValid {
-        position: relative;
+    position: relative;
+    overflow: hidden;
+    max-height: 150px;
 }
 .signValid .cachet {
     position: absolute;
@@ -106,12 +111,17 @@ table, th, td {
     left: 0;
     right: 0;
     margin: auto;
-    width: 180px;
-    /* height: 180px; */
+    width: 130px;
 }
-.signValid .cachet img,
+.signValid .cachet img {
+    max-width: 170px;
+    max-height: 170px;
+    object-fit: contain !important;
+}
 .signValid .signature img {
-    object-fit: cover !important;
+    max-width: 170px;
+    max-height: 170px;
+    object-fit: contain !important;
 }
 
 .signValid .signature h4 {
@@ -913,7 +923,7 @@ table, th, td {
                 
                 <!-- Section Signatures - déplacée ici juste après commentaires -->
                 <div class="mission-signataires" style="margin-top: 20px;">
-                    <table class="signataire-table" style="font-size: 9px;">
+                    <table class="signataire-table" style="font-size: 9px; table-layout: fixed; width: 100%;">
                         <thead>
                             <tr>
                                 <th style="border-collapse: collapse; font-size: 9px;"><strong>Destinataires</strong></th>
@@ -948,7 +958,7 @@ table, th, td {
                                                             ? $signatureEtabli
                                                             : asset('storage/' . ltrim($signatureEtabli, '/'));
                                                     @endphp
-                                                    <img src="{{ $signatureUrl }}" alt="Signature de {{ $etabliUser?->name ?? 'N/A' }}" width="100" height="100" style="margin: auto; object-fit: contain;">
+                                                    <img src="{{ $signatureUrl }}" alt="Signature de {{ $etabliUser?->name ?? 'N/A' }}" style="max-width: 140px; max-height: 180px;">
                                                 @else
                                                     <p style="font-size: 10px; text-align: center; font-weight: bold; margin-top: 30px;">
                                                         {{ $etabliUser?->name ?? 'N/A' }}
@@ -976,7 +986,7 @@ table, th, td {
                                                             ? $signatureVerifie
                                                             : asset('storage/' . ltrim($signatureVerifie, '/'));
                                                     @endphp
-                                                    <img src="{{ $signatureVerifieUrl }}" alt="Signature de {{ $verifieUser?->name ?? 'N/A' }}" width="100" height="100" style="margin: auto; object-fit: contain;">
+                                                    <img src="{{ $signatureVerifieUrl }}" alt="Signature de {{ $verifieUser?->name ?? 'N/A' }}">
                                                 @else
                                                     <p style="font-size: 10px; text-align: center; font-weight: bold; margin-top: 30px;">
                                                         {{ $verifieUser?->name ?? 'N/A' }}
@@ -1004,7 +1014,7 @@ table, th, td {
                                                             ? $signatureValide
                                                             : asset('storage/' . ltrim($signatureValide, '/'));
                                                     @endphp
-                                                    <img src="{{ $signatureValideUrl }}" alt="Signature de {{ $valideUser?->name ?? 'N/A' }}" width="100" height="100" style="margin: auto; object-fit: contain;">
+                                                    <img src="{{ $signatureValideUrl }}" alt="Signature de {{ $valideUser?->name ?? 'N/A' }}">
                                                 @else
                                                     <p style="font-size: 10px; text-align: center; font-weight: bold; margin-top: 30px;">
                                                         {{ $valideUser?->name ?? 'N/A' }}
