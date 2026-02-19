@@ -17,7 +17,7 @@ class DemandeController extends Controller
         $query = Demande::with(['demandeur', 'notes']);
 
         if ($request->filled('search')) {
-            $this->applySimpleSearch($query, $request->search, ['numero_demande', 'designation', 'lieu_execution'], ['demandeur' => ['name', 'matricule']]);
+            $this->applySimpleSearch($query, $request->search, ['numero_demande', 'designation', 'lieu_execution'], ['demandeur' => ['name', 'matricule'], 'demandeur.groupe' => ['nom']]);
         }
         
         // Filtre par statut

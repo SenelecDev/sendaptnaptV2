@@ -906,7 +906,7 @@ class DemandeController extends Controller
         
         // Appliquer les mêmes filtres que l'index
         if ($request->filled('search')) {
-            $this->applySimpleSearch($query, $request->search, ['numero_demande', 'designation', 'lieu_execution'], []);
+            $this->applySimpleSearch($query, $request->search, ['numero_demande', 'designation', 'lieu_execution'], ['demandeur' => ['name', 'matricule'], 'demandeur.groupe' => ['nom']]);
         }
         
         if ($request->filled('statut')) {
