@@ -420,7 +420,27 @@
                         @endif
                         
                         @if(empty($lignesOracle) && empty($equipementsOracle) && !$ligneDisponibleConsigner)
-                            <span class="text-gray-500 text-sm">Non spécifié</span>
+                            @php
+                                $gmaoConsigner = $demande->ouvrages_consigner_gmao;
+                                $gmaoConsignerData = is_array($gmaoConsigner) ? $gmaoConsigner : (is_string($gmaoConsigner) ? json_decode($gmaoConsigner, true) : []);
+                            @endphp
+                            @if(!empty($gmaoConsignerData))
+                                <div class="space-y-1">
+                                    @foreach($gmaoConsignerData as $item)
+                                        <div class="flex items-center text-sm">
+                                            <span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                                            <span class="text-gray-700">{{ is_array($item) ? ($item['description'] ?? $item['code'] ?? '-') : $item }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @elseif($demande->lieu_execution)
+                                <div class="flex items-center text-sm">
+                                    <span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                                    <span class="text-gray-700">{{ $demande->lieu_execution }}</span>
+                                </div>
+                            @else
+                                <span class="text-gray-500 text-sm">Non spécifié</span>
+                            @endif
                         @endif
                     @endif
                 </div>
@@ -497,7 +517,27 @@
                         @endif
                         
                         @if(empty($lignesInstallerOracle) && empty($equipementsInstaller) && !$ligneDisponibleInstaller)
-                            <span class="text-gray-500 text-sm">Non spécifié</span>
+                            @php
+                                $gmaoInstaller = $demande->ouvrages_installer_gmao;
+                                $gmaoInstallerData = is_array($gmaoInstaller) ? $gmaoInstaller : (is_string($gmaoInstaller) ? json_decode($gmaoInstaller, true) : []);
+                            @endphp
+                            @if(!empty($gmaoInstallerData))
+                                <div class="space-y-1">
+                                    @foreach($gmaoInstallerData as $item)
+                                        <div class="flex items-center text-sm">
+                                            <span class="w-2 h-2 bg-teal-500 rounded-full mr-2"></span>
+                                            <span class="text-gray-700">{{ is_array($item) ? ($item['description'] ?? $item['code'] ?? '-') : $item }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @elseif($demande->lieu_execution)
+                                <div class="flex items-center text-sm">
+                                    <span class="w-2 h-2 bg-teal-500 rounded-full mr-2"></span>
+                                    <span class="text-gray-700">{{ $demande->lieu_execution }}</span>
+                                </div>
+                            @else
+                                <span class="text-gray-500 text-sm">Non spécifié</span>
+                            @endif
                         @endif
                     @endif
                 </div>
