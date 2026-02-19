@@ -93,6 +93,12 @@ sudo docker compose exec -T app php artisan migrate:v1-data --signatures-only
 echo -e "${GREEN}  ✓ Signatures migrées${NC}"
 echo ""
 
+# Migration des groupes utilisateurs V1 → V2
+echo -e "${YELLOW}  Assignation des groupes utilisateurs depuis V1...${NC}"
+sudo docker compose exec -T app php artisan migrate:v1-data --groupes-only
+echo -e "${GREEN}  ✓ Groupes assignés${NC}"
+echo ""
+
 # Nettoyage des doublons de contacts (sécurité)
 echo -e "${YELLOW}  Nettoyage des éventuels doublons de contacts...${NC}"
 sudo docker compose exec -T app php artisan cleanup:duplicate-contacts

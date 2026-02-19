@@ -15,6 +15,7 @@ class MigrateV1Data extends Command
                             {--notes-only : Migrer uniquement les notes}
                             {--charges-travaux-only : Migrer uniquement les charges de travaux}
                             {--signatures-only : Récupérer les signatures V1 (sans écraser les existantes)}
+                            {--groupes-only : Assigner les groupes V1 aux users V2}
                             {--truncate : Vider les tables V2 avant insertion}
                             {--force : Ne pas demander de confirmation}';
 
@@ -54,6 +55,17 @@ class MigrateV1Data extends Command
             $this->newLine();
             $this->info('=== SIGNATURES UTILISATEURS ===');
             $this->migrateSignatures();
+
+            $this->newLine();
+            $this->info('=== Migration terminée ===');
+            return self::SUCCESS;
+        }
+
+        // Mode: uniquement groupes
+        if ($this->option('groupes-only')) {
+            $this->newLine();
+            $this->info('=== GROUPES UTILISATEURS ===');
+            $this->migrateUserGroupes();
 
             $this->newLine();
             $this->info('=== Migration terminée ===');
@@ -688,6 +700,46 @@ class MigrateV1Data extends Command
 
         $action = $this->option('dry-run') ? 'à mettre à jour' : 'mis à jour';
         $this->info("  ✓ {$updated} utilisateurs {$action}, {$skipped} ignorés (V1 vide).");
+    }
+
+    private function migrateUserGroupes(): void
+    {
+        $v1Users = DB::connection($this->v1Connection)
+            ->table('users')
+            ->select('id', 'name', 'user_matricule', 'groupe_id')
+            ->whereNotNull('groupe_id')
+            ->where('groupe_id', '>', 0)
+            ->get();
+
+        $this->info("  {$v1Users->count()} utilisateurs V1 avec un groupe.");
+
+        $v2GroupeIds = DB::table('groupes')->pluck('id')->toArray();
+
+        $updated = 0;
+        $skipped = 0;
+
+        foreach ($v1Users as $v1User) {
+            $v2UserId = $this->mapUserId($v1User->id);
+            if (!$v2UserId) {
+                $skipped++;
+                continue;
+            }
+
+            if (!in_array($v1User->groupe_id, $v2GroupeIds)) {
+                $this->warn("  Groupe V1 #{$v1User->groupe_id} inexistant en V2, ignoré pour {$v1User->name}");
+                $skipped++;
+                continue;
+            }
+
+            if (!$this->option('dry-run')) {
+                DB::table('users')->where('id', $v2UserId)->update(['groupe_id' => $v1User->groupe_id]);
+            }
+            $this->line("  ✓ {$v1User->name} (#{$v2UserId}) → groupe #{$v1User->groupe_id}");
+            $updated++;
+        }
+
+        $action = $this->option('dry-run') ? 'à assigner' : 'assignés';
+        $this->info("  ✓ {$updated} utilisateurs {$action}, {$skipped} ignorés.");
     }
 
     /**
