@@ -49,11 +49,11 @@
                         Annuler NAPT
                     </button>
                 @endif
-                <a href="{{ route('desa.demandes.index') }}" class="btn-senelec-outline">
+                <a href="{{ route('desa.demandes.index', ['statut' => 'créée']) }}" class="btn-senelec-outline">
                     <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
-                    Retour aux DAPT reçues
+                    Retour sur la liste
                 </a>
             </div>
         </div>
