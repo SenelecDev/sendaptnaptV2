@@ -14,6 +14,7 @@ class MigrateV1Data extends Command
                             {--demandes-only : Migrer uniquement les demandes}
                             {--notes-only : Migrer uniquement les notes}
                             {--charges-travaux-only : Migrer uniquement les charges de travaux}
+                            {--signatures-only : Récupérer les signatures V1 (sans écraser les existantes)}
                             {--truncate : Vider les tables V2 avant insertion}
                             {--force : Ne pas demander de confirmation}';
 
@@ -47,6 +48,17 @@ class MigrateV1Data extends Command
 
         // 2. Construire le mapping des users (V1 id → V2 id) par matricule
         $this->buildUserMap();
+
+        // Mode: uniquement signatures
+        if ($this->option('signatures-only')) {
+            $this->newLine();
+            $this->info('=== SIGNATURES UTILISATEURS ===');
+            $this->migrateSignatures();
+
+            $this->newLine();
+            $this->info('=== Migration terminée ===');
+            return self::SUCCESS;
+        }
 
         // Mode: uniquement charges de travaux
         if ($this->option('charges-travaux-only')) {
@@ -618,6 +630,64 @@ class MigrateV1Data extends Command
         }
 
         $this->info("  ✓ {$mapped}/{$v1Demandes->count()} demandes mappées par numero_demande.");
+    }
+
+    /**
+     * Récupère les signatures et stamps des users V1 pour les users V2
+     * qui n'en ont pas encore. Ne remplace jamais une signature existante.
+     */
+    private function migrateSignatures(): void
+    {
+        $v1Users = DB::connection($this->v1Connection)
+            ->table('users')
+            ->select('id', 'user_matricule', 'email', 'name', 'signature', 'stamp')
+            ->where(function ($q) {
+                $q->whereNotNull('signature')->where('signature', '!=', '')
+                  ->orWhere(function ($q2) {
+                      $q2->whereNotNull('stamp')->where('stamp', '!=', '');
+                  });
+            })
+            ->get();
+
+        $this->info("  {$v1Users->count()} utilisateurs V1 avec signature ou stamp.");
+
+        $updated = 0;
+        $skipped = 0;
+
+        foreach ($v1Users as $v1User) {
+            $v2UserId = $this->mapUserId($v1User->id);
+            if (!$v2UserId) {
+                continue;
+            }
+
+            $v2User = DB::table('users')->where('id', $v2UserId)->first(['signature', 'stamp']);
+            if (!$v2User) {
+                continue;
+            }
+
+            $updates = [];
+
+            if ($v1User->signature && !$v2User->signature) {
+                $updates['signature'] = $v1User->signature;
+            }
+            if ($v1User->stamp && !$v2User->stamp) {
+                $updates['stamp'] = $v1User->stamp;
+            }
+
+            if (!empty($updates)) {
+                if (!$this->option('dry-run')) {
+                    DB::table('users')->where('id', $v2UserId)->update($updates);
+                }
+                $fields = implode(', ', array_keys($updates));
+                $this->line("  ✓ {$v1User->name} (#{$v2UserId}): {$fields}");
+                $updated++;
+            } else {
+                $skipped++;
+            }
+        }
+
+        $action = $this->option('dry-run') ? 'à mettre à jour' : 'mis à jour';
+        $this->info("  ✓ {$updated} utilisateurs {$action}, {$skipped} ignorés (déjà renseigné).");
     }
 
     /**
