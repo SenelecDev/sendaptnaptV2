@@ -234,19 +234,34 @@
         $notes = $notes ?? $napts ?? collect();
         $semaine = $notes->first()->numero_semaine ?? now()->weekOfYear;
         $annee = $notes->first() ? \Carbon\Carbon::parse($notes->first()->created_at)->year : now()->year;
+
+        // Pré-encoder le logo une seule fois
+        $logoPath = public_path('img/logo.png');
+        $logoData = '';
+        if (file_exists($logoPath)) {
+            $logoData = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
+        }
+
+        // Cache des signatures base64 par chemin de fichier pour éviter de ré-encoder le même fichier
+        $signatureCache = [];
+        $getSignatureBase64 = function($signaturePath) use (&$signatureCache) {
+            if (!$signaturePath) return null;
+            if (Str::startsWith($signaturePath, ['http://', 'https://'])) return $signaturePath;
+            if (isset($signatureCache[$signaturePath])) return $signatureCache[$signaturePath];
+            $sigPath = public_path('storage/' . ltrim($signaturePath, '/'));
+            if (file_exists($sigPath)) {
+                $ext = pathinfo($sigPath, PATHINFO_EXTENSION);
+                $signatureCache[$signaturePath] = 'data:image/' . $ext . ';base64,' . base64_encode(file_get_contents($sigPath));
+                return $signatureCache[$signaturePath];
+            }
+            return null;
+        };
     @endphp
 
     <!-- Page de prévisualisation / Récapitulatif -->
     <div class="napt-page">
         <div class="header clearfix" style="margin-bottom: 10px;">
             <div class="header-left">
-                @php
-                    $logoPath = public_path('img/logo.png');
-                    $logoData = '';
-                    if (file_exists($logoPath)) {
-                        $logoData = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
-                    }
-                @endphp
                 @if($logoData)
                     <img class="logo-img" src="{{ $logoData }}" alt="Logo Senelec">
                 @endif
@@ -366,13 +381,6 @@
         <!-- En-tête -->
         <div class="header clearfix">
             <div class="header-left">
-                @php
-                    $logoPath = public_path('img/logo.png');
-                    $logoData = '';
-                    if (file_exists($logoPath)) {
-                        $logoData = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
-                    }
-                @endphp
                 @if($logoData)
                     <img class="logo-img" src="{{ $logoData }}" alt="Logo Senelec">
                 @endif
@@ -620,22 +628,11 @@
                                     @php
                                         $etabliUser = $note->etabliPar;
                                         $signatureEtabli = $etabliUser && $etabliUser->signature ? $etabliUser->signature : null;
-                                        $isInterimEtabli = $etabliUser && method_exists($etabliUser, 'estInterimaireA') && $etabliUser->estInterimaireA('desa', $note->date);
-                                        // Convertir en base64 pour Dompdf
-                                        $signatureEtabliBase64 = null;
-                                        if ($signatureEtabli && !Str::startsWith($signatureEtabli, ['http://', 'https://'])) {
-                                            $sigPath = public_path('storage/' . ltrim($signatureEtabli, '/'));
-                                            if (file_exists($sigPath)) {
-                                                $ext = pathinfo($sigPath, PATHINFO_EXTENSION);
-                                                $signatureEtabliBase64 = 'data:image/' . $ext . ';base64,' . base64_encode(file_get_contents($sigPath));
-                                            }
-                                        }
+                                        $signatureEtabliUrl = $getSignatureBase64($signatureEtabli);
                                     @endphp
                                     @if(in_array($note->statut, ['en attente de vérification', 'vérifiée', 'en cours d\'exécution', 'validée', 'executée', 'annulée']))
-                                        @if($signatureEtabliBase64)
-                                            <img src="{{ $signatureEtabliBase64 }}" class="signature-img">
-                                        @elseif($signatureEtabli && Str::startsWith($signatureEtabli, ['http://', 'https://']))
-                                            <img src="{{ $signatureEtabli }}" class="signature-img">
+                                        @if($signatureEtabliUrl)
+                                            <img src="{{ $signatureEtabliUrl }}" class="signature-img">
                                         @endif
                                     @endif
                                 </td>
@@ -643,22 +640,11 @@
                                     @php
                                         $verifieUser = $note->verifiePar;
                                         $signatureVerifie = $verifieUser && $verifieUser->signature ? $verifieUser->signature : null;
-                                        $isInterimVerifie = $verifieUser && method_exists($verifieUser, 'estInterimaireA') && $verifieUser->estInterimaireA('verificateur', $note->date);
-                                        // Convertir en base64 pour Dompdf
-                                        $signatureVerifieBase64 = null;
-                                        if ($signatureVerifie && !Str::startsWith($signatureVerifie, ['http://', 'https://'])) {
-                                            $sigPath = public_path('storage/' . ltrim($signatureVerifie, '/'));
-                                            if (file_exists($sigPath)) {
-                                                $ext = pathinfo($sigPath, PATHINFO_EXTENSION);
-                                                $signatureVerifieBase64 = 'data:image/' . $ext . ';base64,' . base64_encode(file_get_contents($sigPath));
-                                            }
-                                        }
+                                        $signatureVerifieUrl = $getSignatureBase64($signatureVerifie);
                                     @endphp
                                     @if(in_array($note->statut, ['vérifiée', 'en cours d\'exécution', 'validée', 'executée', 'annulée']))
-                                        @if($signatureVerifieBase64)
-                                            <img src="{{ $signatureVerifieBase64 }}" class="signature-img">
-                                        @elseif($signatureVerifie && Str::startsWith($signatureVerifie, ['http://', 'https://']))
-                                            <img src="{{ $signatureVerifie }}" class="signature-img">
+                                        @if($signatureVerifieUrl)
+                                            <img src="{{ $signatureVerifieUrl }}" class="signature-img">
                                         @endif
                                     @endif
                                 </td>
@@ -666,22 +652,11 @@
                                     @php
                                         $valideUser = $note->validePar;
                                         $signatureValide = $valideUser && $valideUser->signature ? $valideUser->signature : null;
-                                        $isInterimValide = $valideUser && method_exists($valideUser, 'estInterimaireA') && $valideUser->estInterimaireA('valideur', $note->date);
-                                        // Convertir en base64 pour Dompdf
-                                        $signatureValideBase64 = null;
-                                        if ($signatureValide && !Str::startsWith($signatureValide, ['http://', 'https://'])) {
-                                            $sigPath = public_path('storage/' . ltrim($signatureValide, '/'));
-                                            if (file_exists($sigPath)) {
-                                                $ext = pathinfo($sigPath, PATHINFO_EXTENSION);
-                                                $signatureValideBase64 = 'data:image/' . $ext . ';base64,' . base64_encode(file_get_contents($sigPath));
-                                            }
-                                        }
+                                        $signatureValideUrl = $getSignatureBase64($signatureValide);
                                     @endphp
                                     @if(in_array($note->statut, ['validée', 'en cours d\'exécution', 'executée', 'annulée']))
-                                        @if($signatureValideBase64)
-                                            <img src="{{ $signatureValideBase64 }}" class="signature-img">
-                                        @elseif($signatureValide && Str::startsWith($signatureValide, ['http://', 'https://']))
-                                            <img src="{{ $signatureValide }}" class="signature-img">
+                                        @if($signatureValideUrl)
+                                            <img src="{{ $signatureValideUrl }}" class="signature-img">
                                         @endif
                                     @endif
                                 </td>

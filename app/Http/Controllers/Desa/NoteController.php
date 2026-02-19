@@ -442,6 +442,9 @@ class NoteController extends Controller
      */
     public function exportPdf(Request $request)
     {
+        ini_set('memory_limit', '1G');
+        set_time_limit(300);
+
         $query = Note::with([
             'demande.demandeur',
             'demande.chargeTravaux',
@@ -500,7 +503,7 @@ class NoteController extends Controller
             $query->where('users.groupe_id', $request->groupe_id);
         }
         
-        $notes = $query->orderBy('notes.created_at', 'desc')->get();
+        $notes = $query->orderBy('notes.created_at', 'desc')->limit(50)->get();
         
         if ($notes->isEmpty()) {
             return back()->with('error', 'Aucune note à imprimer avec ces filtres.');
