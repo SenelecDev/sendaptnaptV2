@@ -529,7 +529,7 @@ class NoteController extends Controller
     private function regenerateDaptPdf(Demande $demande): void
     {
         try {
-            $demande->load(['demandeur', 'chargeTravaux']);
+            $demande->load(['demandeur', 'chargeTravaux', 'chargeTravauxExterne']);
             
             // Récupérer le schéma en base64 si existe
             $schema = null;
@@ -572,7 +572,7 @@ class NoteController extends Controller
             Log::info("DAPT PDF regenerated for demande: " . $demande->numero_demande);
             
         } catch (\Exception $e) {
-            Log::error("Erreur lors de la régénération du PDF DAPT: " . $e->getMessage());
+            Log::error("Erreur lors de la régénération du PDF DAPT: " . $e->getMessage() . "\n" . $e->getTraceAsString());
         }
     }
 

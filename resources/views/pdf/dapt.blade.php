@@ -230,12 +230,12 @@
 
                     <tr>
                         <td style="border: 1px solid #ccc;">
-                            <strong>Chargé des travaux :</strong> {{ $demande->charge_travaux_info->nom ?? '-' }}@if($demande->charge_travaux_info && $demande->charge_travaux_info->type === 'externe') <small>(Externe)</small>@endif<br><br>
-                            <strong>Fonction :</strong> {{ $demande->charge_travaux_info->type === 'externe' ? 'Ext.' : ($demande->chargeTravaux->user_title ?? $demande->chargeTravaux->poste ?? '-') }}
+                            <strong>Chargé des travaux :</strong> {{ optional($demande->charge_travaux_info)->nom ?? '-' }}@if($demande->charge_travaux_info && optional($demande->charge_travaux_info)->type === 'externe') <small>(Externe)</small>@endif<br><br>
+                            <strong>Fonction :</strong> {{ optional($demande->charge_travaux_info)->type === 'externe' ? 'Ext.' : (optional($demande->chargeTravaux)->user_title ?? optional($demande->chargeTravaux)->poste ?? '-') }}
                         </td>
                         <td style="border: 1px solid #ccc;">
-                            <strong>Appartenance :</strong> {{ $demande->charge_travaux_info->entreprise ?? '-' }}<br><br>
-                            <strong>Téléphone :</strong> {{ $demande->charge_travaux_info->telephone ?? '-' }}
+                            <strong>Appartenance :</strong> {{ optional($demande->charge_travaux_info)->entreprise ?? '-' }}<br><br>
+                            <strong>Téléphone :</strong> {{ optional($demande->charge_travaux_info)->telephone ?? '-' }}
                         </td>
                     </tr>
 
