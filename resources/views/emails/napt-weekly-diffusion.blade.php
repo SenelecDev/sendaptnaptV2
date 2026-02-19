@@ -28,9 +28,32 @@
     </style>
 </head>
 <body>
+    @php
+        $logoBase64 = '';
+        $logoPaths = [
+            public_path('img/logo.png'),
+            public_path('img/logo.jpg'),
+            public_path('images/logo.png'),
+            base_path('public/img/logo.png'),
+        ];
+        foreach ($logoPaths as $logoPath) {
+            if (file_exists($logoPath)) {
+                $ext = pathinfo($logoPath, PATHINFO_EXTENSION);
+                $mime = $ext === 'png' ? 'image/png' : 'image/jpeg';
+                $logoBase64 = "data:{$mime};base64," . base64_encode(file_get_contents($logoPath));
+                break;
+            }
+        }
+    @endphp
     <!-- En-tête avec logo -->
     <div class="header">
-        <img src="{{ asset('img/logo.png') }}" alt="Senelec" style="max-width: 100px;">
+        @if($logoBase64)
+        <img src="{{ $logoBase64 }}" alt="Senelec" style="max-width: 100px;">
+        @else
+        <div style="display: inline-block; background: rgba(245,130,31,0.15); padding: 10px 20px; border-radius: 10px; margin-bottom: 5px;">
+            <span style="color: #f5821f; font-size: 20px; font-weight: bold; letter-spacing: 2px;">SENELEC</span>
+        </div>
+        @endif
         <h1>Diffusion Hebdomadaire des NAPT</h1>
         <p><strong>Semaine S{{ $semaine }} - Année {{ $annee }}</strong></p>
         <p style="font-size: 12px; color: #888;">{{ $napts->count() }} NAPT(s) - Envoyé le {{ now()->format('d/m/Y à H:i') }}</p>
