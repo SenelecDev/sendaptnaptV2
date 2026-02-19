@@ -126,22 +126,42 @@ class DemandeController extends Controller
             ->take(5)
             ->get();
         
-        // Top groupes avec DAPT retournées (filtrable par période)
-        $topGroupesRetournees = Groupe::withCount(['demandes as demandes_retournees_count' => function($q) use ($dateDebut, $dateFin) {
-            $q->where('statut', Demande::STATUT_RETOURNEE);
-            if ($dateDebut && $dateFin) {
-                $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
-            }
-        }])
-        ->whereHas('demandes', function($q) use ($dateDebut, $dateFin) {
-            $q->where('statut', Demande::STATUT_RETOURNEE);
-            if ($dateDebut && $dateFin) {
-                $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
-            }
-        })
-        ->orderByDesc('demandes_retournees_count')
-        ->take(10)
-        ->get();
+        // Top groupes avec DAPT retournées (filtrable par période) + nb renvois cumulés
+        $topGroupesRetourneesQuery = Groupe::query()
+            ->select('groupes.*')
+            ->selectSub(function ($q) use ($dateDebut, $dateFin) {
+                $q->from('demandes')
+                    ->join('users', 'demandes.demandeur_id', '=', 'users.id')
+                    ->whereColumn('users.groupe_id', 'groupes.id')
+                    ->where('demandes.statut', Demande::STATUT_RETOURNEE);
+                if ($dateDebut && $dateFin) {
+                    $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
+                }
+                $q->selectRaw('COUNT(*)');
+            }, 'demandes_retournees_count')
+            ->selectSub(function ($q) use ($dateDebut, $dateFin) {
+                $q->from('demandes')
+                    ->join('users', 'demandes.demandeur_id', '=', 'users.id')
+                    ->whereColumn('users.groupe_id', 'groupes.id');
+                if ($dateDebut && $dateFin) {
+                    $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
+                }
+                $q->selectRaw('COALESCE(SUM(demandes.nb_retours), 0)');
+            }, 'total_renvois');
+
+        $topGroupesRetournees = $topGroupesRetourneesQuery
+            ->whereHas('demandes', function($q) use ($dateDebut, $dateFin) {
+                $q->where(function($sub) {
+                    $sub->where('statut', Demande::STATUT_RETOURNEE)
+                        ->orWhere('nb_retours', '>', 0);
+                });
+                if ($dateDebut && $dateFin) {
+                    $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
+                }
+            })
+            ->orderByDesc('total_renvois')
+            ->take(10)
+            ->get();
         
         // All groupes for filter
         $groupes = Groupe::orderBy('nom')->get();

@@ -337,7 +337,8 @@
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rang</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Groupe</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">DAPT Retournées</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Retournées</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Nb renvois</th>
                             <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">%</th>
                         </tr>
                     </thead>
@@ -357,6 +358,11 @@
                             <td class="px-4 py-3 text-center">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold {{ $index < 3 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800' }}">
                                     {{ $groupe->demandes_retournees_count }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold bg-orange-100 text-orange-800">
+                                    {{ $groupe->total_renvois ?? 0 }}
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-center text-sm text-gray-600">
