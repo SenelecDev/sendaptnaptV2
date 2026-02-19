@@ -459,7 +459,7 @@
                 <div class="bg-teal-50 border border-teal-200 rounded-lg p-3">
                     @if($demande->mode_saisie === 'manuel')
                         <div class="text-sm text-gray-700">
-                            {{ $demande->ouvrages_installer_manuel ?: ($demande->lieu_execution ?: ($demande->designation ?: 'Non spécifié')) }}
+                            {{ $demande->ouvrages_installer_manuel ?: 'Non spécifié' }}
                         </div>
                     @else
                         @php
