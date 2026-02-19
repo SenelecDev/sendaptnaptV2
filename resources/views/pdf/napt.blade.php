@@ -897,9 +897,9 @@ table, th, td {
                                 </tr>
                                 <tr>
                                     <td style="font-size: 11px;"><b>Chargé(s) travaux</b></td>
-                                    <td style="font-size: 11px;"><b>{{ $note->demande->charge_travaux_info->nom ?? ($note->demande->chargeTravaux->name ?? 'N/A') }} {{ $note->demande->charge_travaux_info->telephone ?? '' }}</b></td>
-                                    <td style="font-size: 11px;"><b>{{ optional($note->demande->charge_travaux_info)->type === 'externe' ? 'Externe' : ($note->demande->chargeTravaux->poste ?? 'N/A') }}</b></td>
-                                    <td style="font-size: 11px;"><b>{{ $note->demande->charge_travaux_info->entreprise ?? ($note->demande->chargeTravaux->entreprise ?? 'N/A') }}</b></td>
+                                    <td style="font-size: 11px;"><b>{{ optional($note->demande->charge_travaux_info)->nom ?? (optional($note->demande->chargeTravaux)->name ?? 'N/A') }} {{ optional($note->demande->charge_travaux_info)->telephone ?? '' }}</b></td>
+                                    <td style="font-size: 11px;"><b>{{ optional($note->demande->charge_travaux_info)->type === 'externe' ? 'Externe' : (optional($note->demande->chargeTravaux)->poste ?? 'N/A') }}</b></td>
+                                    <td style="font-size: 11px;"><b>{{ optional($note->demande->charge_travaux_info)->entreprise ?? (optional($note->demande->chargeTravaux)->entreprise ?? 'N/A') }}</b></td>
                                 </tr>
                             </tbody>
                         </table>

@@ -581,9 +581,9 @@
                                         </tr>
                                         <tr>
                                             <td><b>Chargé(s) travaux</b></td>
-                                            <td><b>{{ $note->demande->charge_travaux_info->nom ?? 'N/A' }} @if($note->demande->charge_travaux_info->telephone ?? false)({{ $note->demande->charge_travaux_info->telephone }})@endif</b></td>
-                                            <td><b>{{ $note->demande->charge_travaux_info->type === 'externe' ? 'Externe' : ($note->demande->chargeTravaux->poste ?? 'N/A') }}</b></td>
-                                            <td><b>{{ $note->demande->charge_travaux_info->entreprise ?? 'N/A' }}</b></td>
+                                            <td><b>{{ optional($note->demande->charge_travaux_info)->nom ?? 'N/A' }} @if(optional($note->demande->charge_travaux_info)->telephone)({{ $note->demande->charge_travaux_info->telephone }})@endif</b></td>
+                                            <td><b>{{ optional($note->demande->charge_travaux_info)->type === 'externe' ? 'Externe' : (optional($note->demande->chargeTravaux)->poste ?? 'N/A') }}</b></td>
+                                            <td><b>{{ optional($note->demande->charge_travaux_info)->entreprise ?? 'N/A' }}</b></td>
                                         </tr>
                                     </tbody>
                                 </table>
