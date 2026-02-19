@@ -50,6 +50,13 @@ class MigrateV1Data extends Command
 
         // Mode: uniquement charges de travaux
         if ($this->option('charges-travaux-only')) {
+            if ($this->option('truncate')) {
+                $this->disableForeignKeys();
+                DB::table('charges_travaux')->truncate();
+                $this->enableForeignKeys();
+                $this->info('✓ Table charges_travaux vidée.');
+            }
+
             $this->newLine();
             $this->info('Reconstruction du mapping demandes V1 → V2...');
             $this->rebuildDemandeIdMap();
@@ -206,7 +213,7 @@ class MigrateV1Data extends Command
         }
 
         if ($this->option('truncate')) {
-            $this->warn('  Vidage des tables notes puis demandes...');
+            $this->warn('  Vidage de toutes les tables liées...');
             $this->disableForeignKeys();
             DB::table('note_histories')->truncate();
             DB::table('note_service')->truncate();
@@ -214,6 +221,7 @@ class MigrateV1Data extends Command
             DB::table('note_charge_consignation')->truncate();
             DB::table('notes')->truncate();
             DB::table('demande_histories')->truncate();
+            DB::table('charges_travaux')->truncate();
             DB::table('demandes')->truncate();
             DB::table('charges_cons')->truncate();
             DB::table('correspondants')->truncate();
@@ -654,13 +662,6 @@ class MigrateV1Data extends Command
         if (!$this->option('force') && !$this->confirm("Insérer {$v1ExternalCTs->count()} CT externes dans charges_travaux V2 ?")) {
             $this->warn('  Annulé.');
             return;
-        }
-
-        if ($this->option('truncate')) {
-            $this->warn('  Vidage de la table charges_travaux...');
-            $this->disableForeignKeys();
-            DB::table('charges_travaux')->truncate();
-            $this->enableForeignKeys();
         }
 
         $inserted = 0;
