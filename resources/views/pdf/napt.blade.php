@@ -114,13 +114,13 @@ table, th, td {
     width: 130px;
 }
 .signValid .cachet img {
-    max-width: 170px;
-    max-height: 170px;
+    max-width: 150px;
+    max-height: 150px;
     object-fit: contain !important;
 }
 .signValid .signature img {
-    max-width: 170px;
-    max-height: 170px;
+    max-width: 150px;
+    max-height: 150px;
     object-fit: contain !important;
 }
 
@@ -958,7 +958,7 @@ table, th, td {
                                                             ? $signatureEtabli
                                                             : asset('storage/' . ltrim($signatureEtabli, '/'));
                                                     @endphp
-                                                    <img src="{{ $signatureUrl }}" alt="Signature de {{ $etabliUser?->name ?? 'N/A' }}" style="max-width: 140px; max-height: 180px;">
+                                                    <img src="{{ $signatureUrl }}" alt="Signature de {{ $etabliUser?->name ?? 'N/A' }}" style="max-width: 150px; max-height: 150px;">
                                                 @else
                                                     <p style="font-size: 10px; text-align: center; font-weight: bold; margin-top: 30px;">
                                                         {{ $etabliUser?->name ?? 'N/A' }}
