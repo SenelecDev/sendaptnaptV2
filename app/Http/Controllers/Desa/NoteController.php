@@ -229,7 +229,7 @@ class NoteController extends Controller
             $demande->dfa = $note->dft;
             $demande->hfa = $note->dft ? \Carbon\Carbon::parse($note->dft)->format('H:i') : null;
             $saved = $demande->save();
-            Log::info("STORE: Dates acceptées mises à jour pour demande #{$demande->id}", [
+            Log::error("DEBUG_STORE: Dates acceptées mises à jour pour demande #{$demande->id}", [
                 'saved' => $saved,
                 'note_ddt' => $note->ddt,
                 'note_dft' => $note->dft,
@@ -344,7 +344,7 @@ class NoteController extends Controller
             $demande->dfa = $note->dft;
             $demande->hfa = $note->dft ? \Carbon\Carbon::parse($note->dft)->format('H:i') : null;
             $saved = $demande->save();
-            Log::info("UPDATE: Dates acceptées mises à jour pour demande #{$demande->id}", [
+            Log::error("DEBUG_UPDATE: Dates acceptées mises à jour pour demande #{$demande->id}", [
                 'saved' => $saved,
                 'note_ddt' => $note->ddt,
                 'note_dft' => $note->dft,
@@ -550,7 +550,7 @@ class NoteController extends Controller
         try {
             $demande->load(['demandeur', 'chargeTravaux', 'chargeTravauxExterne']);
             
-            Log::info("regenerateDaptPdf: demande #{$demande->id}", [
+            Log::error("DEBUG_regenerateDaptPdf: demande #{$demande->id}", [
                 'dda' => $demande->dda,
                 'hda' => $demande->hda,
                 'dfa' => $demande->dfa,
@@ -595,7 +595,7 @@ class NoteController extends Controller
             Storage::disk('public')->put($filePath, $dompdf->output());
             $demande->update(['pdf_path' => $filePath]);
             
-            Log::info("DAPT PDF regenerated for demande: " . $demande->numero_demande);
+            Log::error("DEBUG_PDF_OK: DAPT PDF regenerated for demande: " . $demande->numero_demande);
             
         } catch (\Exception $e) {
             Log::error("Erreur lors de la régénération du PDF DAPT: " . $e->getMessage() . "\n" . $e->getTraceAsString());
