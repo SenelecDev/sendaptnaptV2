@@ -353,7 +353,6 @@
                             </td>
                             <td class="px-4 py-3">
                                 <span class="font-medium text-gray-900">{{ $groupe->nom }}</span>
-                                <span class="text-xs text-gray-400 ml-1">({{ $groupe->code ?? 'N/A' }})</span>
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold {{ $index < 3 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800' }}">
@@ -641,7 +640,6 @@
                             </div>
                             <div>
                                 <p class="font-medium text-gray-900">{{ $groupe->nom }}</p>
-                                <p class="text-xs text-gray-500">{{ $groupe->code ?? 'N/A' }}</p>
                             </div>
                         </div>
                         <div class="text-right">
