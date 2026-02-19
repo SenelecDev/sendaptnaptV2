@@ -162,7 +162,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($notes as $note)
-                    <tr class="hover:bg-gray-50 {{ !$note->fiche_manoeuvre && $note->statut === 'validée' ? 'bg-red-50' : '' }}">
+                    <tr class="hover:bg-gray-50 cursor-pointer {{ !$note->fiche_manoeuvre && $note->statut === 'validée' ? 'bg-red-50' : '' }}" onclick="window.location='{{ route('operateurchef.notes.show', $note) }}'">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900">{{ $note->numero_note }}</div>
                             <div class="text-xs text-gray-500">Semaine {{ $note->numero_semaine }}</div>
@@ -260,7 +260,7 @@
                                 {{ ucfirst($note->statut) }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2" onclick="event.stopPropagation()">
                             <a href="{{ route('operateurchef.notes.show', $note) }}" class="p-1.5 text-purple-500 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors" title="Voir">
                                 <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>

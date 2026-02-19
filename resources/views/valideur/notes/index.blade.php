@@ -133,7 +133,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($notes as $note)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{{ route('valideur.notes.show', $note) }}'">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="text-sm font-mono font-medium text-senelec-purple">{{ $note->numero_note }}</span>
                             </td>
@@ -230,7 +230,7 @@
                                     {{ $statusLabels[$note->statut] ?? ucfirst($note->statut) }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onclick="event.stopPropagation()">
                                 <div class="flex items-center justify-end gap-2">
                                     @if($note->statut === 'vérifiée')
                                         <a href="{{ route('valideur.notes.show', $note) }}" 

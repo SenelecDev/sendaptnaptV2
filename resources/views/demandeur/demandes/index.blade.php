@@ -94,7 +94,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($demandes as $demande)
-                        <tr class="hover:bg-gray-50 transition-colors">
+                        <tr class="hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location='{{ route('demandeur.demandes.show', $demande) }}'">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="text-sm font-mono font-medium text-senelec-purple">{{ $demande->numero_demande }}</span>
                             </td>
@@ -144,7 +144,7 @@
                                         <span class="badge">{{ $demande->statut }}</span>
                                 @endswitch
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onclick="event.stopPropagation()">
                                 <div class="flex items-center justify-end gap-2">
                                     <a href="{{ route('demandeur.demandes.show', $demande) }}" 
                                        class="text-senelec-purple hover:text-senelec-magenta transition-colors" title="Voir">

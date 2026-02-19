@@ -122,7 +122,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($notes as $note)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{{ route('admin.notes.show', $note) }}'">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="text-sm font-mono font-medium text-senelec-teal">{{ $note->numero_note }}</span>
                             </td>
@@ -188,7 +188,7 @@
                                         <span class="badge">{{ $note->statut }}</span>
                                 @endswitch
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onclick="event.stopPropagation()">
                                 <div class="flex items-center justify-end gap-2">
                                     <a href="{{ route('admin.notes.show', $note) }}" 
                                        class="p-1.5 text-purple-500 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors" title="Voir">

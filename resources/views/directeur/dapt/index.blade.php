@@ -113,7 +113,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($demandes as $demande)
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{{ route('directeur.dapt.show', $demande) }}'">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900">{{ $demande->numero_demande }}</div>
                         </td>
@@ -135,7 +135,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="{{ $demande->getStatutBadgeClass() }}">{{ ucfirst($demande->statut) }}</span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onclick="event.stopPropagation()">
                             <a href="{{ route('directeur.dapt.show', $demande) }}" class="text-senelec-purple hover:text-senelec-magenta" title="Voir les détails">
                                 <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
