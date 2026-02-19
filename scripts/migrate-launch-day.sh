@@ -69,6 +69,22 @@ END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))
 echo ""
 echo -e "${GREEN}  ✓ Migration des données terminée en ${DURATION}s${NC}"
+
+# Vérification que les données sont bien persistées
+echo ""
+echo -e "${YELLOW}  Vérification des données...${NC}"
+COUNTS=$(sudo docker compose exec -T app php artisan tinker --execute="echo DB::table('demandes')->count() . '|' . DB::table('notes')->count() . '|' . DB::table('charges_travaux')->count();")
+DEMANDES_COUNT=$(echo "$COUNTS" | tr -d '[:space:]' | cut -d'|' -f1)
+NOTES_COUNT=$(echo "$COUNTS" | tr -d '[:space:]' | cut -d'|' -f2)
+CT_COUNT=$(echo "$COUNTS" | tr -d '[:space:]' | cut -d'|' -f3)
+
+echo -e "  Demandes: ${DEMANDES_COUNT} | Notes: ${NOTES_COUNT} | CT externes: ${CT_COUNT}"
+
+if [ "$DEMANDES_COUNT" = "0" ]; then
+    echo -e "${RED}  ✗ ERREUR: Aucune demande en base ! La migration a échoué.${NC}"
+    exit 1
+fi
+echo -e "${GREEN}  ✓ Données vérifiées${NC}"
 echo ""
 
 # Étape 5 : Copie des fichiers V1 → V2
