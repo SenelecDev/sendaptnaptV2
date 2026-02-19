@@ -633,8 +633,8 @@ class MigrateV1Data extends Command
     }
 
     /**
-     * Récupère les signatures et stamps des users V1 pour les users V2
-     * qui n'en ont pas encore. Ne remplace jamais une signature existante.
+     * Récupère les signatures et stamps des users V1 et les applique aux users V2.
+     * Écrase les valeurs existantes si V1 a une signature.
      */
     private function migrateSignatures(): void
     {
@@ -667,10 +667,10 @@ class MigrateV1Data extends Command
 
             $updates = [];
 
-            if ($v1User->signature && !$v2User->signature) {
+            if ($v1User->signature) {
                 $updates['signature'] = $v1User->signature;
             }
-            if ($v1User->stamp && !$v2User->stamp) {
+            if ($v1User->stamp) {
                 $updates['stamp'] = $v1User->stamp;
             }
 
@@ -687,7 +687,7 @@ class MigrateV1Data extends Command
         }
 
         $action = $this->option('dry-run') ? 'à mettre à jour' : 'mis à jour';
-        $this->info("  ✓ {$updated} utilisateurs {$action}, {$skipped} ignorés (déjà renseigné).");
+        $this->info("  ✓ {$updated} utilisateurs {$action}, {$skipped} ignorés (V1 vide).");
     }
 
     /**
