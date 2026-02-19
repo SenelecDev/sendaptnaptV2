@@ -228,7 +228,16 @@ class NoteController extends Controller
             $demande->hda = $note->ddt ? \Carbon\Carbon::parse($note->ddt)->format('H:i') : null;
             $demande->dfa = $note->dft;
             $demande->hfa = $note->dft ? \Carbon\Carbon::parse($note->dft)->format('H:i') : null;
-            $demande->save();
+            $saved = $demande->save();
+            Log::info("STORE: Dates acceptées mises à jour pour demande #{$demande->id}", [
+                'saved' => $saved,
+                'note_ddt' => $note->ddt,
+                'note_dft' => $note->dft,
+                'demande_dda' => $demande->dda,
+                'demande_hda' => $demande->hda,
+                'demande_dfa' => $demande->dfa,
+                'demande_hfa' => $demande->hfa,
+            ]);
             // Régénérer le PDF de la DAPT avec les dates acceptées
             $this->regenerateDaptPdf($demande);
             // Notification aux vérificateurs
@@ -329,13 +338,23 @@ class NoteController extends Controller
             $note->etabli_id = Auth::id();
             $message = 'Note envoyée en vérification.';
             // Mettre à jour la période acceptée sur la DAPT (dates + heures extraites du datetime)
-            $note->demande->dda = $note->ddt;
-            $note->demande->hda = $note->ddt ? \Carbon\Carbon::parse($note->ddt)->format('H:i') : null;
-            $note->demande->dfa = $note->dft;
-            $note->demande->hfa = $note->dft ? \Carbon\Carbon::parse($note->dft)->format('H:i') : null;
-            $note->demande->save();
+            $demande = $note->demande;
+            $demande->dda = $note->ddt;
+            $demande->hda = $note->ddt ? \Carbon\Carbon::parse($note->ddt)->format('H:i') : null;
+            $demande->dfa = $note->dft;
+            $demande->hfa = $note->dft ? \Carbon\Carbon::parse($note->dft)->format('H:i') : null;
+            $saved = $demande->save();
+            Log::info("UPDATE: Dates acceptées mises à jour pour demande #{$demande->id}", [
+                'saved' => $saved,
+                'note_ddt' => $note->ddt,
+                'note_dft' => $note->dft,
+                'demande_dda' => $demande->dda,
+                'demande_hda' => $demande->hda,
+                'demande_dfa' => $demande->dfa,
+                'demande_hfa' => $demande->hfa,
+            ]);
             // Régénérer le PDF de la DAPT avec les dates acceptées
-            $this->regenerateDaptPdf($note->demande);
+            $this->regenerateDaptPdf($demande);
         } elseif ($action === 'en_cours_etude') {
             // Passer de brouillon à en étude
             $note->statut = Note::STATUT_EN_ETUDE;
@@ -530,6 +549,13 @@ class NoteController extends Controller
     {
         try {
             $demande->load(['demandeur', 'chargeTravaux', 'chargeTravauxExterne']);
+            
+            Log::info("regenerateDaptPdf: demande #{$demande->id}", [
+                'dda' => $demande->dda,
+                'hda' => $demande->hda,
+                'dfa' => $demande->dfa,
+                'hfa' => $demande->hfa,
+            ]);
             
             // Récupérer le schéma en base64 si existe
             $schema = null;
