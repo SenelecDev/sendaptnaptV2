@@ -131,9 +131,9 @@ class NoteController extends Controller
                                      ->doesntHave('notes')
                                      ->get();
         
-        $chargecons = ChargeCons::orderBy('nom')->get();
-        $correspondants = Correspondant::orderBy('nom')->get();
-        $services = ServiceDest::orderBy('nom')->get();
+        $chargecons = ChargeCons::orderBy('nom')->get()->unique('nom')->values();
+        $correspondants = Correspondant::orderBy('nom')->get()->unique('nom')->values();
+        $services = ServiceDest::orderBy('nom')->get()->unique('nom')->values();
         
         // Dernier numéro NAPT créé (pour affichage du format attendu)
         $dernierNapt = Note::orderBy('created_at', 'desc')->first();
@@ -261,9 +261,9 @@ class NoteController extends Controller
         
         $note->load(['demande', 'chargecons', 'correspondants', 'services']);
         
-        $chargecons = ChargeCons::orderBy('nom')->get();
-        $correspondants = Correspondant::orderBy('nom')->get();
-        $services = ServiceDest::orderBy('nom')->get();
+        $chargecons = ChargeCons::orderBy('nom')->get()->unique('nom')->values();
+        $correspondants = Correspondant::orderBy('nom')->get()->unique('nom')->values();
+        $services = ServiceDest::orderBy('nom')->get()->unique('nom')->values();
         
         return view('desa.notes.edit', compact('note', 'chargecons', 'correspondants', 'services'));
     }
