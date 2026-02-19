@@ -400,7 +400,7 @@
                             <span class="text-sm font-medium text-gray-900">Document</span>
                         </a>
                     @endif
-                    @if($note->etude)
+                    @if($note->etude && !in_array($note->etude, ['oui', 'non']))
                         <a href="{{ $note->etude_url }}" target="_blank" 
                            class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200">
                             <i class="fas fa-file-alt text-blue-500 text-xl"></i>
