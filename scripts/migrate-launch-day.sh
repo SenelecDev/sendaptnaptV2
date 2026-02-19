@@ -87,6 +87,11 @@ fi
 echo -e "${GREEN}  ✓ Données vérifiées${NC}"
 echo ""
 
+# Nettoyage des doublons de contacts (sécurité)
+echo -e "${YELLOW}  Nettoyage des éventuels doublons de contacts...${NC}"
+sudo docker compose exec -T app php artisan cleanup:duplicate-contacts
+echo ""
+
 # Étape 5 : Copie des fichiers V1 → V2
 echo -e "${YELLOW}[5/6] Copie des fichiers (PDFs, schémas, documents)...${NC}"
 
