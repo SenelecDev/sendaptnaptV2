@@ -91,18 +91,21 @@
                                             }
                                         }
                                         
-                                        // Équipements
+                                        // Équipements (dernier niveau)
                                         if (!empty($napt->demande->equipements_oracle)) {
                                             $equipementsData = json_decode($napt->demande->equipements_oracle, true);
                                             if (is_array($equipementsData)) {
-                                                foreach ($equipementsData as $key => $data) {
-                                                    if (preg_match('/equipements_consigner_level_\d+/', $key) && is_array($data)) {
-                                                        // Prendre le dernier niveau d'équipement
-                                                        $lastItem = end($data);
-                                                        $desc = is_array($lastItem) ? ($lastItem['description'] ?? $lastItem['EQUIPMENT_DES'] ?? $lastItem['code'] ?? null) : $lastItem;
+                                                $niveauxAvecData = [];
+                                                foreach ($equipementsData as $levelKey => $levelData) {
+                                                    if (preg_match('/level_(\d+)/', $levelKey, $m) && is_array($levelData) && !empty($levelData)) {
+                                                        $niveauxAvecData[$m[1]] = $levelData;
+                                                    }
+                                                }
+                                                if (!empty($niveauxAvecData)) {
+                                                    $dernierNiveau = max(array_keys($niveauxAvecData));
+                                                    foreach ($niveauxAvecData[$dernierNiveau] as $equip) {
+                                                        $desc = is_array($equip) ? ($equip['description'] ?? $equip['EQUIPMENT_DES'] ?? $equip['code'] ?? null) : $equip;
                                                         if ($desc) $installations[] = $desc;
-                                                    } elseif (is_array($data) && isset($data['description'])) {
-                                                        $installations[] = $data['description'];
                                                     }
                                                 }
                                             }
