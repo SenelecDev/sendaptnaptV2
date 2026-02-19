@@ -669,7 +669,7 @@ class MigrateV1Data extends Command
     {
         $driver = DB::getDriverName();
         if ($driver === 'pgsql') {
-            DB::statement('SET session_replication_role = \'DEFAULT\'');
+            DB::statement('SET session_replication_role = \'origin\'');
         } else {
             DB::statement('SET FOREIGN_KEY_CHECKS = 1');
         }
