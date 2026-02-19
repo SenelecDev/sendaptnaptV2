@@ -13,6 +13,7 @@ class MigrateV1Data extends Command
                             {--connection=mysql_v1 : Nom de la connexion V1}
                             {--demandes-only : Migrer uniquement les demandes}
                             {--notes-only : Migrer uniquement les notes}
+                            {--charges-travaux-only : Migrer uniquement les charges de travaux}
                             {--truncate : Vider les tables V2 avant insertion}
                             {--force : Ne pas demander de confirmation}';
 
@@ -25,6 +26,7 @@ class MigrateV1Data extends Command
     private array $chargeConsIdMap = [];
     private array $correspondantIdMap = [];
     private array $serviceDestIdMap = [];
+    private array $chargeTravauxIdMap = [];
 
     public function handle(): int
     {
@@ -46,6 +48,21 @@ class MigrateV1Data extends Command
         // 2. Construire le mapping des users (V1 id → V2 id) par matricule
         $this->buildUserMap();
 
+        // Mode: uniquement charges de travaux
+        if ($this->option('charges-travaux-only')) {
+            $this->newLine();
+            $this->info('Reconstruction du mapping demandes V1 → V2...');
+            $this->rebuildDemandeIdMap();
+
+            $this->newLine();
+            $this->info('=== CHARGES DE TRAVAUX ===');
+            $this->migrateChargesTravaux();
+
+            $this->newLine();
+            $this->info('=== Migration terminée ===');
+            return self::SUCCESS;
+        }
+
         // 3. Analyser les schémas
         if (!$this->option('notes-only')) {
             $this->newLine();
@@ -65,6 +82,13 @@ class MigrateV1Data extends Command
             $this->newLine();
             $this->info('=== TABLES PIVOT (note ↔ contacts) ===');
             $this->migratePivotTables();
+        }
+
+        // Charges de travaux (à la fin car dépend des demandes migrées)
+        if (!$this->option('notes-only') && !$this->option('demandes-only')) {
+            $this->newLine();
+            $this->info('=== CHARGES DE TRAVAUX ===');
+            $this->migrateChargesTravaux();
         }
 
         $this->newLine();
@@ -542,6 +566,141 @@ class MigrateV1Data extends Command
             }
             $this->info("  ✓ {$inserted}/{$v1Pivots->count()} note_service insérées.");
         }
+    }
+
+    /**
+     * Reconstruit le mapping V1 demande_id → V2 demande_id
+     * en se basant sur numero_demande (identifiant stable entre V1 et V2)
+     */
+    private function rebuildDemandeIdMap(): void
+    {
+        $v1Demandes = DB::connection($this->v1Connection)
+            ->table('demandes')
+            ->select('id', 'numero_demande')
+            ->orderBy('id')
+            ->get();
+
+        $v2Demandes = DB::table('demandes')
+            ->select('id', 'numero_demande')
+            ->get()
+            ->keyBy('numero_demande');
+
+        $mapped = 0;
+        foreach ($v1Demandes as $v1) {
+            if ($v1->numero_demande && isset($v2Demandes[$v1->numero_demande])) {
+                $this->demandeIdMap[$v1->id] = $v2Demandes[$v1->numero_demande]->id;
+                $mapped++;
+            }
+        }
+
+        $this->info("  ✓ {$mapped}/{$v1Demandes->count()} demandes mappées par numero_demande.");
+    }
+
+    /**
+     * En V1, les CT externes étaient dans la table users avec un email
+     * du type *.externe@desa.local. En V2, ils vont dans charges_travaux.
+     */
+    private function migrateChargesTravaux(): void
+    {
+        // Identifier les CT externes par leur email (*.externe@*)
+        $v1ExternalUsers = DB::connection($this->v1Connection)
+            ->table('users')
+            ->where('email', 'LIKE', '%.externe@%')
+            ->orderBy('id')
+            ->get();
+
+        $this->info("  {$v1ExternalUsers->count()} users externes trouvés en V1 (email *.externe@*).");
+
+        // Parmi eux, lesquels sont utilisés comme charge_travaux dans des demandes ?
+        $v1CtIds = DB::connection($this->v1Connection)
+            ->table('demandes')
+            ->whereNotNull('charge_travaux_id')
+            ->distinct()
+            ->pluck('charge_travaux_id')
+            ->toArray();
+
+        $externalCtIds = $v1ExternalUsers->pluck('id')->toArray();
+        $usedExternalCtIds = array_intersect($externalCtIds, $v1CtIds);
+
+        $this->info("  → " . count($usedExternalCtIds) . " sont utilisés comme chargé de travaux dans des demandes.");
+
+        $v1ExternalCTs = $v1ExternalUsers;
+        $this->info("  {$v1ExternalCTs->count()} CT externes à insérer dans charges_travaux V2.");
+
+        if ($this->option('dry-run')) {
+            foreach ($v1ExternalCTs as $ct) {
+                $this->line("    - #{$ct->id} {$ct->name} ({$ct->email})");
+            }
+            $this->warn('  [DRY-RUN] Aucune insertion effectuée.');
+            return;
+        }
+
+        if (!$this->option('force') && !$this->confirm("Insérer {$v1ExternalCTs->count()} CT externes dans charges_travaux V2 ?")) {
+            $this->warn('  Annulé.');
+            return;
+        }
+
+        if ($this->option('truncate')) {
+            $this->warn('  Vidage de la table charges_travaux...');
+            $this->disableForeignKeys();
+            DB::table('charges_travaux')->truncate();
+            $this->enableForeignKeys();
+        }
+
+        $inserted = 0;
+        $errors = 0;
+
+        foreach ($v1ExternalCTs as $v1User) {
+            $v1Row = (array) $v1User;
+            $data = [
+                'nom' => $v1Row['name'] ?? $v1Row['nom'] ?? 'N/A',
+                'telephone' => $v1Row['telephone'] ?? $v1Row['phone'] ?? $v1Row['tel'] ?? null,
+                'entreprise' => $v1Row['entreprise'] ?? null,
+                'service' => $v1Row['service'] ?? null,
+                'actif' => true,
+                'created_at' => $v1Row['created_at'] ?? now(),
+                'updated_at' => $v1Row['updated_at'] ?? now(),
+            ];
+
+            try {
+                $newId = DB::table('charges_travaux')->insertGetId($data);
+                $this->chargeTravauxIdMap[$v1User->id] = $newId;
+                $inserted++;
+            } catch (\Exception $e) {
+                $this->error("    Erreur CT externe V1 #{$v1User->id} ({$v1User->name}): " . $e->getMessage());
+                $errors++;
+            }
+        }
+
+        $this->info("  ✓ {$inserted} CT externes insérés dans charges_travaux, {$errors} erreurs.");
+
+        // Mettre à jour charge_travaux_externe_id dans les demandes V2
+        $this->info('  Mise à jour de charge_travaux_externe_id dans les demandes V2...');
+
+        $allExternalV1Ids = array_keys($this->chargeTravauxIdMap);
+        $v1DemandesWithExternalCT = DB::connection($this->v1Connection)
+            ->table('demandes')
+            ->whereIn('charge_travaux_id', $allExternalV1Ids)
+            ->select('id', 'charge_travaux_id')
+            ->get();
+
+        $updated = 0;
+        foreach ($v1DemandesWithExternalCT as $v1Demande) {
+            $v2DemandeId = $this->demandeIdMap[$v1Demande->id] ?? null;
+            $v2ChargeTravauxId = $this->chargeTravauxIdMap[$v1Demande->charge_travaux_id] ?? null;
+
+            if ($v2DemandeId && $v2ChargeTravauxId) {
+                DB::table('demandes')
+                    ->where('id', $v2DemandeId)
+                    ->update([
+                        'charge_travaux_externe_id' => $v2ChargeTravauxId,
+                        'charge_travaux_id' => null,
+                    ]);
+                $updated++;
+            }
+        }
+
+        $this->info("  ✓ {$updated} demandes mises à jour avec charge_travaux_externe_id.");
     }
 
     private function showSchemaComparison(string $table, array $v1Cols, array $v2Cols): void
