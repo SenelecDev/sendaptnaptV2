@@ -292,6 +292,22 @@ class MigrateV1Data extends Command
                 $data['updated_at'] = $v1Data['updated_at'] ?? now();
             }
 
+            // Gérer les doublons de numero_demande (V1 peut avoir des doublons)
+            if (isset($data['numero_demande']) && $data['numero_demande']) {
+                $originalNumero = $data['numero_demande'];
+                $suffix = 2;
+                while (DB::table('demandes')->where('numero_demande', $data['numero_demande'])->exists()) {
+                    $data['numero_demande'] = $originalNumero . '-' . $suffix;
+                    $suffix++;
+                }
+                if ($data['numero_demande'] !== $originalNumero) {
+                    // Mettre à jour aussi le pdf_path pour refléter le nouveau numéro
+                    if (isset($data['pdf_path'])) {
+                        $data['pdf_path'] = str_replace($originalNumero, $data['numero_demande'], $data['pdf_path']);
+                    }
+                }
+            }
+
             try {
                 $newId = DB::table('demandes')->insertGetId($data);
                 $this->demandeIdMap[$v1Row->id] = $newId;
