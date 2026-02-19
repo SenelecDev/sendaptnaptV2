@@ -228,16 +228,7 @@ class NoteController extends Controller
             $demande->hda = $note->ddt ? \Carbon\Carbon::parse($note->ddt)->format('H:i') : null;
             $demande->dfa = $note->dft;
             $demande->hfa = $note->dft ? \Carbon\Carbon::parse($note->dft)->format('H:i') : null;
-            $saved = $demande->save();
-            Log::error("DEBUG_STORE: Dates acceptées mises à jour pour demande #{$demande->id}", [
-                'saved' => $saved,
-                'note_ddt' => $note->ddt,
-                'note_dft' => $note->dft,
-                'demande_dda' => $demande->dda,
-                'demande_hda' => $demande->hda,
-                'demande_dfa' => $demande->dfa,
-                'demande_hfa' => $demande->hfa,
-            ]);
+            $demande->save();
             // Régénérer le PDF de la DAPT avec les dates acceptées
             $this->regenerateDaptPdf($demande);
             // Notification aux vérificateurs
@@ -343,16 +334,7 @@ class NoteController extends Controller
             $demande->hda = $note->ddt ? \Carbon\Carbon::parse($note->ddt)->format('H:i') : null;
             $demande->dfa = $note->dft;
             $demande->hfa = $note->dft ? \Carbon\Carbon::parse($note->dft)->format('H:i') : null;
-            $saved = $demande->save();
-            Log::error("DEBUG_UPDATE: Dates acceptées mises à jour pour demande #{$demande->id}", [
-                'saved' => $saved,
-                'note_ddt' => $note->ddt,
-                'note_dft' => $note->dft,
-                'demande_dda' => $demande->dda,
-                'demande_hda' => $demande->hda,
-                'demande_dfa' => $demande->dfa,
-                'demande_hfa' => $demande->hfa,
-            ]);
+            $demande->save();
             // Régénérer le PDF de la DAPT avec les dates acceptées
             $this->regenerateDaptPdf($demande);
         } elseif ($action === 'en_cours_etude') {
@@ -550,13 +532,6 @@ class NoteController extends Controller
         try {
             $demande->load(['demandeur', 'chargeTravaux', 'chargeTravauxExterne']);
             
-            Log::error("DEBUG_regenerateDaptPdf: demande #{$demande->id}", [
-                'dda' => $demande->dda,
-                'hda' => $demande->hda,
-                'dfa' => $demande->dfa,
-                'hfa' => $demande->hfa,
-            ]);
-            
             // Récupérer le schéma en base64 si existe
             $schema = null;
             if ($demande->schema_path && Storage::disk('public')->exists($demande->schema_path)) {
@@ -595,7 +570,7 @@ class NoteController extends Controller
             Storage::disk('public')->put($filePath, $dompdf->output());
             $demande->update(['pdf_path' => $filePath]);
             
-            Log::error("DEBUG_PDF_OK: DAPT PDF regenerated for demande: " . $demande->numero_demande);
+            Log::info("DAPT PDF regenerated for demande: " . $demande->numero_demande);
             
         } catch (\Exception $e) {
             Log::error("Erreur lors de la régénération du PDF DAPT: " . $e->getMessage() . "\n" . $e->getTraceAsString());
