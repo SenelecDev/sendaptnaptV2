@@ -172,7 +172,7 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         <!-- Informations de la demande -->
         <div class="lg:col-span-2 space-y-6">
             <!-- Résumé de la demande -->
@@ -326,7 +326,7 @@
                         </a>
                     </div>
                     <div class="p-4">
-                        <img src="{{ $demande->schema_url }}" alt="Schéma de la demande" class="max-w-full h-auto mx-auto rounded shadow-sm" style="max-height: 400px; object-fit: contain;">
+                        <img src="{{ $demande->schema_url }}" alt="Schéma de la demande" class="max-w-full h-auto mx-auto rounded shadow-sm" style="max-height: 250px; object-fit: contain;">
                     </div>
                 </div>
             </div>
@@ -338,11 +338,11 @@
                     </svg>
                     Schéma joint
                 </h2>
-                <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                    <svg class="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                    <svg class="w-8 h-8 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
-                    <p class="text-gray-500">Aucun schéma joint à cette demande</p>
+                    <p class="text-gray-500 text-sm">Aucun schéma joint à cette demande</p>
                 </div>
             </div>
             @endif
@@ -570,7 +570,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                     </svg>
                     Chargé de travaux
-                    @if($demande->charge_travaux_info && $demande->charge_travaux_info->type === 'externe')
+                    @if(optional($demande->charge_travaux_info)->type === 'externe')
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 ml-2">Externe</span>
                     @endif
                 </h2>

@@ -63,7 +63,7 @@
                         <dd class="mt-1 text-gray-900 font-mono">{{ $note->numero_note }}</dd>
                     </div>
                     <div>
-                        <dt class="text-sm font-medium text-gray-500">Semaine</dt>
+                        <dt class="text-sm font-medium text-gray-500">S</dt>
                         <dd class="mt-1 text-gray-900">{{ $note->numero_semaine }}</dd>
                     </div>
                     <div>
