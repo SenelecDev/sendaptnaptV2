@@ -339,12 +339,14 @@ class DirecteurController extends Controller
         ->orderBy('mois')
         ->get();
         
-        // Stats par demandeur
+        // Stats par demandeur (avec groupe et nb retours)
         $parDemandeur = Demande::select(
             'demandeur_id',
-            DB::raw('COUNT(*) as total')
+            DB::raw('COUNT(*) as total'),
+            DB::raw("SUM(CASE WHEN demandes.statut = 'acceptée' THEN 1 ELSE 0 END) as acceptees"),
+            DB::raw('COALESCE(SUM(demandes.nb_retours), 0) as total_retours')
         )
-        ->with('demandeur')
+        ->with('demandeur.groupe')
         ->groupBy('demandeur_id')
         ->orderByDesc('total')
         ->limit(10)
@@ -364,7 +366,8 @@ class DirecteurController extends Controller
             'users.groupe_id',
             DB::raw('COUNT(*) as total'),
             DB::raw("SUM(CASE WHEN demandes.statut = 'acceptée' THEN 1 ELSE 0 END) as acceptees"),
-            DB::raw("SUM(CASE WHEN demandes.statut = 'retournée' THEN 1 ELSE 0 END) as retournees")
+            DB::raw("SUM(CASE WHEN demandes.statut = 'retournée' THEN 1 ELSE 0 END) as retournees"),
+            DB::raw('COALESCE(SUM(demandes.nb_retours), 0) as total_retours')
         )
         ->join('users', 'demandes.demandeur_id', '=', 'users.id')
         ->whereNotNull('users.groupe_id')

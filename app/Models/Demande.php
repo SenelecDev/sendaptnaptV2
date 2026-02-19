@@ -64,6 +64,7 @@ class Demande extends Model
         'telephone_charge',
         // Motif retour
         'motif_retour',
+        'nb_retours',
         // Date de traitement
         'date_traitement',
     ];

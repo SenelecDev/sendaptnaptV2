@@ -854,6 +854,7 @@ class DemandeController extends Controller
         $demande->motif_retour = $request->input('comment');
         $demande->traite_id = Auth::id();
         $demande->date_traitement = now();
+        $demande->nb_retours = ($demande->nb_retours ?? 0) + 1;
         $demande->save();
         
         return redirect()->route('desa.demandes.index')

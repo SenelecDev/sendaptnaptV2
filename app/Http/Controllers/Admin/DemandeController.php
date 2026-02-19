@@ -119,16 +119,37 @@ class DemandeController extends Controller
         ->orderBy('mois')
         ->get();
         
-        // Stats par demandeur
+        // Stats par demandeur (avec groupe et nb retours)
         $parDemandeur = Demande::select(
             'demandeur_id',
-            DB::raw('COUNT(*) as total')
+            DB::raw('COUNT(*) as total'),
+            DB::raw("SUM(CASE WHEN demandes.statut = 'acceptée' THEN 1 ELSE 0 END) as acceptees"),
+            DB::raw('COALESCE(SUM(demandes.nb_retours), 0) as total_retours')
         )
-        ->with('demandeur')
+        ->with('demandeur.groupe')
         ->groupBy('demandeur_id')
         ->orderByDesc('total')
         ->limit(10)
         ->get();
+        
+        // Top groupes par nombre de demandes
+        $parGroupe = Demande::select(
+            'users.groupe_id',
+            DB::raw('COUNT(*) as total'),
+            DB::raw("SUM(CASE WHEN demandes.statut = 'acceptée' THEN 1 ELSE 0 END) as acceptees"),
+            DB::raw("SUM(CASE WHEN demandes.statut = 'retournée' THEN 1 ELSE 0 END) as retournees"),
+            DB::raw('COALESCE(SUM(demandes.nb_retours), 0) as total_retours')
+        )
+        ->join('users', 'demandes.demandeur_id', '=', 'users.id')
+        ->whereNotNull('users.groupe_id')
+        ->groupBy('users.groupe_id')
+        ->orderByDesc('total')
+        ->limit(10)
+        ->get()
+        ->map(function ($item) {
+            $item->groupe = \App\Models\Groupe::find($item->groupe_id);
+            return $item;
+        });
         
         // Délai moyen de traitement
         $delaiRaw = DB::getDriverName() === 'pgsql'
@@ -139,6 +160,6 @@ class DemandeController extends Controller
             ->selectRaw($delaiRaw)
             ->first();
         
-        return view('admin.demandes.statistiques', compact('parMois', 'parDemandeur', 'delaiMoyen'));
+        return view('admin.demandes.statistiques', compact('parMois', 'parDemandeur', 'delaiMoyen', 'parGroupe'));
     }
 }
