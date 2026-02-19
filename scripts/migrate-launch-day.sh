@@ -87,6 +87,12 @@ fi
 echo -e "${GREEN}  ✓ Données vérifiées${NC}"
 echo ""
 
+# Migration des signatures utilisateurs V1 → V2
+echo -e "${YELLOW}  Migration des signatures et cachets utilisateurs...${NC}"
+sudo docker compose exec -T app php artisan migrate:v1-data --signatures-only
+echo -e "${GREEN}  ✓ Signatures migrées${NC}"
+echo ""
+
 # Nettoyage des doublons de contacts (sécurité)
 echo -e "${YELLOW}  Nettoyage des éventuels doublons de contacts...${NC}"
 sudo docker compose exec -T app php artisan cleanup:duplicate-contacts
