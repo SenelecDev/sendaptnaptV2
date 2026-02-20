@@ -10,11 +10,7 @@
     <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('img/logo.png') }}">
     
-    <!-- Fonts - Rajdhani pour les titres, Open Sans pour les textes -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <!-- Styles (fonts bundled via Vite) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <style>
