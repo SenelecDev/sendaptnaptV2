@@ -11,12 +11,14 @@
             <p class="mt-1 text-gray-500">{{ $users->total() }} utilisateur(s) trouvé(s)</p>
         </div>
         <div class="mt-4 md:mt-0 flex items-center gap-3">
+            @if(auth()->user()->isSuperAdmin())
             <a href="{{ route('admin.users.sync.index') }}" class="btn-senelec-outline inline-flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                 </svg>
                 Sync Oracle/LDAP
             </a>
+            @endif
             <a href="{{ route('admin.users.create') }}" class="btn-senelec">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -143,7 +145,7 @@
                             </td>
                             <td>
                                 <div class="flex items-center justify-end space-x-1">
-                                    @if(auth()->user()->hasRole('admin') && !$user->hasRole('admin') && auth()->id() !== $user->id)
+                                    @if(auth()->user()->isSuperAdmin() && !$user->hasRole('admin') && auth()->id() !== $user->id)
                                         <form action="{{ route('admin.impersonate.start', $user) }}" method="POST" class="inline">
                                             @csrf
                                             <button type="submit" 

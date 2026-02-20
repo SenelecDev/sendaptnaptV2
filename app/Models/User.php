@@ -68,6 +68,13 @@ class User extends Authenticatable implements LdapAuthenticatable
 
     // ==================== ACCESSEURS ====================
 
+    const SUPER_ADMIN_MATRICULE = 'C01156';
+
+    public function isSuperAdmin(): bool
+    {
+        return strtoupper(trim($this->matricule)) === self::SUPER_ADMIN_MATRICULE;
+    }
+
     /**
      * Retourne le nom complet de l'utilisateur
      */

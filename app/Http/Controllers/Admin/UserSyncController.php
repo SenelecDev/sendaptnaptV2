@@ -18,6 +18,12 @@ class UserSyncController extends Controller
     public function __construct(OracleHRService $oracleService)
     {
         $this->oracleService = $oracleService;
+        $this->middleware(function ($request, $next) {
+            if (!$request->user()->isSuperAdmin()) {
+                abort(403, 'Accès réservé au super administrateur.');
+            }
+            return $next($request);
+        });
     }
 
     /**

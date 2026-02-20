@@ -15,9 +15,8 @@ class ImpersonateController extends Controller
      */
     public function start(User $user)
     {
-        // Vérifier que l'utilisateur actuel est admin
-        if (!Auth::user()->hasRole('admin')) {
-            abort(403, 'Seuls les administrateurs peuvent simuler un utilisateur.');
+        if (!Auth::user()->isSuperAdmin()) {
+            abort(403, 'Seul le super administrateur peut simuler un utilisateur.');
         }
 
         // Ne pas permettre d'impersonate un autre admin
