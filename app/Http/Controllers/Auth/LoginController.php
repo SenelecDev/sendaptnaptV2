@@ -19,6 +19,7 @@ class LoginController extends Controller
 {
     protected OracleHRService $oracleService;
     protected RoleAssignmentService $roleService;
+    protected ?User $lastSyncedUser = null;
 
     public function __construct(OracleHRService $oracleService, RoleAssignmentService $roleService)
     {
@@ -251,6 +252,8 @@ class LoginController extends Controller
         // Attribuer le rôle automatiquement basé sur la fonction
         $this->roleService->autoAssignRole($user);
 
+        $this->lastSyncedUser = $user;
+
         return $user;
     }
 
@@ -267,9 +270,9 @@ class LoginController extends Controller
 
         $company = $ldapUser->getFirstAttribute('company');
         if (!empty($company)) {
-            $split = explode(' ', $company);
-            if (isset($split[1]) && !empty(trim($split[1]))) {
-                return strtoupper(trim($split[1]));
+            $parts = array_values(array_filter(explode(' ', $company), fn($p) => trim($p) !== ''));
+            if (isset($parts[1])) {
+                return strtoupper(trim($parts[1]));
             }
         }
 
@@ -327,7 +330,8 @@ class LoginController extends Controller
      */
     protected function handleSuccessfulLogin(Request $request, string $matricule)
     {
-        $user = User::whereRaw('UPPER(matricule) = ?', [strtoupper($matricule)])->first();
+        $user = $this->lastSyncedUser
+            ?? User::whereRaw('UPPER(matricule) = ?', [strtoupper($matricule)])->first();
 
         if (!$user) {
             Log::error('User not found after authentication', ['matricule' => $matricule]);
