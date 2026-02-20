@@ -19,11 +19,6 @@ class ImpersonateController extends Controller
             abort(403, 'Seul le super administrateur peut simuler un utilisateur.');
         }
 
-        // Ne pas permettre d'impersonate un autre admin
-        if ($user->hasRole('admin')) {
-            return back()->with('error', 'Vous ne pouvez pas simuler un autre administrateur.');
-        }
-
         // Sauvegarder l'ID de l'admin original
         Session::put('impersonate_admin_id', Auth::id());
         Session::put('impersonating', true);

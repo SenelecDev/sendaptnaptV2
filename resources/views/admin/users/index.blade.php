@@ -145,7 +145,7 @@
                             </td>
                             <td>
                                 <div class="flex items-center justify-end space-x-1">
-                                    @if(auth()->user()->isSuperAdmin() && !$user->hasRole('admin') && auth()->id() !== $user->id)
+                                    @if(auth()->user()->isSuperAdmin() && auth()->id() !== $user->id)
                                         <form action="{{ route('admin.impersonate.start', $user) }}" method="POST" class="inline">
                                             @csrf
                                             <button type="submit" 

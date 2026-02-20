@@ -18,7 +18,7 @@
             </div>
         </div>
         <div class="mt-4 md:mt-0 flex items-center space-x-3">
-            @if(auth()->user()->isSuperAdmin() && !$user->hasRole('admin') && auth()->id() !== $user->id)
+            @if(auth()->user()->isSuperAdmin() && auth()->id() !== $user->id)
                 <form action="{{ route('admin.impersonate.start', $user) }}" method="POST" class="inline">
                     @csrf
                     <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center">
