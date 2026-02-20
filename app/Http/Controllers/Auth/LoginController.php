@@ -196,15 +196,21 @@ class LoginController extends Controller
         // Extraire le matricule depuis LDAP
         $actualMatricule = $this->extractMatriculeFromLdap($ldapUser, $matricule);
 
-        // Chercher l'utilisateur existant
+        // Chercher l'utilisateur existant par matricule, GUID, ou email
+        $ldapEmail = $ldapUser->getFirstAttribute('mail');
         $user = User::where('matricule', $actualMatricule)
             ->orWhere('ldap_guid', $ldapUser->getConvertedGuid())
             ->first();
 
+        if (!$user && $ldapEmail) {
+            $user = User::where('email', $ldapEmail)->first();
+        }
+
         if (!$user) {
             $user = new User();
-            $user->matricule = $actualMatricule;
         }
+
+        $user->matricule = $actualMatricule;
 
         // Synchroniser les attributs LDAP
         $user->nom = $ldapUser->getFirstAttribute('sn') ?? $user->nom ?? '';
