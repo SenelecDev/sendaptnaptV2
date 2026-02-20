@@ -39,7 +39,7 @@
     <nav class="flex flex-1 flex-col">
         <ul role="list" class="flex flex-1 flex-col gap-y-7">
             <!-- Demandeur -->
-            @if($user->hasRoleOrInterim('demandeur') && !$user->hasRole('admin'))
+            @if($user->hasRoleOrInterim('demandeur'))
             <li>
                 <div class="text-xs font-semibold leading-6 text-white/40 uppercase tracking-wider mb-2 flex items-center gap-2">
                     Demandeur
@@ -92,7 +92,7 @@
             @endif
 
             <!-- DESA -->
-            @if($user->hasRoleOrInterim('desa') && !$user->hasRole('admin'))
+            @if($user->hasRoleOrInterim('desa'))
             <li x-data="{ openDemandes: {{ request()->is('desa/demandes*') ? 'true' : 'false' }}, openNotes: {{ request()->is('desa/notes*') ? 'true' : 'false' }} }">
                 <div class="text-xs font-semibold leading-6 text-white/40 uppercase tracking-wider mb-2 flex items-center gap-2">
                     EDITEUR
@@ -276,7 +276,7 @@
             @endif
 
             <!-- Vérificateur -->
-            @if($user->hasRoleOrInterim('verificateur') && !$user->hasRole('admin'))
+            @if($user->hasRoleOrInterim('verificateur'))
             <li>
                 <div class="text-xs font-semibold leading-6 text-white/40 uppercase tracking-wider mb-2 flex items-center gap-2">
                     Vérificateur
@@ -326,7 +326,7 @@
             @endif
 
             <!-- Valideur -->
-            @if($user->hasRoleOrInterim('valideur') && !$user->hasRole('admin'))
+            @if($user->hasRoleOrInterim('valideur'))
             <li>
                 <div class="text-xs font-semibold leading-6 text-white/40 uppercase tracking-wider mb-2 flex items-center gap-2">
                     Valideur
@@ -376,7 +376,7 @@
             @endif
 
             <!-- Opérateur Chef -->
-            @if($user->hasRoleOrInterim('operateurchef') && !$user->hasRole('admin'))
+            @if($user->hasRoleOrInterim('operateurchef'))
             <li>
                 <div class="text-xs font-semibold leading-6 text-white/40 uppercase tracking-wider mb-2 flex items-center gap-2">
                     Opérateur Chef
@@ -426,7 +426,7 @@
             @endif
 
             <!-- Opérateur -->
-            @if($user->hasRoleOrInterim('operateur') && !$user->hasRole('admin'))
+            @if($user->hasRoleOrInterim('operateur'))
             <li>
                 <div class="text-xs font-semibold leading-6 text-white/40 uppercase tracking-wider mb-2 flex items-center gap-2">
                     Opérateur
@@ -478,7 +478,7 @@
             @endif
 
             <!-- Directeur -->
-            @if($user->hasRoleOrInterim('directeur') && !$user->hasRole('admin'))
+            @if($user->hasRoleOrInterim('directeur'))
             <li>
                 <div class="text-xs font-semibold leading-6 text-white/40 uppercase tracking-wider mb-2 flex items-center gap-2">
                     Directeur
