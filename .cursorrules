@@ -1,0 +1,200 @@
+# SENELEC Laravel Template - Cursor Rules
+
+## Projet
+Application web Laravel SENELEC. Tout texte visible par l'utilisateur est en **français**.
+
+## Stack technique
+- Laravel 10 / PHP 8.3 / PostgreSQL 15 / Redis 7
+- Tailwind CSS 4 + Alpine.js 3 + Livewire 4
+- Vite pour le bundling
+- Spatie Laravel-Permission pour les rôles
+- LdapRecord-Laravel pour l'authentification LDAP
+- barryvdh/laravel-dompdf pour les PDF
+- maatwebsite/excel pour les exports Excel
+- Docker (PHP-FPM + Nginx + PostgreSQL + Redis)
+
+## Architecture
+
+### Structure des contrôleurs par rôle
+```
+app/Http/Controllers/
+├── Auth/LoginController.php
+├── Admin/          # UserController, DemandeController, NoteController, etc.
+├── Demandeur/      # DemandeController
+├── Desa/           # DemandeController, NoteController
+├── Verificateur/   # NoteController
+├── Valideur/       # NoteController
+├── Operateur/      # NoteController
+├── OperateurChef/  # NoteController
+├── Directeur/      # DirecteurController
+```
+
+### Conventions de nommage
+- Controllers : `{Role}\{Entity}Controller` (ex: `Desa\NoteController`)
+- Vues : `{role}/{entity}/{action}.blade.php` (ex: `desa/notes/create.blade.php`)
+- Routes : `{role}.{entity}.{action}` (ex: `desa.notes.create`)
+- Modèles : singulier PascalCase (ex: `Demande`, `Note`, `User`)
+
+### Rôles utilisateur
+| Rôle | Description |
+|------|-------------|
+| admin | Accès complet |
+| demandeur | Créer et suivre ses demandes (rôle par défaut) |
+| desa | Traiter demandes, créer/gérer notes |
+| verificateur | Vérifier les notes |
+| valideur | Valider les notes |
+| operateur | Exécuter les notes |
+| operateurchef | Exécuter + fiche manoeuvre |
+| directeur | Consultation et supervision |
+
+### Middleware
+- `role:admin` - Spatie, rôle exact
+- `roleOrInterim:desa|admin` - Custom, rôle OU intérimaire
+
+### Super Admin
+Le super admin est identifié par matricule (`User::SUPER_ADMIN_MATRICULE`). Seul lui peut :
+- Accéder à la page Sync Oracle/LDAP
+- Simuler (impersonate) d'autres utilisateurs, y compris les admins
+
+## Design System SENELEC
+
+### Couleurs principales
+- **Violet foncé** (sidebar) : `#2B1444` / `senelec-purple`
+- **Magenta** (header, boutons) : `#B3006C` / `senelec-magenta`
+- **Teal** (accent positif) : `#0A91A3` / `senelec-teal`
+- **Orange** (alertes, accent) : `#E87400` / `senelec-orange`
+- **Jaune** : `#FFD100` / `senelec-yellow`
+- **Bleu** : `#0D1CB0` / `senelec-blue`
+- **Gradient principal** : `linear-gradient(135deg, #2B1444 0%, #B3006C 100%)`
+
+### Polices (self-hosted, pas de CDN)
+- **Titres** : Conthrax (custom font dans `public/fonts/`)
+- **Corps** : Open Sans (via `@fontsource/open-sans`, importé dans `app.js`)
+- **Sous-titres** : Rajdhani (via `@fontsource/rajdhani`, importé dans `app.js`)
+- **Icônes** : Font Awesome (via `@fortawesome/fontawesome-free`, importé dans `app.js`)
+- Le serveur n'a pas accès internet, toutes les polices et icônes sont bundlées par Vite
+
+### Classes CSS custom (définies dans resources/css/app.css)
+
+#### Boutons
+- `btn-senelec` - Bouton principal gradient violet→magenta
+- `btn-senelec-outline` - Bouton contour violet
+- `btn-senelec-sm` - Petit bouton gradient
+- `btn-senelec-teal` - Bouton teal
+- `btn-senelec-orange` - Bouton orange
+- `btn-primary` / `btn-secondary` / `btn-success` / `btn-danger` / `btn-warning`
+
+#### Cards
+- `card-senelec` - Card avec fond blanc subtil et bordure
+- `card-glass` - Glassmorphism (effet verre)
+- `card-glass-dark` - Glassmorphism sombre
+
+#### Inputs
+- `input-senelec` - Input avec focus violet
+- `select-senelec` - Select stylisé
+- Focus global : bordure `#2B1444`
+
+#### Sidebar
+- `sidebar-link` / `sidebar-link-active` - Liens principaux
+- `sidebar-sublink` / `sidebar-sublink-active` - Sous-liens avec point indicateur
+
+#### Badges
+- `badge-success` / `badge-warning` / `badge-danger` / `badge-info` / `badge-secondary`
+- `badge-senelec` - Badge gradient
+- `badge-purple` / `badge-magenta` / `badge-teal` / `badge-orange`
+
+#### Tables
+- `table-senelec` - Table avec header violet foncé et texte blanc
+
+#### Stat cards
+- `stat-card-purple` / `stat-card-teal` / `stat-card-orange` / `stat-card-magenta` / etc.
+- Chacun a un `border-l-4` coloré
+
+#### Gradients
+- `bg-senelec-gradient` - Fond gradient violet→magenta
+- `bg-senelec-gradient-soft` - Fond dégradé léger (gris-violet)
+- `text-senelec-gradient` - Texte gradient
+
+### Layout
+```
+┌──────────────────────────────────────────┐
+│ Bannière Impersonation (si active)       │
+├────────┬─────────────────────────────────┤
+│        │ Header (magenta #B3006C)        │
+│ Side-  ├─────────────────────────────────┤
+│ bar    │ Main Content                    │
+│ w-72   │ bg-senelec-gradient-soft        │
+│ violet │ max-w-7xl mx-auto px-4-8        │
+│ #2B1444│ Flash messages auto             │
+│        │ @yield('content')               │
+└────────┴─────────────────────────────────┘
+```
+
+- Sidebar : fixe, 72px, fond `#2B1444`, navigation par rôle (multi-rôles visibles, pas d'exclusion admin)
+- Un utilisateur avec plusieurs rôles (ex: admin + desa, valideur + verificateur) voit toutes ses sections
+- Header : sticky, fond `#B3006C`, recherche + notifications + profil
+- Main : `bg-senelec-gradient-soft`, contenu centré max-w-7xl
+
+### Page de connexion
+- Plein écran, image de fond + overlay gradient
+- Branding à gauche, formulaire glass-card à droite
+- Assets : `public/img/logo.png`, `public/img/login_bg.png`
+
+## Conventions de code
+
+### PHP / Laravel
+- Utiliser `optional()` pour accéder aux propriétés d'objets potentiellement null
+- Utiliser le trait `SearchableTrait` pour les recherches insensibles casse/accents
+- Les contrôleurs utilisent `$this->applySimpleSearch()` pour les filtres
+- Eloquent : préférer `with()` pour eager loading, `whereHas()` pour filtrer par relation
+- PostgreSQL : utiliser `ILIKE` via le trait, `EXTRACT()` pour les dates
+
+### Blade
+- Vues étendent `@extends('layouts.app')` avec `@section('title')` et `@section('content')`
+- Alpine.js pour l'interactivité (x-data, x-show, x-cloak, @click)
+- Formulaires : classes `input-senelec` ou classes Tailwind standards
+- Icônes : SVG inline (Heroicons style)
+- Sections collapsibles dans sidebar : Alpine.js x-show + x-collapse
+
+### Routes
+- Groupées par rôle avec prefix et name
+- Middleware `roleOrInterim` pour supporter les intérims
+- Pattern : `Route::middleware(['roleOrInterim:role|admin'])->prefix('role')->name('role.')->group()`
+
+### Migrations
+- PostgreSQL comme driver principal
+- Utiliser `foreignId()->constrained()->nullOnDelete()` pour les FK
+- `$table->boolean('is_active')->default(true)` pour le soft-disable
+
+### Base de données
+- DB principale : PostgreSQL (connection `pgsql`)
+- DB V1 legacy : MySQL (connection `mysql_v1`) - pour migration de données
+- GMAO : SQL Server (connection `sqlsrv`) - pour équipements
+- Oracle HR : Oracle (connection `oracle`) - pour données employés
+
+## Authentification
+1. Essai auth locale (Hash::check) en premier
+2. Si LDAP activé, essai LDAP avec sync des attributs
+3. Sync LDAP vers User local (recherche par matricule, ldap_guid, puis email en fallback)
+4. Extraction matricule LDAP : gère les double-espaces dans le champ company
+5. Sync Oracle HR si activé
+6. Auto-attribution rôle via RoleAssignmentService
+7. Rôle `demandeur` par défaut si aucun rôle
+8. Réutilisation du user synchronisé via `$lastSyncedUser` (pas de re-lookup matricule)
+9. Redirect vers dashboard du rôle principal
+10. Protection : ne pas redirect vers `/api/` routes après login
+
+## Contraintes serveur
+- Le serveur de production n'a **pas d'accès internet**
+- Ne jamais utiliser de CDN externes (Google Fonts, Cloudflare, unpkg, etc.)
+- Toutes les dépendances front (polices, icônes, JS) doivent être bundlées par Vite via npm
+- `npm run build` est requis après chaque modification front, suivi du déploiement des assets compilés
+
+## Fichiers clés à connaître
+- `resources/css/app.css` - Design system complet (toutes les classes custom)
+- `resources/js/app.js` - Alpine.js + imports polices self-hosted + Font Awesome
+- `app/Traits/SearchableTrait.php` - Recherche insensible casse/accents
+- `app/Services/RoleAssignmentService.php` - Auto-attribution des rôles
+- `app/Http/Middleware/RoleOrInterimMiddleware.php` - Accès rôle ou intérim
+- `app/Http/Kernel.php` - Alias middleware (roleOrInterim, role, permission)
+- `database/seeders/RolesAndPermissionsSeeder.php` - Création des rôles/permissions

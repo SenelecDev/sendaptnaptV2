@@ -182,21 +182,30 @@ docker-compose exec postgres psql -U sendaptnapt -d sendaptnapt
 cd /opt/sendaptnapt
 
 # Télécharger les mises à jour
-git pull origin main
+sudo docker compose exec app git pull origin main
 
-# Reconstruire les images si nécessaire
-docker-compose build app
+# Installer les dépendances npm si package.json a changé
+sudo docker compose exec app npm install
+
+# Recompiler les assets (polices, CSS, JS sont bundlés par Vite)
+sudo docker compose exec app npm run build
+
+# Reconstruire les images si nécessaire (Dockerfile changé)
+sudo docker compose build app
 
 # Exécuter les migrations
-docker-compose exec app php artisan migrate --force
+sudo docker compose exec app php artisan migrate --force
 
 # Vider les caches
-docker-compose exec app php artisan optimize:clear
-docker-compose exec app php artisan optimize
+sudo docker compose exec app php artisan optimize:clear
+sudo docker compose exec app php artisan optimize
 
 # Redémarrer les workers de queue
-docker-compose restart queue scheduler
+sudo docker compose restart queue scheduler
 ```
+
+> **Note** : Les polices (Open Sans, Rajdhani) et Font Awesome sont bundlées localement via npm.
+> Le serveur n'a pas besoin d'accès internet pour les charger. Toujours lancer `npm run build` après un pull.
 
 ---
 
@@ -372,19 +381,27 @@ docker-compose exec postgres pg_isready -U sendaptnapt
 **5. Application lente**
 ```bash
 # Vérifier les caches
-docker-compose exec app php artisan config:cache
-docker-compose exec app php artisan route:cache
-docker-compose exec app php artisan view:cache
+sudo docker compose exec app php artisan config:cache
+sudo docker compose exec app php artisan route:cache
+sudo docker compose exec app php artisan view:cache
 ```
 
-**6. Espace disque insuffisant**
+**6. Polices ou icônes manquantes (Times New Roman affiché)**
+```bash
+# Les polices sont bundlées par Vite, pas de CDN
+# Si les polices ne s'affichent pas, recompiler les assets :
+sudo docker compose exec app npm install
+sudo docker compose exec app npm run build
+```
+
+**7. Espace disque insuffisant**
 ```bash
 # Nettoyer Docker
 docker system prune -af
 docker volume prune -f
 ```
 
-**7. Voir les logs d'erreur**
+**8. Voir les logs d'erreur**
 ```bash
 docker-compose logs -f app 2>&1 | tail -100
 docker-compose exec app cat storage/logs/laravel.log | tail -50
