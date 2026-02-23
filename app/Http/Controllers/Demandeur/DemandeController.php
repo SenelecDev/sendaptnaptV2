@@ -465,9 +465,9 @@ class DemandeController extends Controller
     {
         $user = Auth::user();
         
-        // Seul le créateur peut modifier sa demande
-        if ($demande->demandeur_id !== $user->id) {
-            abort(403, 'Vous ne pouvez modifier que vos propres demandes.');
+        $isSameGroup = $user->groupe_id && $demande->demandeur?->groupe_id === $user->groupe_id;
+        if ($demande->demandeur_id !== $user->id && !$isSameGroup) {
+            abort(403, 'Vous ne pouvez modifier que les demandes de votre groupe.');
         }
         
         // Ne peut modifier que si statut retournée ou brouillon (pas créée/en cours/acceptée)
@@ -502,9 +502,9 @@ class DemandeController extends Controller
     {
         $user = Auth::user();
         
-        // Seul le créateur peut modifier sa demande
-        if ($demande->demandeur_id !== $user->id) {
-            abort(403, 'Vous ne pouvez modifier que vos propres demandes.');
+        $isSameGroup = $user->groupe_id && $demande->demandeur?->groupe_id === $user->groupe_id;
+        if ($demande->demandeur_id !== $user->id && !$isSameGroup) {
+            abort(403, 'Vous ne pouvez modifier que les demandes de votre groupe.');
         }
         
         // Ne peut modifier que si statut retournée ou brouillon (pas créée/en cours/acceptée)
@@ -647,9 +647,9 @@ class DemandeController extends Controller
     {
         $user = Auth::user();
         
-        // Seul le créateur peut supprimer sa demande
-        if ($demande->demandeur_id !== $user->id) {
-            abort(403, 'Vous ne pouvez supprimer que vos propres demandes.');
+        $isSameGroup = $user->groupe_id && $demande->demandeur?->groupe_id === $user->groupe_id;
+        if ($demande->demandeur_id !== $user->id && !$isSameGroup) {
+            abort(403, 'Vous ne pouvez supprimer que les demandes de votre groupe.');
         }
         
         // Ne peut supprimer que les brouillons (demande non envoyée)
