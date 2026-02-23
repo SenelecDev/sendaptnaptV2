@@ -230,28 +230,6 @@
                             <dd class="text-xs text-gray-500">Code: {{ $demande->lieu_code }}</dd>
                         @endif
                     </div>
-                    <div class="space-y-1">
-                        <dt class="text-sm font-medium text-gray-500">Type d'ouvrage</dt>
-                        <dd class="text-gray-900 capitalize">
-                            @if($demande->ouvrage_type === 'ligne')
-                                <span class="ligne-badge">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                                    </svg>
-                                    Ligne
-                                </span>
-                            @elseif($demande->ouvrage_type === 'poste')
-                                <span class="poste-badge">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                    </svg>
-                                    Poste
-                                </span>
-                            @else
-                                {{ $demande->ouvrage_type ?? '-' }}
-                            @endif
-                        </dd>
-                    </div>
                     @if($demande->renseignement)
                     <div class="md:col-span-2 space-y-1">
                         <dt class="text-sm font-medium text-gray-500">Renseignements complémentaires</dt>

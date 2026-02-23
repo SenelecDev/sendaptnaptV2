@@ -104,10 +104,6 @@
                         <dt class="text-sm font-medium text-gray-500">Lieu d'exécution</dt>
                         <dd class="text-gray-900">{{ $demande->lieu_execution ?? '-' }}</dd>
                     </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Type d'ouvrage</dt>
-                        <dd class="text-gray-900 capitalize">{{ $demande->ouvrage_type ?? '-' }}</dd>
-                    </div>
                 </dl>
             </div>
 
