@@ -60,7 +60,7 @@ class DemandeController extends Controller
         
         if ($dateDebut && $dateFin) {
             $demandesQuery->whereRaw('COALESCE(dda, ddp, created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
-            $notesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
+            $notesQuery->whereRaw('COALESCE(ddt, created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
         }
         
         if (!empty($groupeIds)) {
@@ -279,7 +279,7 @@ class DemandeController extends Controller
         $notesQuery = Note::query();
         if ($dateDebut && $dateFin) {
             $demandesQuery->whereRaw('COALESCE(dda, ddp, created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
-            $notesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
+            $notesQuery->whereRaw('COALESCE(ddt, created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
         }
         if (!empty($groupeIds)) {
             $demandesQuery->whereHas('demandeur', fn($q) => $q->whereIn('groupe_id', $groupeIds));
@@ -491,7 +491,7 @@ class DemandeController extends Controller
             
             if ($dateDebut && $dateFin) {
                 $demandesQuery->whereRaw('COALESCE(dda, ddp, created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
-                $notesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
+                $notesQuery->whereRaw('COALESCE(ddt, created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
             }
             
             $compareData[] = [
