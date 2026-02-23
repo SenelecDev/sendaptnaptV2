@@ -172,14 +172,34 @@ class CalendrierController extends Controller
     {
         $installations = [];
 
-        if ($demande->mode_saisie === 'manuelle' || $demande->ouvrage_type === 'manuel') {
+        if ($demande->mode_saisie === 'manuel' || $demande->mode_saisie === 'manuelle') {
             if (!empty($demande->ouvrages_consigner_manuel)) {
                 $installations[] = $demande->ouvrages_consigner_manuel;
             }
             return $installations;
         }
 
-        if (!empty($demande->ouvrages_consigner_gmao)) {
+        // Ligne disponible (type ligne en mode GMAO)
+        if (!empty($demande->ligne_disponible_consigner)) {
+            $installations[] = $demande->ligne_disponible_consigner;
+        }
+
+        // Lignes Oracle (type ligne en mode GMAO)
+        if (!empty($demande->lignes_oracle)) {
+            $lignesData = is_array($demande->lignes_oracle)
+                ? $demande->lignes_oracle
+                : json_decode($demande->lignes_oracle, true);
+
+            if (is_array($lignesData)) {
+                foreach ($lignesData as $ligne) {
+                    $desc = is_array($ligne) ? ($ligne['description'] ?? $ligne['code'] ?? null) : $ligne;
+                    if ($desc) $installations[] = $desc;
+                }
+            }
+        }
+
+        // Ouvrages GMAO (type poste)
+        if (empty($installations) && !empty($demande->ouvrages_consigner_gmao)) {
             $gmaoData = is_array($demande->ouvrages_consigner_gmao)
                 ? $demande->ouvrages_consigner_gmao
                 : json_decode($demande->ouvrages_consigner_gmao, true);
@@ -196,6 +216,7 @@ class CalendrierController extends Controller
             }
         }
 
+        // Equipements Oracle - dernier niveau (type poste)
         if (empty($installations) && !empty($demande->equipements_oracle)) {
             $equipementsData = is_array($demande->equipements_oracle)
                 ? $demande->equipements_oracle
