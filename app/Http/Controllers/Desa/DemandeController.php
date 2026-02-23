@@ -672,14 +672,16 @@ class DemandeController extends Controller
             $query->whereDate('created_at', $request->date_creation);
         }
         
-        // Filtre par semaine
+        // Filtre par semaine (basé sur la date d'exécution : dda si acceptée, sinon ddp)
         if ($request->filled('semaine')) {
-            $query->whereRaw('EXTRACT(WEEK FROM created_at) = ?', [$request->semaine]);
+            $query->where(function ($q) use ($request) {
+                $q->whereRaw('EXTRACT(WEEK FROM COALESCE(dda, ddp)) = ?', [$request->semaine]);
+            });
         }
         
-        // Filtre par année
+        // Filtre par année (basé sur la date d'exécution : dda si acceptée, sinon ddp)
         if ($request->filled('annee')) {
-            $query->whereYear('created_at', $request->annee);
+            $query->whereRaw('EXTRACT(YEAR FROM COALESCE(dda, ddp, created_at)) = ?', [$request->annee]);
         }
         
         // Filtre par groupe (via le demandeur)
@@ -918,14 +920,14 @@ class DemandeController extends Controller
             $query->whereDate('created_at', $request->date_creation);
         }
         
-        // Filtre par semaine
+        // Filtre par semaine (basé sur la date d'exécution : dda si acceptée, sinon ddp)
         if ($request->filled('semaine')) {
-            $query->whereRaw('EXTRACT(WEEK FROM created_at) = ?', [$request->semaine]);
+            $query->whereRaw('EXTRACT(WEEK FROM COALESCE(dda, ddp)) = ?', [$request->semaine]);
         }
         
-        // Filtre par année
+        // Filtre par année (basé sur la date d'exécution : dda si acceptée, sinon ddp)
         if ($request->filled('annee')) {
-            $query->whereYear('created_at', $request->annee);
+            $query->whereRaw('EXTRACT(YEAR FROM COALESCE(dda, ddp, created_at)) = ?', [$request->annee]);
         }
         
         // Filtre par groupe
