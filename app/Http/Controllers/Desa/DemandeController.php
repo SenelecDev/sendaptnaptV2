@@ -674,7 +674,7 @@ class DemandeController extends Controller
         
         // Filtre par semaine
         if ($request->filled('semaine')) {
-            $query->whereRaw('WEEK(created_at, 1) = ?', [$request->semaine]);
+            $query->whereRaw('EXTRACT(WEEK FROM created_at) = ?', [$request->semaine]);
         }
         
         // Filtre par année
@@ -920,7 +920,7 @@ class DemandeController extends Controller
         
         // Filtre par semaine
         if ($request->filled('semaine')) {
-            $query->whereRaw('WEEK(created_at, 1) = ?', [$request->semaine]);
+            $query->whereRaw('EXTRACT(WEEK FROM created_at) = ?', [$request->semaine]);
         }
         
         // Filtre par année
