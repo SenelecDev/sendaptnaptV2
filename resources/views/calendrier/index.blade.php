@@ -68,6 +68,7 @@
             </h1>
             <p class="text-gray-600 mt-1">Vue d'ensemble des NAPT planifiées</p>
         </div>
+        @if(auth()->user()->hasAnyRole(['desa', 'admin']))
         <div class="flex gap-2">
             <a href="{{ route('desa.notes.create') }}" class="btn-senelec inline-flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,6 +77,7 @@
                 Nouvelle NAPT
             </a>
         </div>
+        @endif
     </div>
 
     <!-- Légende -->

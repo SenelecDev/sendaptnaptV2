@@ -8,6 +8,32 @@ use Carbon\Carbon;
 
 class CalendrierController extends Controller
 {
+    private function getNoteUrlForUser($noteId): string
+    {
+        $user = auth()->user();
+        
+        if ($user->hasRole('desa') || $user->hasRole('admin')) {
+            return route('desa.notes.show', $noteId);
+        }
+        if ($user->hasRole('valideur')) {
+            return route('valideur.notes.show', $noteId);
+        }
+        if ($user->hasRole('verificateur')) {
+            return route('verificateur.notes.show', $noteId);
+        }
+        if ($user->hasRole('operateurchef')) {
+            return route('operateurchef.notes.show', $noteId);
+        }
+        if ($user->hasRole('operateur')) {
+            return route('operateur.notes.show', $noteId);
+        }
+        if ($user->hasRole('directeur')) {
+            return route('directeur.napt.show', $noteId);
+        }
+        
+        return route('desa.notes.show', $noteId);
+    }
+
     public function index(Request $request)
     {
         $month = $request->get('month', now()->month);
@@ -61,6 +87,7 @@ class CalendrierController extends Controller
                             'lieu' => $lieu,
                             'installations' => !empty($installations) ? implode(', ', $installations) : '',
                             'statut' => $note->statut,
+                            'url' => $this->getNoteUrlForUser($note->id),
                             'isStart' => $current->isSameDay($start),
                             'isEnd' => $current->isSameDay($end),
                         ];
@@ -128,7 +155,7 @@ class CalendrierController extends Controller
                 'start' => $note->ddt,
                 'end' => Carbon::parse($note->dft ?? $note->ddt)->addDay()->format('Y-m-d'),
                 'color' => $color,
-                'url' => route('desa.notes.show', $note->id),
+                'url' => $this->getNoteUrlForUser($note->id),
                 'extendedProps' => [
                     'lieu' => $lieu,
                     'installations' => !empty($installations) ? implode(', ', $installations) : 'N/A',
