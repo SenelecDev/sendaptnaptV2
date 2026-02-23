@@ -113,15 +113,18 @@ class DemandeController extends Controller
             $compareGraphData = $this->getGroupesCompareGraphData($groupeIds, $dateDebut, $dateFin);
         }
         
-        // Top groups creating DAPTs (avec filtres de période)
+        // Top groupes (DAPTs acceptées uniquement)
         $topGroupesQuery = Groupe::withCount(['demandes' => function($q) use ($dateDebut, $dateFin) {
+            $q->where('statut', Demande::STATUT_ACCEPTEE);
             if ($dateDebut && $dateFin) {
                 $q->whereRaw('COALESCE(demandes.dda, demandes.ddp, demandes.created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
             }
         }]);
         
         $topGroupes = $topGroupesQuery
-            ->whereHas('demandes')
+            ->whereHas('demandes', function($q) {
+                $q->where('statut', Demande::STATUT_ACCEPTEE);
+            })
             ->orderByDesc('demandes_count')
             ->take(5)
             ->get();
