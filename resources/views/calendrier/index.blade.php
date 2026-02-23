@@ -127,12 +127,12 @@
                     <p class="font-mono font-bold text-senelec-purple" id="modal-numero"></p>
                 </div>
                 <div>
-                    <span class="text-xs text-gray-500 uppercase">Désignation</span>
-                    <p class="text-gray-900" id="modal-designation"></p>
+                    <span class="text-xs text-gray-500 uppercase">Lieu d'exécution</span>
+                    <p class="text-gray-900" id="modal-lieu"></p>
                 </div>
                 <div>
-                    <span class="text-xs text-gray-500 uppercase">Lieu</span>
-                    <p class="text-gray-900" id="modal-lieu"></p>
+                    <span class="text-xs text-gray-500 uppercase">Installations consignées</span>
+                    <p class="text-gray-900" id="modal-installations"></p>
                 </div>
                 <div>
                     <span class="text-xs text-gray-500 uppercase">Demandeur</span>
@@ -194,8 +194,8 @@ document.addEventListener('DOMContentLoaded', function() {
 function showModal(event) {
     document.getElementById('modal-title').textContent = event.title;
     document.getElementById('modal-numero').textContent = event.title.split(' - ')[0];
-    document.getElementById('modal-designation').textContent = event.title.split(' - ')[1] || 'N/A';
     document.getElementById('modal-lieu').textContent = event.extendedProps.lieu;
+    document.getElementById('modal-installations').textContent = event.extendedProps.installations || 'N/A';
     document.getElementById('modal-demandeur').textContent = event.extendedProps.demandeur;
     
     const statut = event.extendedProps.statut;

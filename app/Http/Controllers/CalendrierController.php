@@ -53,11 +53,13 @@ class CalendrierController extends Controller
                     }
                     // Éviter les doublons
                     if (!collect($eventsByDay[$day])->contains('id', $note->id)) {
+                        $lieu = $note->demande->lieu_execution ?? $note->demande->lieu_execution_manuel ?? 'N/A';
+                        $installations = $this->getInstallationsConsignees($note->demande);
                         $eventsByDay[$day][] = [
                             'id' => $note->id,
                             'numero' => $note->numero_note,
-                            'designation' => $note->demande->designation ?? 'N/A',
-                            'lieu' => $note->demande->lieu_execution ?? 'N/A',
+                            'lieu' => $lieu,
+                            'installations' => !empty($installations) ? implode(', ', $installations) : '',
                             'statut' => $note->statut,
                             'isStart' => $current->isSameDay($start),
                             'isEnd' => $current->isSameDay($end),
@@ -102,22 +104,34 @@ class CalendrierController extends Controller
         
         $events = $notes->map(function ($note) {
             $color = match($note->statut) {
-                'établie', 'en attente de vérification', 'vérifiée' => '#F59E0B', // Jaune
-                'validée' => '#10B981', // Vert
-                'en cours d\'exécution' => '#3B82F6', // Bleu
-                'executée' => '#6B7280', // Gris
-                default => '#E85D04', // Orange Senelec
+                'établie', 'en attente de vérification', 'vérifiée' => '#F59E0B',
+                'validée' => '#10B981',
+                'en cours d\'exécution' => '#3B82F6',
+                'executée' => '#6B7280',
+                default => '#E85D04',
             };
+            
+            $lieu = $note->demande->lieu_execution ?? $note->demande->lieu_execution_manuel ?? 'N/A';
+            $installations = $this->getInstallationsConsignees($note->demande);
+            
+            $titleParts = [$note->numero_note];
+            if ($lieu !== 'N/A') {
+                $titleParts[] = $lieu;
+            }
+            if (!empty($installations)) {
+                $titleParts[] = implode(', ', array_slice($installations, 0, 3));
+            }
             
             return [
                 'id' => $note->id,
-                'title' => $note->numero_note . ' - ' . \Illuminate\Support\Str::limit($note->demande->designation ?? 'N/A', 30),
+                'title' => implode(' - ', $titleParts),
                 'start' => $note->ddt,
-                'end' => Carbon::parse($note->dft ?? $note->ddt)->addDay()->format('Y-m-d'), // FullCalendar end est exclusif
+                'end' => Carbon::parse($note->dft ?? $note->ddt)->addDay()->format('Y-m-d'),
                 'color' => $color,
                 'url' => route('desa.notes.show', $note->id),
                 'extendedProps' => [
-                    'lieu' => $note->demande->lieu_execution ?? 'N/A',
+                    'lieu' => $lieu,
+                    'installations' => !empty($installations) ? implode(', ', $installations) : 'N/A',
                     'statut' => $note->statut,
                     'demandeur' => $note->demande->demandeur->name ?? 'N/A',
                 ],
@@ -125,5 +139,58 @@ class CalendrierController extends Controller
         });
         
         return response()->json($events);
+    }
+
+    private function getInstallationsConsignees($demande): array
+    {
+        $installations = [];
+
+        if ($demande->mode_saisie === 'manuelle' || $demande->ouvrage_type === 'manuel') {
+            if (!empty($demande->ouvrages_consigner_manuel)) {
+                $installations[] = $demande->ouvrages_consigner_manuel;
+            }
+            return $installations;
+        }
+
+        if (!empty($demande->ouvrages_consigner_gmao)) {
+            $gmaoData = is_array($demande->ouvrages_consigner_gmao)
+                ? $demande->ouvrages_consigner_gmao
+                : json_decode($demande->ouvrages_consigner_gmao, true);
+
+            if (is_array($gmaoData)) {
+                foreach ($gmaoData as $item) {
+                    if (is_array($item)) {
+                        $desc = $item['description'] ?? $item['EQUIPMENT_DES'] ?? $item['nom'] ?? $item['code'] ?? null;
+                        if ($desc) $installations[] = $desc;
+                    } elseif (is_string($item)) {
+                        $installations[] = $item;
+                    }
+                }
+            }
+        }
+
+        if (empty($installations) && !empty($demande->equipements_oracle)) {
+            $equipementsData = is_array($demande->equipements_oracle)
+                ? $demande->equipements_oracle
+                : json_decode($demande->equipements_oracle, true);
+
+            if (is_array($equipementsData)) {
+                $niveauxAvecData = [];
+                foreach ($equipementsData as $levelKey => $levelData) {
+                    if (preg_match('/level_(\d+)/', $levelKey, $m) && is_array($levelData) && !empty($levelData)) {
+                        $niveauxAvecData[$m[1]] = $levelData;
+                    }
+                }
+                if (!empty($niveauxAvecData)) {
+                    $dernierNiveau = $niveauxAvecData[max(array_keys($niveauxAvecData))];
+                    foreach ($dernierNiveau as $equip) {
+                        $desc = is_array($equip) ? ($equip['description'] ?? $equip['nom'] ?? $equip['code'] ?? null) : $equip;
+                        if ($desc) $installations[] = $desc;
+                    }
+                }
+            }
+        }
+
+        return $installations;
     }
 }
