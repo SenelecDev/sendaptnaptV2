@@ -383,7 +383,7 @@ class DemandeController extends Controller
                     
                     foreach (array_keys($data) as $key) {
                         $query = Note::where('statut', $statutMap[$key])
-                            ->whereDate('created_at', $currentDate->toDateString());
+                            ->whereRaw('COALESCE(ddt, created_at)::date = ?', [$currentDate->toDateString()]);
                         $data[$key][] = $applyGroupeFilter($query)->count();
                     }
                     $currentDate->addDay();
@@ -397,7 +397,7 @@ class DemandeController extends Controller
                     
                     foreach (array_keys($data) as $key) {
                         $query = Note::where('statut', $statutMap[$key])
-                            ->whereBetween('created_at', [$currentDate, min($endOfWeek, $dateFin)]);
+                            ->whereRaw('COALESCE(ddt, created_at) BETWEEN ? AND ?', [$currentDate, min($endOfWeek, $dateFin)]);
                         $data[$key][] = $applyGroupeFilter($query)->count();
                     }
                     $currentDate->addWeek();
@@ -410,8 +410,7 @@ class DemandeController extends Controller
                     
                     foreach (array_keys($data) as $key) {
                         $query = Note::where('statut', $statutMap[$key])
-                            ->whereYear('created_at', $currentDate->year)
-                            ->whereMonth('created_at', $currentDate->month);
+                            ->whereRaw('EXTRACT(YEAR FROM COALESCE(ddt, created_at)) = ? AND EXTRACT(MONTH FROM COALESCE(ddt, created_at)) = ?', [$currentDate->year, $currentDate->month]);
                         $data[$key][] = $applyGroupeFilter($query)->count();
                     }
                     $currentDate->addMonth();
@@ -428,7 +427,7 @@ class DemandeController extends Controller
                         
                         foreach (array_keys($data) as $key) {
                             $query = Note::where('statut', $statutMap[$key])
-                                ->whereDate('created_at', $date->toDateString());
+                                ->whereRaw('COALESCE(ddt, created_at)::date = ?', [$date->toDateString()]);
                             $data[$key][] = $applyGroupeFilter($query)->count();
                         }
                     }
@@ -443,7 +442,7 @@ class DemandeController extends Controller
                         
                         foreach (array_keys($data) as $key) {
                             $query = Note::where('statut', $statutMap[$key])
-                                ->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
+                                ->whereRaw('COALESCE(ddt, created_at) BETWEEN ? AND ?', [$startOfWeek, $endOfWeek]);
                             $data[$key][] = $applyGroupeFilter($query)->count();
                         }
                     }
@@ -457,8 +456,7 @@ class DemandeController extends Controller
                         
                         foreach (array_keys($data) as $key) {
                             $query = Note::where('statut', $statutMap[$key])
-                                ->whereYear('created_at', $date->year)
-                                ->whereMonth('created_at', $date->month);
+                                ->whereRaw('EXTRACT(YEAR FROM COALESCE(ddt, created_at)) = ? AND EXTRACT(MONTH FROM COALESCE(ddt, created_at)) = ?', [$date->year, $date->month]);
                             $data[$key][] = $applyGroupeFilter($query)->count();
                         }
                     }
@@ -577,7 +575,7 @@ class DemandeController extends Controller
                         $data[] = Note::whereHas('demande.demandeur', function($q) use ($groupe) {
                                 $q->where('groupe_id', $groupe->id);
                             })
-                            ->whereDate('created_at', $currentDate->toDateString())
+                            ->whereRaw('COALESCE(ddt, created_at)::date = ?', [$currentDate->toDateString()])
                             ->count();
                         $currentDate->addDay();
                     }
@@ -588,7 +586,7 @@ class DemandeController extends Controller
                         $data[] = Note::whereHas('demande.demandeur', function($q) use ($groupe) {
                                 $q->where('groupe_id', $groupe->id);
                             })
-                            ->whereBetween('created_at', [$currentDate, min($endOfWeek, $dateFin)])
+                            ->whereRaw('COALESCE(ddt, created_at) BETWEEN ? AND ?', [$currentDate, min($endOfWeek, $dateFin)])
                             ->count();
                         $currentDate->addWeek();
                     }
@@ -598,8 +596,7 @@ class DemandeController extends Controller
                         $data[] = Note::whereHas('demande.demandeur', function($q) use ($groupe) {
                                 $q->where('groupe_id', $groupe->id);
                             })
-                            ->whereYear('created_at', $currentDate->year)
-                            ->whereMonth('created_at', $currentDate->month)
+                            ->whereRaw('EXTRACT(YEAR FROM COALESCE(ddt, created_at)) = ? AND EXTRACT(MONTH FROM COALESCE(ddt, created_at)) = ?', [$currentDate->year, $currentDate->month])
                             ->count();
                         $currentDate->addMonth();
                     }
@@ -611,7 +608,7 @@ class DemandeController extends Controller
                     $data[] = Note::whereHas('demande.demandeur', function($q) use ($groupe) {
                             $q->where('groupe_id', $groupe->id);
                         })
-                        ->whereDate('created_at', $date->toDateString())
+                        ->whereRaw('COALESCE(ddt, created_at)::date = ?', [$date->toDateString()])
                         ->count();
                 }
             }
