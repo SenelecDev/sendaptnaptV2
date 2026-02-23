@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Note extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     // ==================== CONSTANTES DE STATUT ====================
     
@@ -22,6 +24,15 @@ class Note extends Model
     const STATUT_EXECUTEE = 'executée';
     const STATUT_RETOURNEE = 'retournée';
     const STATUT_ANNULEE = 'annulée';
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['statut', 'verificateur_id', 'validateur_id'])
+            ->logOnlyDirty()
+            ->useLogName('notes')
+            ->dontSubmitEmptyLogs();
+    }
 
     // ==================== FILLABLE ====================
 

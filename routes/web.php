@@ -250,6 +250,9 @@ Route::middleware(['auth'])->group(function () {
         
         // Impersonation (simuler un utilisateur)
         Route::post('impersonate/{user}', [\App\Http\Controllers\Admin\ImpersonateController::class, 'start'])->name('impersonate.start');
+        
+        // Journal d'activités
+        Route::get('activity-log', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activity-log.index');
     });
     
     // ===== DEMANDEUR ROUTES =====

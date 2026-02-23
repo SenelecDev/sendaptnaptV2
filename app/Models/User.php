@@ -10,10 +10,12 @@ use Spatie\Permission\Traits\HasRoles;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 use App\Traits\SearchableTrait;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class User extends Authenticatable implements LdapAuthenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, AuthenticatesWithLdap, SearchableTrait;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, AuthenticatesWithLdap, SearchableTrait, LogsActivity;
 
     protected $fillable = [
         'name',
@@ -73,6 +75,15 @@ class User extends Authenticatable implements LdapAuthenticatable
     public function isSuperAdmin(): bool
     {
         return strtoupper(trim($this->matricule)) === self::SUPER_ADMIN_MATRICULE;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'email', 'matricule', 'telephone', 'appartenance', 'groupe_id', 'n1_id', 'signature'])
+            ->logOnlyDirty()
+            ->useLogName('users')
+            ->dontSubmitEmptyLogs();
     }
 
     /**

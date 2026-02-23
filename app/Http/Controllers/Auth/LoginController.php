@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Ldap\LdapAttributeHandler;
 use App\Models\User;
 use App\Services\OracleHRService;
-use App\Services\RoleAssignmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -18,13 +17,11 @@ use LdapRecord\Models\ActiveDirectory\User as LdapUser;
 class LoginController extends Controller
 {
     protected OracleHRService $oracleService;
-    protected RoleAssignmentService $roleService;
     protected ?User $lastSyncedUser = null;
 
-    public function __construct(OracleHRService $oracleService, RoleAssignmentService $roleService)
+    public function __construct(OracleHRService $oracleService)
     {
         $this->oracleService = $oracleService;
-        $this->roleService = $roleService;
     }
 
     /**
@@ -249,9 +246,6 @@ class LoginController extends Controller
             $this->syncWithOracle($user);
         }
 
-        // Attribuer le rôle automatiquement basé sur la fonction
-        $this->roleService->autoAssignRole($user);
-
         $this->lastSyncedUser = $user;
 
         return $user;
@@ -314,8 +308,6 @@ class LoginController extends Controller
                     'fonction_oracle' => $fonctionOracle,
                 ]);
 
-                // Attribuer le rôle basé sur la fonction Oracle
-                $this->roleService->syncRoleFromOracle($user, $oracleData);
             }
         } catch (\Exception $e) {
             Log::warning('Oracle sync failed', [

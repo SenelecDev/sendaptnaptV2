@@ -3,7 +3,6 @@
 namespace App\Ldap;
 
 use App\Models\User;
-use App\Services\RoleAssignmentService;
 use Illuminate\Support\Facades\Log;
 use LdapRecord\Models\Model as LdapUser;
 
@@ -122,8 +121,11 @@ class LdapAttributeHandler
         // Sauvegarder l'utilisateur
         $database->save();
 
-        // Attribuer le rôle automatiquement basé sur la fonction
-        $this->assignRoleBasedOnFunction($database);
+        // Attribuer le rôle demandeur par défaut si aucun rôle existant
+        if ($database->roles->isEmpty()) {
+            $database->assignRole('demandeur');
+            Log::info('Default role "demandeur" assigned to new user', ['matricule' => $matricule]);
+        }
 
         // Log de synchronisation réussie
         Log::info('LDAP User synced successfully', [
@@ -164,36 +166,4 @@ class LdapAttributeHandler
         }
     }
 
-    /**
-     * Attribue automatiquement un rôle basé sur la fonction/poste de l'utilisateur
-     * Peut être modifié par l'admin par la suite
-     */
-    protected function assignRoleBasedOnFunction(User $user): void
-    {
-        // Ne pas écraser les rôles si déjà attribués par un admin (sauf demandeur qui est le défaut)
-        $currentRoles = $user->getRoleNames()->toArray();
-        
-        // Si l'utilisateur a déjà un rôle autre que 'demandeur', on conserve
-        $nonDefaultRoles = array_filter($currentRoles, fn($role) => !in_array($role, ['demandeur', 'agent']));
-        if (!empty($nonDefaultRoles)) {
-            Log::info('Role already assigned by admin, skipping auto-assignment', [
-                'matricule' => $user->matricule,
-                'current_roles' => $currentRoles,
-            ]);
-            return;
-        }
-
-        $roleService = app(RoleAssignmentService::class);
-        $suggestedRole = $roleService->suggestRoleFromFunction($user->poste);
-
-        // Attribuer le nouveau rôle (demandeur par défaut si aucune correspondance)
-        $user->syncRoles([$suggestedRole]);
-
-        Log::info('Role auto-assigned based on function', [
-            'user_id' => $user->id,
-            'matricule' => $user->matricule,
-            'poste' => $user->poste,
-            'assigned_role' => $suggestedRole,
-        ]);
-    }
 }

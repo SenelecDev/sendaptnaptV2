@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Demande extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     // ==================== CONSTANTES DE STATUT ====================
     
@@ -20,6 +22,15 @@ class Demande extends Model
 
     const MODE_GMAO = 'gmao';
     const MODE_MANUEL = 'manuel';
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['statut', 'dda', 'hda', 'dfa', 'hfa', 'motif_retour', 'nb_retours'])
+            ->logOnlyDirty()
+            ->useLogName('demandes')
+            ->dontSubmitEmptyLogs();
+    }
 
     // ==================== FILLABLE ====================
 
