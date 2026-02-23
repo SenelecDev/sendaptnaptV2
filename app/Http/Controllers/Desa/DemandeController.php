@@ -59,7 +59,7 @@ class DemandeController extends Controller
         $notesQuery = Note::query();
         
         if ($dateDebut && $dateFin) {
-            $demandesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
+            $demandesQuery->whereRaw('COALESCE(dda, ddp, created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
             $notesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
         }
         
@@ -116,7 +116,7 @@ class DemandeController extends Controller
         // Top groups creating DAPTs (avec filtres de période)
         $topGroupesQuery = Groupe::withCount(['demandes' => function($q) use ($dateDebut, $dateFin) {
             if ($dateDebut && $dateFin) {
-                $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
+                $q->whereRaw('COALESCE(demandes.dda, demandes.ddp, demandes.created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
             }
         }]);
         
@@ -135,7 +135,7 @@ class DemandeController extends Controller
                     ->whereColumn('users.groupe_id', 'groupes.id')
                     ->where('demandes.statut', Demande::STATUT_RETOURNEE);
                 if ($dateDebut && $dateFin) {
-                    $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
+                    $q->whereRaw('COALESCE(demandes.dda, demandes.ddp, demandes.created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
                 }
                 $q->selectRaw('COUNT(*)');
             }, 'demandes_retournees_count')
@@ -144,7 +144,7 @@ class DemandeController extends Controller
                     ->join('users', 'demandes.demandeur_id', '=', 'users.id')
                     ->whereColumn('users.groupe_id', 'groupes.id');
                 if ($dateDebut && $dateFin) {
-                    $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
+                    $q->whereRaw('COALESCE(demandes.dda, demandes.ddp, demandes.created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
                 }
                 $q->selectRaw('COALESCE(SUM(demandes.nb_retours), 0)');
             }, 'total_renvois');
@@ -156,7 +156,7 @@ class DemandeController extends Controller
                         ->orWhere('nb_retours', '>', 0);
                 });
                 if ($dateDebut && $dateFin) {
-                    $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
+                    $q->whereRaw('COALESCE(demandes.dda, demandes.ddp, demandes.created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
                 }
             })
             ->orderByDesc('total_renvois')
@@ -278,7 +278,7 @@ class DemandeController extends Controller
         $demandesQuery = Demande::query();
         $notesQuery = Note::query();
         if ($dateDebut && $dateFin) {
-            $demandesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
+            $demandesQuery->whereRaw('COALESCE(dda, ddp, created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
             $notesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
         }
         if (!empty($groupeIds)) {
@@ -313,13 +313,13 @@ class DemandeController extends Controller
         $topGroupesRetournees = Groupe::withCount(['demandes as demandes_retournees_count' => function($q) use ($dateDebut, $dateFin) {
             $q->where('statut', Demande::STATUT_RETOURNEE);
             if ($dateDebut && $dateFin) {
-                $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
+                $q->whereRaw('COALESCE(demandes.dda, demandes.ddp, demandes.created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
             }
         }])
         ->whereHas('demandes', function($q) use ($dateDebut, $dateFin) {
             $q->where('statut', Demande::STATUT_RETOURNEE);
             if ($dateDebut && $dateFin) {
-                $q->whereBetween('demandes.created_at', [$dateDebut, $dateFin]);
+                $q->whereRaw('COALESCE(demandes.dda, demandes.ddp, demandes.created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
             }
         })
         ->orderByDesc('demandes_retournees_count')
@@ -490,7 +490,7 @@ class DemandeController extends Controller
             });
             
             if ($dateDebut && $dateFin) {
-                $demandesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
+                $demandesQuery->whereRaw('COALESCE(dda, ddp, created_at) BETWEEN ? AND ?', [$dateDebut, $dateFin]);
                 $notesQuery->whereBetween('created_at', [$dateDebut, $dateFin]);
             }
             
