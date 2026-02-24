@@ -59,11 +59,24 @@ class RegenerateDaptPdfs extends Command
 
         $success = 0;
         $errors = 0;
+        $schemaAsImage = 0;
+        $schemaMissingFile = 0;
+        $schemaUnsupported = 0;
+        $schemaEmpty = 0;
 
         foreach ($demandes as $demande) {
             try {
                 if (!$dryRun) {
-                    $this->regeneratePdf($demande);
+                    $schemaStatus = $this->regeneratePdf($demande);
+                    if ($schemaStatus === 'image') {
+                        $schemaAsImage++;
+                    } elseif ($schemaStatus === 'missing') {
+                        $schemaMissingFile++;
+                    } elseif ($schemaStatus === 'unsupported') {
+                        $schemaUnsupported++;
+                    } else {
+                        $schemaEmpty++;
+                    }
                 }
                 $success++;
             } catch (\Throwable $e) {
@@ -78,16 +91,19 @@ class RegenerateDaptPdfs extends Command
         $bar->finish();
         $this->newLine(2);
         $this->info("Termine. Succes: {$success}, Erreurs: {$errors}");
+        if (!$dryRun) {
+            $this->line("Schemas integres (image): {$schemaAsImage}");
+            $this->line("Schemas introuvables (fichier absent): {$schemaMissingFile}");
+            $this->line("Schemas non integrables (extension non image): {$schemaUnsupported}");
+            $this->line("Sans schema: {$schemaEmpty}");
+        }
 
         return $errors > 0 ? self::FAILURE : self::SUCCESS;
     }
 
-    private function regeneratePdf(Demande $demande): void
+    private function regeneratePdf(Demande $demande): string
     {
-        $schema = null;
-        if (!empty($demande->schema)) {
-            $schema = $this->convertImageToBase64(Storage::disk('public')->path($demande->schema));
-        }
+        [$schema, $schemaStatus] = $this->resolveSchemaBase64($demande->schema);
 
         $signatureN1 = null;
         $n1Id = $demande->demandeur->n1_id ?? null;
@@ -122,27 +138,59 @@ class RegenerateDaptPdfs extends Command
         Storage::disk('public')->put($filePath, $dompdf->output());
         $demande->pdf_path = $filePath;
         $demande->save();
+
+        return $schemaStatus;
     }
 
-    private function convertImageToBase64(string $path): ?string
+    private function resolveSchemaBase64(?string $schemaValue): array
     {
-        if (!is_file($path)) {
-            return null;
+        if (empty($schemaValue)) {
+            return [null, 'empty'];
         }
 
-        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $candidates = [];
+        $schemaValue = trim($schemaValue);
+
+        if (preg_match('/^([a-zA-Z]:\\\\|\\/)/', $schemaValue)) {
+            $candidates[] = $schemaValue;
+        }
+
+        $normalized = ltrim(str_replace('\\', '/', $schemaValue), '/');
+        $candidates[] = Storage::disk('public')->path($normalized);
+        if (str_starts_with($normalized, 'storage/')) {
+            $normalizedWithoutStorage = substr($normalized, 8);
+            $candidates[] = Storage::disk('public')->path($normalizedWithoutStorage);
+            $candidates[] = public_path($normalized);
+        } else {
+            $candidates[] = public_path('storage/' . $normalized);
+            $candidates[] = public_path($normalized);
+        }
+
+        $resolved = null;
+        foreach (array_unique($candidates) as $candidate) {
+            if (is_file($candidate)) {
+                $resolved = $candidate;
+                break;
+            }
+        }
+
+        if ($resolved === null) {
+            return [null, 'missing'];
+        }
+
+        $extension = strtolower(pathinfo($resolved, PATHINFO_EXTENSION));
         $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
         if (!in_array($extension, $allowed, true)) {
-            return null;
+            return [null, 'unsupported'];
         }
 
         $mime = $extension === 'jpg' ? 'jpeg' : $extension;
-        $content = file_get_contents($path);
+        $content = file_get_contents($resolved);
         if ($content === false) {
-            return null;
+            return [null, 'missing'];
         }
 
-        return 'data:image/' . $mime . ';base64,' . base64_encode($content);
+        return ['data:image/' . $mime . ';base64,' . base64_encode($content), 'image'];
     }
 }
 

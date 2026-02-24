@@ -537,8 +537,8 @@ class NoteController extends Controller
             
             // Récupérer le schéma en base64 si existe
             $schema = null;
-            if ($demande->schema_path && Storage::disk('public')->exists($demande->schema_path)) {
-                $schemaPath = storage_path('app/public/' . $demande->schema_path);
+            if (!empty($demande->schema) && Storage::disk('public')->exists($demande->schema)) {
+                $schemaPath = storage_path('app/public/' . $demande->schema);
                 $schemaContent = file_get_contents($schemaPath);
                 $schema = 'data:image/' . pathinfo($schemaPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode($schemaContent);
             }
