@@ -290,13 +290,31 @@ Route::middleware(['auth'])->group(function () {
     // ===== PDF DAPT VIEW (accessible à tous les utilisateurs authentifiés) =====
     Route::get('/dapt/{demande}', function (\App\Models\Demande $demande) {
         $demande->load(['demandeur', 'chargeTravaux']);
-        return view('pdf.dapt', compact('demande'));
+
+        $schema = null;
+        if (!empty($demande->schema)) {
+            $schemaPath = \Illuminate\Support\Facades\Storage::disk('public')->path($demande->schema);
+            if (is_file($schemaPath)) {
+                $schema = 'data:image/' . pathinfo($schemaPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($schemaPath));
+            }
+        }
+
+        return view('pdf.dapt', compact('demande', 'schema'));
     })->name('pdf.dapt.view');
     
     // ===== PDF DAPT DOWNLOAD =====
     Route::get('/dapt/{demande}/download', function (\App\Models\Demande $demande) {
         $demande->load(['demandeur', 'chargeTravaux']);
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.dapt', compact('demande'));
+
+        $schema = null;
+        if (!empty($demande->schema)) {
+            $schemaPath = \Illuminate\Support\Facades\Storage::disk('public')->path($demande->schema);
+            if (is_file($schemaPath)) {
+                $schema = 'data:image/' . pathinfo($schemaPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($schemaPath));
+            }
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.dapt', compact('demande', 'schema'));
         return $pdf->download('DAPT-' . $demande->numero . '.pdf');
     })->name('pdf.dapt.download');
     
