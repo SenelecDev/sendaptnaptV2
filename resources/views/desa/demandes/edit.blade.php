@@ -732,6 +732,7 @@
                 </div>
             </div>
         @elseif($demande->statut === 'acceptée')
+            <div class="space-y-4">
             <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                 <div class="flex items-center">
                     <svg class="w-8 h-8 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -750,6 +751,26 @@
                         Voir/Modifier la NAPT
                     </a>
                 @endif
+            </div>
+                <div class="border border-red-200 rounded-lg p-4 bg-red-50">
+                    <h3 class="font-semibold text-red-800 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        Retourner la demande (même avec NAPT existante)
+                    </h3>
+                    <form action="{{ route('desa.demandes.retourner-napt', $demande) }}" method="POST" class="flex flex-col">
+                        @csrf
+                        <label class="label text-red-700">Motif du retour <span class="text-red-500">*</span> <span class="text-xs font-normal">(min. 2 caractères)</span></label>
+                        <textarea name="comment" rows="4" class="input-senelec w-full @if($errors->has('comment')) border-red-500 @endif" placeholder="Expliquez pourquoi la demande est retournée..." required minlength="2">{{ old('comment') }}</textarea>
+                        <button type="submit" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center mt-4">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                            </svg>
+                            Retourner la demande
+                        </button>
+                    </form>
+                </div>
             </div>
         @elseif($demande->statut === 'retournée')
             <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">

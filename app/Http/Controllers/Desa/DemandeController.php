@@ -780,6 +780,14 @@ class DemandeController extends Controller
             $demande->traite_id = Auth::id();
             $demande->date_traitement = now();
             $demande->save();
+
+            // Si une NAPT existe déjà, la marquer aussi comme retournée
+            if ($demande->note) {
+                $demande->note->statut = Note::STATUT_RETOURNEE;
+                $demande->note->retourne1_id = Auth::id();
+                $demande->note->motif = $request->input('comment');
+                $demande->note->save();
+            }
             
             // Notification
             app(NotificationService::class)->notifyDaptReturned($demande, $request->input('comment'));
@@ -878,6 +886,14 @@ class DemandeController extends Controller
         $demande->date_traitement = now();
         $demande->nb_retours = ($demande->nb_retours ?? 0) + 1;
         $demande->save();
+
+        // Si une NAPT existe déjà, la marquer aussi comme retournée
+        if ($demande->note) {
+            $demande->note->statut = Note::STATUT_RETOURNEE;
+            $demande->note->retourne1_id = Auth::id();
+            $demande->note->motif = $request->input('comment');
+            $demande->note->save();
+        }
         
         return redirect()->route('desa.demandes.index')
                          ->with('success', 'Demande retournée au demandeur avec succès.');
