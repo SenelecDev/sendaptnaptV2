@@ -135,7 +135,7 @@ class DashboardController extends Controller
                 ? round(($stats['dapt_acceptees'] / $stats['dapt_total']) * 100, 1) 
                 : 0,
             'napt' => $stats['napt_total'] > 0 
-                ? round(($stats['napt_executees'] / $stats['napt_total']) * 100, 1) 
+                ? round((($stats['napt_executees'] + $stats['napt_annulees']) / $stats['napt_total']) * 100, 1)
                 : 0,
         ];
 

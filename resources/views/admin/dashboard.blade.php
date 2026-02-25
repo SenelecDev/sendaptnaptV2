@@ -70,7 +70,7 @@
             DAPTs
         </h2>
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div class="stat-card-purple">
+            <a href="{{ route('admin.demandes.index') }}" class="stat-card-purple block hover:shadow-lg transition-shadow">
                 <div class="flex items-center">
                     <div class="p-3 rounded-lg bg-senelec-purple/10">
                         <svg class="w-6 h-6 text-senelec-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,9 +83,9 @@
                         <p class="text-xs text-senelec-purple">{{ $stats['dapt_periode'] }} cette période</p>
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div class="stat-card-blue">
+            <a href="{{ route('admin.demandes.index', ['statut' => 'créée']) }}" class="stat-card-blue block hover:shadow-lg transition-shadow">
                 <div class="flex items-center">
                     <div class="p-3 rounded-lg bg-blue-100">
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,9 +97,9 @@
                         <p class="text-2xl font-bold text-blue-600">{{ $stats['dapt_creees'] }}</p>
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div class="stat-card-orange">
+            <a href="{{ route('admin.demandes.index', ['statut' => 'en cours de traitement']) }}" class="stat-card-orange block hover:shadow-lg transition-shadow">
                 <div class="flex items-center">
                     <div class="p-3 rounded-lg bg-senelec-orange/10">
                         <svg class="w-6 h-6 text-senelec-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,9 +111,9 @@
                         <p class="text-2xl font-bold text-senelec-orange">{{ $stats['dapt_en_cours'] }}</p>
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div class="card-senelec p-4 border-l-4 border-green-500">
+            <a href="{{ route('admin.demandes.index', ['statut' => 'acceptée']) }}" class="card-senelec p-4 border-l-4 border-green-500 block hover:shadow-lg transition-shadow">
                 <div class="flex items-center">
                     <div class="p-3 rounded-lg bg-green-100">
                         <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,9 +125,9 @@
                         <p class="text-2xl font-bold text-green-600">{{ $stats['dapt_acceptees'] }}</p>
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div class="card-senelec p-4 border-l-4 border-red-500">
+            <a href="{{ route('admin.demandes.index', ['statut' => 'retournée']) }}" class="card-senelec p-4 border-l-4 border-red-500 block hover:shadow-lg transition-shadow">
                 <div class="flex items-center">
                     <div class="p-3 rounded-lg bg-red-100">
                         <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,7 +139,7 @@
                         <p class="text-2xl font-bold text-red-600">{{ $stats['dapt_retournees'] }}</p>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
@@ -152,48 +152,48 @@
             NAPTs
         </h2>
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            <div class="stat-card-magenta">
+            <a href="{{ route('admin.notes.index') }}" class="stat-card-magenta block hover:shadow-lg transition-shadow">
                 <p class="text-sm text-gray-500">Total</p>
                 <p class="text-2xl font-bold text-senelec-magenta">{{ number_format($stats['napt_total']) }}</p>
-            </div>
-            <div class="card-senelec p-4 border-l-4 border-gray-400">
+            </a>
+            <a href="{{ route('admin.notes.index', ['statut' => 'brouillon']) }}" class="card-senelec p-4 border-l-4 border-gray-400 block hover:shadow-lg transition-shadow">
                 <p class="text-sm text-gray-500">Brouillon</p>
                 <p class="text-2xl font-bold text-gray-600">{{ $stats['napt_brouillon'] }}</p>
-            </div>
-            <div class="card-senelec p-4 border-l-4 border-purple-500">
+            </a>
+            <a href="{{ route('admin.notes.index', ['statut' => 'en étude']) }}" class="card-senelec p-4 border-l-4 border-purple-500 block hover:shadow-lg transition-shadow">
                 <p class="text-sm text-gray-500">En étude</p>
                 <p class="text-2xl font-bold text-purple-600">{{ $stats['napt_en_etude'] }}</p>
-            </div>
-            <div class="card-senelec p-4 border-l-4 border-yellow-500">
+            </a>
+            <a href="{{ route('admin.notes.index', ['statut' => 'en attente de vérification']) }}" class="card-senelec p-4 border-l-4 border-yellow-500 block hover:shadow-lg transition-shadow">
                 <p class="text-sm text-gray-500">En vérification</p>
                 <p class="text-2xl font-bold text-yellow-600">{{ $stats['napt_en_attente_verif'] }}</p>
-            </div>
-            <div class="card-senelec p-4 border-l-4 border-indigo-500">
+            </a>
+            <a href="{{ route('admin.notes.index', ['statut' => 'vérifiée']) }}" class="card-senelec p-4 border-l-4 border-indigo-500 block hover:shadow-lg transition-shadow">
                 <p class="text-sm text-gray-500">Vérifiées</p>
                 <p class="text-2xl font-bold text-indigo-600">{{ $stats['napt_verifiees'] }}</p>
-            </div>
+            </a>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
-            <div class="card-senelec p-4 border-l-4 border-amber-500">
+            <a href="{{ route('admin.notes.index', ['statut' => 'en attente de validation']) }}" class="card-senelec p-4 border-l-4 border-amber-500 block hover:shadow-lg transition-shadow">
                 <p class="text-sm text-gray-500">En validation</p>
                 <p class="text-2xl font-bold text-amber-600">{{ $stats['napt_en_attente_valid'] }}</p>
-            </div>
-            <div class="card-senelec p-4 border-l-4 border-emerald-500">
+            </a>
+            <a href="{{ route('admin.notes.index', ['statut' => 'validée']) }}" class="card-senelec p-4 border-l-4 border-emerald-500 block hover:shadow-lg transition-shadow">
                 <p class="text-sm text-gray-500">Validées</p>
                 <p class="text-2xl font-bold text-emerald-600">{{ $stats['napt_validees'] }}</p>
-            </div>
-            <div class="card-senelec p-4 border-l-4 border-blue-500">
+            </a>
+            <a href="{{ route('admin.notes.index', ['statut' => 'en cours d\'exécution']) }}" class="card-senelec p-4 border-l-4 border-blue-500 block hover:shadow-lg transition-shadow">
                 <p class="text-sm text-gray-500">En exécution</p>
                 <p class="text-2xl font-bold text-blue-600">{{ $stats['napt_en_execution'] }}</p>
-            </div>
-            <div class="card-senelec p-4 border-l-4 border-green-500">
+            </a>
+            <a href="{{ route('admin.notes.index', ['statut' => 'exécutée']) }}" class="card-senelec p-4 border-l-4 border-green-500 block hover:shadow-lg transition-shadow">
                 <p class="text-sm text-gray-500">Exécutées</p>
                 <p class="text-2xl font-bold text-green-600">{{ $stats['napt_executees'] }}</p>
-            </div>
-            <div class="card-senelec p-4 border-l-4 border-red-500">
+            </a>
+            <a href="{{ route('admin.notes.index', ['statut' => 'annulée']) }}" class="card-senelec p-4 border-l-4 border-red-500 block hover:shadow-lg transition-shadow">
                 <p class="text-sm text-gray-500">Annulées</p>
                 <p class="text-2xl font-bold text-red-600">{{ $stats['napt_annulees'] }}</p>
-            </div>
+            </a>
         </div>
     </div>
 
@@ -272,7 +272,7 @@
                 </div>
                 <div>
                     <div class="flex justify-between text-sm mb-1">
-                        <span class="text-gray-600">NAPT exécutées</span>
+                        <span class="text-gray-600">NAPT exécutées + annulées</span>
                         <span class="font-semibold text-senelec-teal">{{ $tauxTraitement['napt'] }}%</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2.5">
