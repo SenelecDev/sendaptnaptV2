@@ -59,8 +59,9 @@ class NoteController extends Controller
             'verifiees' => Note::where('statut', 'vérifiée')->count(),
             'validees' => Note::where('statut', 'validée')->count(),
             'en_execution' => Note::where('statut', 'en cours d\'exécution')->count(),
-            'executees' => Note::where('statut', 'exécutée')->count(),
+            'executees' => Note::where('statut', 'executée')->count(),
             'retournees' => Note::where('statut', 'retournée')->count(),
+            'annulees' => Note::where('statut', 'annulée')->count(),
         ];
         
         return view('admin.notes.index', compact('notes', 'stats'));
