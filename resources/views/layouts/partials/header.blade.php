@@ -25,6 +25,7 @@
         </form>
 
         <div class="flex items-center gap-x-4 lg:gap-x-6">
+            @if(!auth()->user()->hasRole('desa'))
             <!-- Notifications -->
             <div class="relative" x-data="{ 
                 open: false, 
@@ -156,6 +157,7 @@
 
             <!-- Separator -->
             <div class="hidden lg:block lg:h-6 lg:w-px lg:bg-white/20" aria-hidden="true"></div>
+            @endif
 
             <!-- Profile dropdown -->
             <div class="relative" x-data="{ open: false }">
