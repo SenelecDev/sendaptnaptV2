@@ -82,6 +82,14 @@
                 </p>
             </div>
             <div class="flex space-x-3">
+                @if($note->demande)
+                    <a href="{{ route('desa.demandes.edit', $note->demande) }}" class="btn-danger">
+                        <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                        </svg>
+                        Retourner la DAPT associée
+                    </a>
+                @endif
                 <a href="{{ route('desa.notes.show', $note) }}" class="btn-senelec-outline">
                     <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
