@@ -128,21 +128,20 @@ class NoteController extends Controller
 
     /**
      * Display a listing of notes for operateur.
-     * Notes avec fiche manœuvre jointe filtrables par statut.
+     * Notes filtrables par statut (avec ou sans fiche manoeuvre).
      */
     public function index(Request $request)
     {
-        // Stats pour les raccourcis (uniquement notes avec fiche manœuvre)
+        // Stats pour les raccourcis (sans restriction fiche manoeuvre)
         $stats = [
-            'validees' => Note::where('statut', Note::STATUT_VALIDEE)->whereNotNull('fiche_manoeuvre')->count(),
-            'en_cours' => Note::where('statut', Note::STATUT_EN_COURS_EXECUTION)->whereNotNull('fiche_manoeuvre')->count(),
-            'executees' => Note::where('statut', Note::STATUT_EXECUTEE)->whereNotNull('fiche_manoeuvre')->count(),
-            'annulees' => Note::where('statut', Note::STATUT_ANNULEE)->whereNotNull('fiche_manoeuvre')->count(),
+            'validees' => Note::where('statut', Note::STATUT_VALIDEE)->count(),
+            'en_cours' => Note::where('statut', Note::STATUT_EN_COURS_EXECUTION)->count(),
+            'executees' => Note::where('statut', Note::STATUT_EXECUTEE)->count(),
+            'annulees' => Note::where('statut', Note::STATUT_ANNULEE)->count(),
         ];
         
-        // Query de base: notes avec fiche manœuvre
-        $query = Note::with(['demande', 'etabliPar', 'verifiePar', 'validePar'])
-                     ->whereNotNull('fiche_manoeuvre');
+        // Query de base
+        $query = Note::with(['demande', 'etabliPar', 'verifiePar', 'validePar']);
         
         // Mapping des slugs URL vers les constantes
         $statutMapping = [
