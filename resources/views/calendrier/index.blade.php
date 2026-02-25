@@ -55,12 +55,15 @@
 
     /* Popup "+X autres" */
     .fc-popover {
-        z-index: 1200 !important;
+        z-index: 10000 !important;
         max-width: 520px;
         width: max-content;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        background: #ffffff !important;
+        opacity: 1 !important;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
         border-radius: 8px;
         border: 1px solid #e5e7eb;
+        isolation: isolate;
     }
 
     .fc-popover-header {
@@ -73,6 +76,7 @@
         max-height: 320px;
         overflow-y: auto;
         padding: 6px;
+        background: #ffffff !important;
     }
 
     .fc-popover .fc-daygrid-event-harness {
@@ -85,6 +89,8 @@
         text-overflow: clip;
         line-height: 1.25;
         padding: 3px 6px;
+        position: relative;
+        z-index: 2;
     }
 
     .fc-popover .fc-event-title {
