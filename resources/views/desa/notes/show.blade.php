@@ -34,34 +34,30 @@
             </div>
             <div class="flex space-x-3">
                 @if($note->demande)
-                    <a href="{{ route('desa.demandes.edit', $note->demande) }}" class="btn-danger">
-                        <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ route('desa.demandes.edit', $note->demande) }}" class="btn-danger" title="Retourner la DAPT associée" aria-label="Retourner la DAPT associée">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
                         </svg>
-                        Retourner la DAPT associée
                     </a>
                 @endif
                 @if(in_array($note->statut, ['brouillon', 'en étude', 'retournée']))
-                    <a href="{{ route('desa.notes.edit', $note) }}" class="btn-senelec">
-                        <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ route('desa.notes.edit', $note) }}" class="btn-senelec" title="Modifier" aria-label="Modifier">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                         </svg>
-                        Modifier
                     </a>
                 @endif
                 @if(!in_array($note->statut, ['annulée', 'executée']))
-                    <button type="button" onclick="document.getElementById('modal-annuler').classList.remove('hidden')" class="btn-danger">
-                        <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button type="button" onclick="document.getElementById('modal-annuler').classList.remove('hidden')" class="btn-danger" title="Annuler NAPT" aria-label="Annuler NAPT">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
-                        Annuler NAPT
                     </button>
                 @endif
-                <a href="{{ route('desa.demandes.index', ['statut' => 'créée']) }}" class="btn-senelec-outline">
-                    <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="{{ route('desa.demandes.index', ['statut' => 'créée']) }}" class="btn-senelec-outline" title="Retour sur la liste" aria-label="Retour sur la liste">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
-                    Retour sur la liste
                 </a>
             </div>
         </div>
