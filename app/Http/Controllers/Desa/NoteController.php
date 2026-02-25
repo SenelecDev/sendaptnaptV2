@@ -171,6 +171,12 @@ class NoteController extends Controller
         if ($action === 'en_cours_etude') {
             $statut = Note::STATUT_EN_ETUDE;
         } elseif ($action === 'attente_verification') {
+            // Sécurité backend: document obligatoire si étude = oui avant envoi en vérification
+            if (($validated['etude'] ?? 'non') === 'oui' && !$request->hasFile('document')) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Un document est obligatoire pour une NAPT nécessitant une étude.');
+            }
             $statut = Note::STATUT_EN_ATTENTE_VERIFICATION;
         }
         

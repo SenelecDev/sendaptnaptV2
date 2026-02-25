@@ -214,6 +214,12 @@ class NoteController extends Controller
         $action = $request->input('action');
         
         if ($action === 'verifier') {
+            // Garde backend: impossible de verifier une note d'etude sans document
+            if ($note->etude === 'oui' && !$note->document) {
+                return redirect()->route('verificateur.notes.show', $note)
+                    ->with('error', 'Cette NAPT ne peut pas etre verifiee: document d\'etude manquant.');
+            }
+
             $note->statut = Note::STATUT_VERIFIEE;
             $note->verifie_id = Auth::id();
             // Reset return fields when verified again

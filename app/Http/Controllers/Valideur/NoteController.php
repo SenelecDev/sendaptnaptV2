@@ -212,6 +212,12 @@ class NoteController extends Controller
         $action = $request->input('action');
         
         if ($action === 'valider') {
+            // Garde backend: impossible de valider une note d'etude sans document
+            if ($note->etude === 'oui' && !$note->document) {
+                return redirect()->route('valideur.notes.show', $note)
+                    ->with('error', 'Cette NAPT ne peut pas etre validee: document d\'etude manquant.');
+            }
+
             $note->statut = Note::STATUT_VALIDEE;
             $note->valide_id = Auth::id();
             $note->save();
