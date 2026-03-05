@@ -352,10 +352,8 @@ class LoginController extends Controller
         // Redirect based on user role
         $redirectRoute = $this->getRedirectRouteForUser($user);
 
-        $intended = session()->pull('url.intended', '');
-        if ($intended && !str_contains($intended, '/api/')) {
-            return redirect($intended);
-        }
+        // Toujours rediriger vers le dashboard du rôle
+        session()->forget('url.intended');
 
         return redirect($redirectRoute);
     }
