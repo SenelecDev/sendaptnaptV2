@@ -25,7 +25,7 @@
         </form>
 
         <div class="flex items-center gap-x-4 lg:gap-x-6">
-            @if(!auth()->user()->hasRole('desa'))
+            @if(auth()->user()->notifications_enabled)
             <!-- Notifications -->
             <div class="relative" x-data="{ 
                 open: false, 
