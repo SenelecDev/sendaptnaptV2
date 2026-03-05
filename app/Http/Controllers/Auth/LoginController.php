@@ -376,10 +376,13 @@ class LoginController extends Controller
             return route('verificateur.dashboard');
         }
         if ($user->hasRole('valideur')) {
-            return route('valideur.notes.index');
+            return route('valideur.dashboard');
         }
-        if ($user->hasRole('operateur') || $user->hasRole('operateurchef')) {
-            return route('operateur.notes.index');
+        if ($user->hasRole('operateurchef')) {
+            return route('operateurchef.dashboard');
+        }
+        if ($user->hasRole('operateur')) {
+            return route('operateur.dashboard');
         }
         if ($user->hasRole('directeur')) {
             return route('directeur.dashboard');
