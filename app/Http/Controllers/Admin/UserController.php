@@ -109,6 +109,7 @@ class UserController extends Controller
             'groupe_id' => 'nullable|exists:groupes,id',
             'roles' => 'array',
             'is_active' => 'boolean',
+            'notifications_enabled' => 'boolean',
         ];
         $validated = $request->validate($rules);
 
@@ -128,6 +129,7 @@ class UserController extends Controller
         
         $validated['name'] = $validated['prenom'] . ' ' . $validated['nom'];
         $validated['is_active'] = $request->boolean('is_active', true);
+        $validated['notifications_enabled'] = $request->boolean('notifications_enabled', true);
         
         $user->update($validated);
         

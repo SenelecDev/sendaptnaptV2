@@ -47,6 +47,7 @@ class User extends Authenticatable implements LdapAuthenticatable
         // Groupe et statut
         'groupe_id',
         'is_active',
+        'notifications_enabled',
         'onboarding_completed',
         // Timestamps
         'last_sync_at',

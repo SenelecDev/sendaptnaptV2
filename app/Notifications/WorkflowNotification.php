@@ -43,7 +43,7 @@ class WorkflowNotification extends Notification
     {
         $channels = ['database'];
         
-        if ($notifiable->email) {
+        if ($notifiable->email && ($notifiable->notifications_enabled ?? true)) {
             $channels[] = 'mail';
         }
         

@@ -686,6 +686,9 @@ class NoteController extends Controller
                 }
 
                 foreach ($members as $member) {
+                    if (!($member->notifications_enabled ?? true)) {
+                        continue;
+                    }
                     try {
                         \Illuminate\Support\Facades\Mail::to($member->email)
                             ->send(new \App\Mail\NaptWeeklyDiffusionMail(

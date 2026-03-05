@@ -832,6 +832,11 @@ class DemandeController extends Controller
     private function sendNotificationEmail(Demande $demande, string $message): void
     {
         try {
+            // Vérifier si le demandeur a les notifications activées
+            if (!($demande->demandeur->notifications_enabled ?? true)) {
+                return;
+            }
+            
             $recipients = [$demande->demandeur->email];
             $cc = ['previsions@senelec.sn'];
             
