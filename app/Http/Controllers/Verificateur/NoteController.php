@@ -63,28 +63,37 @@ class NoteController extends Controller
         
         // Recherche globale: NAPT, DAPT, lieu, établi par + ouvrages à consigner (manuel + GMAO)
         if ($request->filled('search')) {
-            $driver = DB::connection()->getDriverName();
-            $this->applySimpleSearch(
-                $query,
-                $request->search,
-                ['numero_note'],
-                [
-                    'demande' => ['numero_demande', 'lieu_execution', 'ouvrages_consigner_manuel'],
-                    'etabliPar' => ['name', 'prenom', 'matricule'],
-                ],
-                function ($q, $pattern) use ($driver) {
-                    // Ouvrages GMAO JSON
-                    if ($driver === 'mysql') {
-                        $q->orWhereHas('demande', function ($dq) use ($pattern) {
-                            $dq->whereRaw('LOWER(CAST(COALESCE(ouvrages_consigner_gmao, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                        });
-                    } elseif ($driver === 'pgsql') {
-                        $q->orWhereHas('demande', function ($dq) use ($pattern) {
-                            $dq->whereRaw('LOWER(COALESCE(ouvrages_consigner_gmao::text, \'[]\')) LIKE ?', [$pattern]);
-                        });
-                    }
-                }
-            );
+            $term = mb_strtolower(trim($request->search));
+            if ($term !== '') {
+                $pattern = '%' . $term . '%';
+                $driver = DB::connection()->getDriverName();
+
+                $query->where(function ($q) use ($pattern, $driver) {
+                    // N° NAPT
+                    $q->whereRaw('LOWER(numero_note) LIKE ?', [$pattern]);
+
+                    // DAPT + lieu + ouvrages manuels
+                    $q->orWhereHas('demande', function ($dq) use ($pattern, $driver) {
+                        $dq->whereRaw('LOWER(COALESCE(numero_demande, \'\')) LIKE ?', [$pattern])
+                           ->orWhereRaw('LOWER(COALESCE(lieu_execution, \'\')) LIKE ?', [$pattern])
+                           ->orWhereRaw('LOWER(COALESCE(ouvrages_consigner_manuel, \'\')) LIKE ?', [$pattern]);
+
+                        // Ouvrages GMAO JSON
+                        if ($driver === 'mysql') {
+                            $dq->orWhereRaw('LOWER(CAST(COALESCE(ouvrages_consigner_gmao, "[]") AS CHAR)) LIKE ?', [$pattern]);
+                        } elseif ($driver === 'pgsql') {
+                            $dq->orWhereRaw('LOWER(COALESCE(ouvrages_consigner_gmao::text, \'[]\')) LIKE ?', [$pattern]);
+                        }
+                    });
+
+                    // Etabli par (nom / prénom / matricule)
+                    $q->orWhereHas('etabliPar', function ($uq) use ($pattern) {
+                        $uq->whereRaw('LOWER(COALESCE(name, \'\')) LIKE ?', [$pattern])
+                           ->orWhereRaw('LOWER(COALESCE(prenom, \'\')) LIKE ?', [$pattern])
+                           ->orWhereRaw('LOWER(COALESCE(matricule, \'\')) LIKE ?', [$pattern]);
+                    });
+                });
+            }
         }
         
         // Filtre par statut (par défaut: en attente de vérification)
