@@ -212,7 +212,24 @@ class DirecteurController extends Controller
         
         // Recherche
         if ($request->filled('search')) {
-            $this->applySimpleSearch($query, $request->search, ['numero_note'], ['demande' => ['numero_demande']]);
+            $driver = DB::connection()->getDriverName();
+            $this->applySimpleSearch(
+                $query,
+                $request->search,
+                ['numero_note'],
+                ['demande' => ['numero_demande', 'lieu_execution', 'ouvrages_consigner_manuel']],
+                function ($q, $pattern) use ($driver) {
+                    if ($driver === 'mysql') {
+                        $q->orWhereHas('demande', function ($dq) use ($pattern) {
+                            $dq->whereRaw('LOWER(CAST(COALESCE(ouvrages_consigner_gmao, "[]") AS CHAR)) LIKE ?', [$pattern]);
+                        });
+                    } elseif ($driver === 'pgsql') {
+                        $q->orWhereHas('demande', function ($dq) use ($pattern) {
+                            $dq->whereRaw('LOWER(COALESCE(ouvrages_consigner_gmao::text, \'[]\')) LIKE ?', [$pattern]);
+                        });
+                    }
+                }
+            );
         }
         
         // Filtre par statut
