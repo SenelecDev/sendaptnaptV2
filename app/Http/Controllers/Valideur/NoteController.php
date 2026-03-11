@@ -141,14 +141,17 @@ class NoteController extends Controller
                          Note::STATUT_ANNULEE,
                      ]);
         
-        // Recherche
+        // Recherche globale: NAPT, DAPT, lieu, établi par + ouvrages à consigner (manuel + GMAO)
         if ($request->filled('search')) {
             $driver = DB::connection()->getDriverName();
             $this->applySimpleSearch(
                 $query,
                 $request->search,
                 ['numero_note'],
-                ['demande' => ['numero_demande', 'lieu_execution', 'ouvrages_consigner_manuel']],
+                [
+                    'demande' => ['numero_demande', 'lieu_execution', 'ouvrages_consigner_manuel'],
+                    'etabliPar' => ['name', 'prenom', 'matricule'],
+                ],
                 function ($q, $pattern) use ($driver) {
                     if ($driver === 'mysql') {
                         $q->orWhereHas('demande', function ($dq) use ($pattern) {
