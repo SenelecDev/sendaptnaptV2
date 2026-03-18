@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean('notifications_enabled')->default(true)->after('is_active');
-        });
+        if (!Schema::hasColumn('users', 'notifications_enabled')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->boolean('notifications_enabled')->default(true)->after('is_active');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('notifications_enabled');
-        });
+        if (Schema::hasColumn('users', 'notifications_enabled')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropColumn('notifications_enabled');
+            });
+        }
     }
 };
