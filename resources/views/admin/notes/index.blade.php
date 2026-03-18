@@ -74,7 +74,7 @@
                     <option value="vérifiée" {{ request('statut') == 'vérifiée' ? 'selected' : '' }}>Vérifiée</option>
                     <option value="validée" {{ request('statut') == 'validée' ? 'selected' : '' }}>Validée</option>
                     <option value="en cours d'exécution" {{ request('statut') == "en cours d'exécution" ? 'selected' : '' }}>En exécution</option>
-                    <option value="exécutée" {{ request('statut') == 'exécutée' ? 'selected' : '' }}>Exécutée</option>
+                    <option value="executée" {{ in_array(request('statut'), ['executée', 'exécutée'], true) ? 'selected' : '' }}>Exécutée</option>
                     <option value="retournée" {{ request('statut') == 'retournée' ? 'selected' : '' }}>Retournée</option>
                 </select>
             </div>
@@ -178,6 +178,7 @@
                                     @case('en cours d\'exécution')
                                         <span class="status-en-execution">En exécution</span>
                                         @break
+                                    @case('executée')
                                     @case('exécutée')
                                         <span class="status-executee">Exécutée</span>
                                         @break

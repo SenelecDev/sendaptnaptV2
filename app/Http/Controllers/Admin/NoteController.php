@@ -22,7 +22,12 @@ class NoteController extends Controller
         
         // Filtre par statut
         if ($request->filled('statut')) {
-            $query->where('statut', $request->statut);
+            // Tolérer les anciennes variantes (ex: "exécutée" vs "executée")
+            $statut = $request->statut;
+            $statutMap = [
+                'exécutée' => 'executée',
+            ];
+            $query->where('statut', $statutMap[$statut] ?? $statut);
         }
         
         // Filtre par date de début
