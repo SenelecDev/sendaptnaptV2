@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Note;
+use App\Models\Demande;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -60,6 +61,7 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
             'Demandeur',
             'Désignation',
             'Lieu',
+            'Ouvrages à consigner',
             'Installations consignées',
             'Travaux',
             'Date début',
@@ -72,6 +74,37 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
             'Statut',
             'Date création',
         ];
+    }
+
+    private function formatOuvragesAConsigner(?Demande $demande): string
+    {
+        if (!$demande) return '';
+
+        if (($demande->mode_saisie ?? 'gmao') === 'manuel') {
+            return trim((string) ($demande->ouvrages_consigner_manuel ?? ''));
+        }
+
+        $gmao = $demande->ouvrages_consigner_gmao;
+        if (is_string($gmao)) {
+            $gmao = json_decode($gmao, true);
+        }
+        if (!is_array($gmao)) {
+            return '';
+        }
+
+        $items = collect($gmao)
+            ->map(function ($row) {
+                if (is_string($row)) return $row;
+                if (!is_array($row)) return null;
+                return $row['designation'] ?? $row['description'] ?? $row['libelle'] ?? $row['nom'] ?? null;
+            })
+            ->filter()
+            ->map(fn ($v) => trim((string) $v))
+            ->filter()
+            ->unique()
+            ->values();
+
+        return $items->implode(', ');
     }
 
     public function map($note): array
@@ -98,6 +131,7 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
             $note->demande->demandeur->name ?? 'N/A',
             $note->demande->designation ?? '',
             $note->demande->lieu_execution ?? '',
+            $this->formatOuvragesAConsigner($note->demande),
             $installations ?: ($note->renseignementN ?? ''),
             $note->renseignementO ?? '',
             $note->ddt ? \Carbon\Carbon::parse($note->ddt)->format('d/m/Y') : '',

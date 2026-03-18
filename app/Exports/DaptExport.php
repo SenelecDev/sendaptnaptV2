@@ -59,6 +59,7 @@ class DaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
             'Matricule',
             'Désignation',
             'Lieu d\'exécution',
+            'Ouvrages à consigner',
             'Date début',
             'Date fin',
             'Heure début',
@@ -70,6 +71,35 @@ class DaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
         ];
     }
 
+    private function formatOuvragesAConsigner(Demande $demande): string
+    {
+        if (($demande->mode_saisie ?? 'gmao') === 'manuel') {
+            return trim((string) ($demande->ouvrages_consigner_manuel ?? ''));
+        }
+
+        $gmao = $demande->ouvrages_consigner_gmao;
+        if (is_string($gmao)) {
+            $gmao = json_decode($gmao, true);
+        }
+        if (!is_array($gmao)) {
+            return '';
+        }
+
+        $items = collect($gmao)
+            ->map(function ($row) {
+                if (is_string($row)) return $row;
+                if (!is_array($row)) return null;
+                return $row['designation'] ?? $row['description'] ?? $row['libelle'] ?? $row['nom'] ?? null;
+            })
+            ->filter()
+            ->map(fn ($v) => trim((string) $v))
+            ->filter()
+            ->unique()
+            ->values();
+
+        return $items->implode(', ');
+    }
+
     public function map($demande): array
     {
         return [
@@ -78,6 +108,7 @@ class DaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
             $demande->demandeur->matricule ?? 'N/A',
             $demande->designation,
             $demande->lieu_execution,
+            $this->formatOuvragesAConsigner($demande),
             $demande->ddp ? \Carbon\Carbon::parse($demande->ddp)->format('d/m/Y') : '',
             $demande->dfp ? \Carbon\Carbon::parse($demande->dfp)->format('d/m/Y') : '',
             $demande->hdp ?? '',
