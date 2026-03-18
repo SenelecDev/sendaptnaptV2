@@ -267,7 +267,8 @@ class NoteController extends Controller
             
             $note->statut = Note::STATUT_EN_COURS_EXECUTION;
             $note->en_cours_execution_id = Auth::id();
-            $note->dre = now();
+            // Stocker la date réelle de retrait, sans écraser la date acceptée
+            $note->dre_reel = now();
             $note->save();
             
             return redirect()->route('operateur.notes.show', $note)
@@ -290,9 +291,10 @@ class NoteController extends Controller
             
             $note->statut = Note::STATUT_EXECUTEE;
             $note->execute_id = Auth::id();
-            $note->drex = now();
-            $note->ddt = $request->ddt;
-            $note->dft = $request->dft;
+            // Stocker les dates réelles, sans écraser les dates acceptées
+            $note->drex_reel = now();
+            $note->ddt_reel = $request->ddt;
+            $note->dft_reel = $request->dft;
             $note->save();
             
             // Notification au DESA et au demandeur

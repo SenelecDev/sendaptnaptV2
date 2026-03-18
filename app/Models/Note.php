@@ -54,6 +54,10 @@ class Note extends Model
         'dre',
         'ddt', 'dft',
         'drex',
+        // Dates réelles d'exécution (ne pas écraser les dates acceptées)
+        'dre_reel',
+        'ddt_reel', 'dft_reel',
+        'drex_reel',
         // Destinataires
         'chargecon_id',
         'correspondant_id',
@@ -79,6 +83,10 @@ class Note extends Model
         'ddt' => 'datetime',
         'dft' => 'datetime',
         'drex' => 'datetime',
+        'dre_reel' => 'datetime',
+        'ddt_reel' => 'datetime',
+        'dft_reel' => 'datetime',
+        'drex_reel' => 'datetime',
     ];
 
     // Propriété temporaire pour l'historique (ne pas sauvegarder en BDD)
