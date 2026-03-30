@@ -125,6 +125,12 @@ class NoteController extends Controller
             $demande = Demande::with(['demandeur', 'chargeTravaux'])
                               ->whereIn('statut', [Demande::STATUT_CREEE, Demande::STATUT_EN_COURS])
                               ->findOrFail($demande_id);
+
+            // Si une NAPT existe deja pour cette DAPT, forcer la reutilisation
+            if ($demande->note) {
+                return redirect()->route('desa.notes.edit', $demande->note)
+                    ->with('info', 'Cette DAPT est deja associee a la NAPT ' . $demande->note->numero_note . '. Merci de modifier la NAPT existante.');
+            }
         }
         
         $demandesAcceptees = Demande::whereIn('statut', [Demande::STATUT_CREEE, Demande::STATUT_EN_COURS])
@@ -165,6 +171,12 @@ class NoteController extends Controller
         
         $demande = Demande::findOrFail($request->demande_id);
         $action = $request->input('action', 'brouillon');
+
+        // Verrouillage: une DAPT ne doit pas creer une nouvelle NAPT si une existe deja
+        if ($demande->note) {
+            return redirect()->route('desa.notes.edit', $demande->note)
+                ->with('error', 'Une NAPT existe deja pour cette DAPT (' . $demande->note->numero_note . '). Modifiez la NAPT existante.');
+        }
         
         // Déterminer le statut selon l'action
         $statut = Note::STATUT_BROUILLON;

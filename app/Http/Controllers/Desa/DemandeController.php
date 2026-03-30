@@ -764,6 +764,12 @@ class DemandeController extends Controller
             
             // Notification
             app(NotificationService::class)->notifyDaptAccepted($demande);
+
+            // Si une NAPT existe deja, reutiliser la meme (meme numero)
+            if ($demande->note) {
+                return redirect()->route('desa.notes.edit', $demande->note)
+                    ->with('info', 'Cette DAPT est deja associee a la NAPT ' . $demande->note->numero_note . '. Merci de modifier la NAPT existante.');
+            }
             
             // Rediriger vers la création de la NAPT avec l'ID de la demande
             return redirect()->route('desa.notes.create', ['demande_id' => $demande->id])
@@ -862,6 +868,12 @@ class DemandeController extends Controller
         // Le statut reste "en cours de traitement", il passera à "acceptée" lors de la création de la NAPT
         $demande->traite_id = Auth::id();
         $demande->save();
+
+        // Si une NAPT existe deja, reutiliser la meme (meme numero)
+        if ($demande->note) {
+            return redirect()->route('desa.notes.edit', $demande->note)
+                ->with('info', 'Cette DAPT est deja associee a la NAPT ' . $demande->note->numero_note . '. Merci de modifier la NAPT existante.');
+        }
         
         // Rediriger vers la création de la NAPT avec l'ID de la demande
         return redirect()->route('desa.notes.create', ['demande_id' => $demande->id])
