@@ -89,9 +89,11 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
                     <select name="statut" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange">
                         <option value="">Tous les statuts</option>
-                        <option value="établie">Établie</option>
+                        <option value="brouillon">Brouillon</option>
+                        <option value="en étude">En étude</option>
                         <option value="en attente de vérification">En attente de vérification</option>
                         <option value="vérifiée">Vérifiée</option>
+                        <option value="en attente de validation">En attente de validation</option>
                         <option value="validée">Validée</option>
                         <option value="executée">Exécutée</option>
                         <option value="retournée">Retournée</option>

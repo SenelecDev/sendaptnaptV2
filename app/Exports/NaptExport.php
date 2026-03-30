@@ -26,8 +26,18 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
         $query = Note::with(['demande.demandeur', 'etabliPar', 'verifiePar', 'validePar']);
         $user = auth()->user();
 
-        // Filtrer par groupe pour les demandeurs
-        if ($user->hasRole('demandeur') && !$user->hasAnyRole(['admin', 'desa', 'operateur', 'operateurchef'])) {
+        // Filtrer par groupe uniquement pour un demandeur "pur"
+        // (ne pas restreindre les profils multi-roles comme verificateur/valideur/directeur, etc.)
+        if ($user->hasRole('demandeur') && !$user->hasAnyRole([
+            'admin',
+            'desa',
+            'operateur',
+            'operateurchef',
+            'verificateur',
+            'valideur',
+            'directeur',
+            'super_admin',
+        ])) {
             $query->whereHas('demande.demandeur', function ($q) use ($user) {
                 $q->where('groupe_id', $user->groupe_id);
             });
@@ -36,7 +46,12 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
         // Filtres additionnels
         if ($this->request) {
             if ($this->request->filled('statut')) {
-                $query->where('statut', $this->request->statut);
+                $statut = $this->request->statut;
+                $statutMap = [
+                    'exécutée' => 'executée',
+                    'établie' => 'brouillon',
+                ];
+                $query->where('statut', $statutMap[$statut] ?? $statut);
             }
             if ($this->request->filled('numero_semaine')) {
                 $query->where('numero_semaine', $this->request->numero_semaine);
