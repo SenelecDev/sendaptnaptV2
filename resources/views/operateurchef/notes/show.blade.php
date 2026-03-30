@@ -134,6 +134,56 @@
     </div>
     @endif
 
+    @if($note->dre_reel || $note->drex_reel || $note->ddt_reel || $note->dft_reel || !empty($note->execution_slots))
+    <div class="card-senelec p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Exécution réelle (opérateur)</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <p class="text-sm text-gray-500">Début exécution réel</p>
+                <p class="font-medium">{{ $note->dre_reel?->format('d/m/Y H:i') ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Fin exécution réel</p>
+                <p class="font-medium">{{ $note->drex_reel?->format('d/m/Y H:i') ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Début travaux réel</p>
+                <p class="font-medium">{{ $note->ddt_reel?->format('d/m/Y H:i') ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Fin travaux réel</p>
+                <p class="font-medium">{{ $note->dft_reel?->format('d/m/Y H:i') ?? 'N/A' }}</p>
+            </div>
+        </div>
+
+        @if(!empty($note->execution_slots))
+            <div class="mt-6">
+                <h4 class="font-semibold text-gray-900 mb-3">Créneaux journaliers saisis</h4>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm border border-gray-200 rounded-lg">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left border-b">#</th>
+                                <th class="px-3 py-2 text-left border-b">Début</th>
+                                <th class="px-3 py-2 text-left border-b">Fin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($note->execution_slots as $idx => $slot)
+                                <tr class="border-b">
+                                    <td class="px-3 py-2">{{ $idx + 1 }}</td>
+                                    <td class="px-3 py-2">{{ !empty($slot['start']) ? \Carbon\Carbon::parse($slot['start'])->format('d/m/Y H:i') : 'N/A' }}</td>
+                                    <td class="px-3 py-2">{{ !empty($slot['end']) ? \Carbon\Carbon::parse($slot['end'])->format('d/m/Y H:i') : 'N/A' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
+    </div>
+    @endif
+
 </div>
 
 <!-- Aperçu NAPT - Pleine largeur -->
@@ -151,7 +201,7 @@
     <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
         <div class="mt-3">
             <div class="flex items-center gap-3 mb-4">
-                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <div class="mx-auto shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
                     <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                     </svg>

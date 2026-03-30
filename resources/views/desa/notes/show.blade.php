@@ -134,6 +134,61 @@
                 </div>
             </div>
 
+            @if($note->dre_reel || $note->drex_reel || $note->ddt_reel || $note->dft_reel || !empty($note->execution_slots))
+            <div class="card-senelec p-6">
+                <h3 class="text-md font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Exécution réelle (opérateur)
+                </h3>
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <dt class="text-sm text-gray-500">Début exécution réel</dt>
+                        <dd class="text-gray-900 font-medium">{{ $note->dre_reel ? $note->dre_reel->format('d/m/Y H:i') : '-' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-gray-500">Fin exécution réel</dt>
+                        <dd class="text-gray-900 font-medium">{{ $note->drex_reel ? $note->drex_reel->format('d/m/Y H:i') : '-' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-gray-500">Début travaux réel</dt>
+                        <dd class="text-gray-900 font-medium">{{ $note->ddt_reel ? $note->ddt_reel->format('d/m/Y H:i') : '-' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-gray-500">Fin travaux réel</dt>
+                        <dd class="text-gray-900 font-medium">{{ $note->dft_reel ? $note->dft_reel->format('d/m/Y H:i') : '-' }}</dd>
+                    </div>
+                </dl>
+
+                @if(!empty($note->execution_slots))
+                <div class="mt-6">
+                    <h4 class="text-sm font-semibold text-gray-900 mb-2">Créneaux journaliers saisis</h4>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm border border-gray-200 rounded-lg">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left border-b">#</th>
+                                    <th class="px-3 py-2 text-left border-b">Début</th>
+                                    <th class="px-3 py-2 text-left border-b">Fin</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($note->execution_slots as $idx => $slot)
+                                    <tr class="border-b">
+                                        <td class="px-3 py-2">{{ $idx + 1 }}</td>
+                                        <td class="px-3 py-2">{{ !empty($slot['start']) ? \Carbon\Carbon::parse($slot['start'])->format('d/m/Y H:i') : '-' }}</td>
+                                        <td class="px-3 py-2">{{ !empty($slot['end']) ? \Carbon\Carbon::parse($slot['end'])->format('d/m/Y H:i') : '-' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @endif
+            </div>
+            @endif
+
             <!-- Motif de retour -->
             @if($note->statut === 'retournée' && $note->motif)
             <div class="card-senelec p-6 border-red-200 bg-red-50">

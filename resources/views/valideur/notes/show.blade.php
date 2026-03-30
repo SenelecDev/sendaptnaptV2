@@ -21,6 +21,30 @@
         </a>
     </div>
     @endif
+
+    @if($note->dre_reel || $note->drex_reel || $note->ddt_reel || $note->dft_reel || !empty($note->execution_slots))
+    <div class="bg-purple-50 border-b border-purple-200 px-4 py-3">
+        <h3 class="text-sm font-semibold text-purple-900 mb-2">Exécution réelle (opérateur)</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+            <div><span class="text-gray-600">Début exécution:</span> <span class="font-medium">{{ $note->dre_reel?->format('d/m/Y H:i') ?? '-' }}</span></div>
+            <div><span class="text-gray-600">Fin exécution:</span> <span class="font-medium">{{ $note->drex_reel?->format('d/m/Y H:i') ?? '-' }}</span></div>
+            <div><span class="text-gray-600">Début travaux:</span> <span class="font-medium">{{ $note->ddt_reel?->format('d/m/Y H:i') ?? '-' }}</span></div>
+            <div><span class="text-gray-600">Fin travaux:</span> <span class="font-medium">{{ $note->dft_reel?->format('d/m/Y H:i') ?? '-' }}</span></div>
+        </div>
+        @if(!empty($note->execution_slots))
+            <div class="mt-2 text-xs text-purple-800">
+                Créneaux saisis:
+                @foreach($note->execution_slots as $slot)
+                    <span class="inline-block mr-2">
+                        {{ !empty($slot['start']) ? \Carbon\Carbon::parse($slot['start'])->format('d/m H:i') : '-' }}
+                        →
+                        {{ !empty($slot['end']) ? \Carbon\Carbon::parse($slot['end'])->format('d/m H:i') : '-' }}
+                    </span>
+                @endforeach
+            </div>
+        @endif
+    </div>
+    @endif
     <iframe src="{{ route('pdf.napt.view', $note) }}" class="w-full border-0" style="height: calc(100vh - {{ $note->fiche_manoeuvre ? '112px' : '64px' }});"></iframe>
 </div>
 @endsection
