@@ -11,6 +11,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
+BACKUP_DIR="${BACKUP_DIR:-/opt/backups/sendaptnapt}"
 
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}   SENDAPTNAPT - Déploiement Docker    ${NC}"
@@ -33,6 +34,22 @@ else
 fi
 
 MODE=${1:-update}
+
+create_backup() {
+    local ts
+    ts=$(date +%Y%m%d_%H%M%S)
+    mkdir -p "$BACKUP_DIR"
+
+    echo -e "${YELLOW}💾 Backup PostgreSQL en cours...${NC}"
+    $DOCKER_COMPOSE exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' | gzip > "$BACKUP_DIR/db_${ts}.sql.gz"
+
+    echo -e "${YELLOW}💾 Backup storage/app en cours...${NC}"
+    tar -czf "$BACKUP_DIR/storage_${ts}.tar.gz" storage/app 2>/dev/null || true
+
+    # Conserver 14 jours de backups
+    find "$BACKUP_DIR" -type f -mtime +14 -delete 2>/dev/null || true
+    echo -e "${GREEN}✅ Backup créé: db_${ts}.sql.gz${NC}"
+}
 
 case $MODE in
     first)
@@ -110,6 +127,9 @@ case $MODE in
         # Redémarrer les services
         echo -e "${YELLOW}🔄 Redémarrage des services...${NC}"
         $DOCKER_COMPOSE up -d
+
+        # Backup avant migration pour rollback rapide
+        create_backup
 
         # Permissions storage pour PHP-FPM (www = UID 48)
         echo -e "${YELLOW}🔐 Réglage des permissions storage...${NC}"

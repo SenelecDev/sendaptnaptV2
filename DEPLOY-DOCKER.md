@@ -156,6 +156,11 @@ docker-compose down
 
 # Arrêter et supprimer les volumes (⚠️ DANGER: perte de données)
 docker-compose down -v
+
+# Variante sécurisée (recommandée)
+bash docker/safe-down.sh
+# Suppression des volumes seulement avec confirmation explicite:
+ALLOW_VOLUME_DELETE=1 bash docker/safe-down.sh --with-volumes
 ```
 
 ### Artisan et maintenance
@@ -202,6 +207,25 @@ sudo docker compose exec app php artisan optimize
 
 # Redémarrer les workers de queue
 sudo docker compose restart queue scheduler
+```
+
+### Mise à jour sécurisée (backup auto)
+
+Le script `docker/deploy.sh update` réalise désormais un backup de la base + `storage/app`
+avant les migrations, dans `/opt/backups/sendaptnapt` (modifiable via `BACKUP_DIR`).
+
+```bash
+cd /opt/sendaptnapt
+sudo bash docker/deploy.sh update
+```
+
+### Staging isolé (sans toucher prod)
+
+Un compose dédié est disponible: `docker-compose.staging.yml`.
+
+```bash
+docker compose -f docker-compose.staging.yml up -d --build
+docker compose -f docker-compose.staging.yml exec app php artisan migrate --force
 ```
 
 > **Note** : Les polices (Open Sans, Rajdhani) et Font Awesome sont bundlées localement via npm.
