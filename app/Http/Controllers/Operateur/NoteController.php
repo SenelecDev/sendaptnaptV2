@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
 
 class NoteController extends Controller
 {
@@ -265,10 +266,16 @@ class NoteController extends Controller
                 return redirect()->back()->with('error', 'L\'opérateur chef doit d\'abord joindre la fiche de manœuvre.');
             }
             
+            $request->validate([
+                'dre_reel' => 'required|date',
+            ], [
+                'dre_reel.required' => 'La date/heure réelle de début d\'exécution est obligatoire.',
+            ]);
+
             $note->statut = Note::STATUT_EN_COURS_EXECUTION;
             $note->en_cours_execution_id = Auth::id();
-            // Stocker la date réelle de retrait, sans écraser la date acceptée
-            $note->dre_reel = now();
+            // Stocker la date réelle de retrait (saisie manuelle), sans écraser la date acceptée
+            $note->dre_reel = $request->dre_reel;
             $note->save();
             
             return redirect()->route('operateur.notes.show', $note)
@@ -279,22 +286,64 @@ class NoteController extends Controller
             if ($note->statut !== Note::STATUT_EN_COURS_EXECUTION) {
                 return redirect()->back()->with('error', 'Cette note n\'est pas en cours d\'exécution.');
             }
-            
-            $request->validate([
-                'ddt' => 'required|date',
-                'dft' => 'required|date|after_or_equal:ddt',
-            ], [
-                'ddt.required' => 'La date de début des travaux est obligatoire.',
-                'dft.required' => 'La date de fin des travaux est obligatoire.',
-                'dft.after_or_equal' => 'La date de fin doit être postérieure ou égale à la date de début.',
-            ]);
+
+            $slots = [];
+            $isRestitutionSoir = $note->demande && $note->demande->dmrp_restitution;
+
+            if ($isRestitutionSoir) {
+                $request->validate([
+                    'execution_slots' => 'required|array',
+                    'execution_slots.*.start' => 'required|date',
+                    'execution_slots.*.end' => 'required|date',
+                ], [
+                    'execution_slots.required' => 'Les créneaux d\'exécution sont obligatoires pour une NAPT avec restitution le soir.',
+                    'execution_slots.*.start.required' => 'Le début de créneau est obligatoire.',
+                    'execution_slots.*.end.required' => 'La fin de créneau est obligatoire.',
+                ]);
+
+                $slots = collect($request->input('execution_slots', []))
+                    ->map(function ($slot) {
+                        $start = $slot['start'] ?? null;
+                        $end = $slot['end'] ?? null;
+
+                        return [
+                            'start' => Carbon::parse($start)->format('Y-m-d H:i:s'),
+                            'end' => Carbon::parse($end)->format('Y-m-d H:i:s'),
+                        ];
+                    })
+                    ->values()
+                    ->all();
+
+                foreach ($slots as $index => $slot) {
+                    if (Carbon::parse($slot['end'])->lt(Carbon::parse($slot['start']))) {
+                        throw ValidationException::withMessages([
+                            "execution_slots.$index.end" => 'La fin d\'un créneau doit être postérieure ou égale au début.',
+                        ]);
+                    }
+                }
+            } else {
+                $request->validate([
+                    'ddt' => 'required|date',
+                    'dft' => 'required|date|after_or_equal:ddt',
+                ], [
+                    'ddt.required' => 'La date de début des travaux est obligatoire.',
+                    'dft.required' => 'La date de fin des travaux est obligatoire.',
+                    'dft.after_or_equal' => 'La date de fin doit être postérieure ou égale à la date de début.',
+                ]);
+            }
             
             $note->statut = Note::STATUT_EXECUTEE;
             $note->execute_id = Auth::id();
             // Stocker les dates réelles, sans écraser les dates acceptées
             $note->drex_reel = now();
-            $note->ddt_reel = $request->ddt;
-            $note->dft_reel = $request->dft;
+            if ($isRestitutionSoir) {
+                $note->ddt_reel = collect($slots)->min('start');
+                $note->dft_reel = collect($slots)->max('end');
+            } else {
+                $note->ddt_reel = $request->ddt;
+                $note->dft_reel = $request->dft;
+            }
+            $note->execution_slots = $slots;
             $note->save();
             
             // Notification au DESA et au demandeur

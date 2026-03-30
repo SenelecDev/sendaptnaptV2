@@ -81,14 +81,22 @@
         <div class="card-senelec p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Démarrer l'exécution</h3>
             <p class="text-gray-600 mb-6">
-                En démarrant l'exécution, vous confirmez que les travaux vont commencer. 
-                La date et l'heure actuelles seront enregistrées.
+                En démarrant l'exécution, saisissez la date/heure réelle de début.
             </p>
             
             <form action="{{ route('operateur.notes.update', $note) }}" method="POST">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="action" value="demarrer">
+
+                <div class="mb-6">
+                    <label for="dre_reel" class="label">
+                        Date/heure réelle début d'exécution <span class="text-red-500">*</span>
+                    </label>
+                    <input type="datetime-local" id="dre_reel" name="dre_reel"
+                           value="{{ old('dre_reel', now()->format('Y-m-d\TH:i')) }}"
+                           class="input-senelec w-full md:w-96" required>
+                </div>
                 
                 <div class="flex justify-end gap-4">
                     <a href="{{ route('operateur.notes.show', $note) }}" class="btn-senelec-outline">
@@ -117,24 +125,61 @@
                 @method('PUT')
                 <input type="hidden" name="action" value="terminer">
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <label for="ddt" class="label">
-                            Date/heure début des travaux <span class="text-red-500">*</span>
-                        </label>
-                        <input type="datetime-local" id="ddt" name="ddt" 
-                               value="{{ old('ddt', $note->dre?->format('Y-m-d\TH:i')) }}" 
-                               class="input-senelec w-full" required>
+                @if($note->demande && $note->demande->dmrp_restitution)
+                    <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 class="font-semibold text-blue-900 mb-2">Créneaux journaliers (restitution le soir)</h4>
+                        <p class="text-sm text-blue-700 mb-3">
+                            Saisissez un début/fin d'exécution pour chaque journée concernée.
+                        </p>
+
+                        <div id="slots-container" class="space-y-3">
+                            @php
+                                $oldSlots = old('execution_slots', $note->execution_slots ?? []);
+                                if (empty($oldSlots)) {
+                                    $oldSlots = [['start' => '', 'end' => '']];
+                                }
+                            @endphp
+                            @foreach($oldSlots as $i => $slot)
+                                @php
+                                    $slotStart = isset($slot['start']) ? str_replace(' ', 'T', substr($slot['start'], 0, 16)) : '';
+                                    $slotEnd = isset($slot['end']) ? str_replace(' ', 'T', substr($slot['end'], 0, 16)) : '';
+                                @endphp
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 slot-row">
+                                    <input type="datetime-local" name="execution_slots[{{ $i }}][start]"
+                                           value="{{ $slotStart }}" class="input-senelec w-full" placeholder="Début">
+                                    <div class="flex gap-2">
+                                        <input type="datetime-local" name="execution_slots[{{ $i }}][end]"
+                                               value="{{ $slotEnd }}" class="input-senelec w-full" placeholder="Fin">
+                                        <button type="button" class="px-3 py-2 border rounded text-red-600 remove-slot">-</button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <button type="button" id="add-slot" class="mt-3 px-3 py-2 border rounded text-blue-700 hover:bg-blue-100">
+                            + Ajouter un créneau
+                        </button>
                     </div>
-                    <div>
-                        <label for="dft" class="label">
-                            Date/heure fin des travaux <span class="text-red-500">*</span>
-                        </label>
-                        <input type="datetime-local" id="dft" name="dft" 
-                               value="{{ old('dft') }}" 
-                               class="input-senelec w-full" required>
+                @else
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label for="ddt" class="label">
+                                Date/heure début des travaux <span class="text-red-500">*</span>
+                            </label>
+                            <input type="datetime-local" id="ddt" name="ddt" 
+                                   value="{{ old('ddt', $note->dre?->format('Y-m-d\TH:i')) }}" 
+                                   class="input-senelec w-full" required>
+                        </div>
+                        <div>
+                            <label for="dft" class="label">
+                                Date/heure fin des travaux <span class="text-red-500">*</span>
+                            </label>
+                            <input type="datetime-local" id="dft" name="dft" 
+                                   value="{{ old('dft') }}" 
+                                   class="input-senelec w-full" required>
+                        </div>
                     </div>
-                </div>
+                @endif
                 
                 <div class="flex justify-end gap-4">
                     <a href="{{ route('operateur.notes.show', $note) }}" class="btn-senelec-outline">
@@ -151,4 +196,39 @@
         </div>
     @endif
 </div>
+
+@if($note->demande && $note->demande->dmrp_restitution)
+<script>
+    (function () {
+        const container = document.getElementById('slots-container');
+        const addBtn = document.getElementById('add-slot');
+        if (!container || !addBtn) return;
+
+        const buildRow = (index) => {
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-1 md:grid-cols-2 gap-3 slot-row';
+            row.innerHTML = `
+                <input type="datetime-local" name="execution_slots[${index}][start]" class="input-senelec w-full" placeholder="Début">
+                <div class="flex gap-2">
+                    <input type="datetime-local" name="execution_slots[${index}][end]" class="input-senelec w-full" placeholder="Fin">
+                    <button type="button" class="px-3 py-2 border rounded text-red-600 remove-slot">-</button>
+                </div>
+            `;
+            return row;
+        };
+
+        addBtn.addEventListener('click', () => {
+            const idx = container.querySelectorAll('.slot-row').length;
+            container.appendChild(buildRow(idx));
+        });
+
+        container.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('remove-slot')) return;
+            const rows = container.querySelectorAll('.slot-row');
+            if (rows.length <= 1) return;
+            e.target.closest('.slot-row')?.remove();
+        });
+    })();
+</script>
+@endif
 @endsection

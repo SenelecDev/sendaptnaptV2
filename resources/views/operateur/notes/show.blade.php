@@ -71,11 +71,11 @@
                 @endif
                 @if($note->enCoursExecution)
                     <p><span class="font-medium">Démarrée par :</span> {{ $note->enCoursExecution->full_name }}</p>
-                    <p><span class="font-medium">Démarrée le :</span> {{ $note->dre?->format('d/m/Y H:i') }}</p>
+                    <p><span class="font-medium">Démarrée le (réel) :</span> {{ $note->dre_reel?->format('d/m/Y H:i') ?? 'N/A' }}</p>
                 @endif
                 @if($note->execute)
                     <p><span class="font-medium">Exécutée par :</span> {{ $note->execute->full_name }}</p>
-                    <p><span class="font-medium">Terminée le :</span> {{ $note->drex?->format('d/m/Y H:i') }}</p>
+                    <p><span class="font-medium">Terminée le (réel) :</span> {{ $note->drex_reel?->format('d/m/Y H:i') ?? 'N/A' }}</p>
                 @endif
             </div>
         </div>
@@ -141,19 +141,45 @@
     @endif
 
     <!-- Dates d'exécution si terminée -->
-    @if($note->statut === 'executée' && ($note->ddt || $note->dft))
+    @if($note->statut === 'executée' && ($note->ddt_reel || $note->dft_reel))
     <div class="card-senelec p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Dates d'exécution</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Dates d'exécution réelles</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <p class="text-sm text-gray-500">Début des travaux</p>
-                <p class="font-medium">{{ $note->ddt?->format('d/m/Y H:i') ?? 'N/A' }}</p>
+                <p class="font-medium">{{ $note->ddt_reel?->format('d/m/Y H:i') ?? 'N/A' }}</p>
             </div>
             <div>
                 <p class="text-sm text-gray-500">Fin des travaux</p>
-                <p class="font-medium">{{ $note->dft?->format('d/m/Y H:i') ?? 'N/A' }}</p>
+                <p class="font-medium">{{ $note->dft_reel?->format('d/m/Y H:i') ?? 'N/A' }}</p>
             </div>
         </div>
+
+        @if(!empty($note->execution_slots))
+            <div class="mt-6">
+                <h4 class="font-semibold text-gray-900 mb-3">Créneaux journaliers saisis</h4>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm border border-gray-200 rounded-lg">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left border-b">#</th>
+                                <th class="px-3 py-2 text-left border-b">Début</th>
+                                <th class="px-3 py-2 text-left border-b">Fin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($note->execution_slots as $idx => $slot)
+                                <tr class="border-b">
+                                    <td class="px-3 py-2">{{ $idx + 1 }}</td>
+                                    <td class="px-3 py-2">{{ !empty($slot['start']) ? \Carbon\Carbon::parse($slot['start'])->format('d/m/Y H:i') : 'N/A' }}</td>
+                                    <td class="px-3 py-2">{{ !empty($slot['end']) ? \Carbon\Carbon::parse($slot['end'])->format('d/m/Y H:i') : 'N/A' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
     </div>
     @endif
 

@@ -58,6 +58,7 @@ class Note extends Model
         'dre_reel',
         'ddt_reel', 'dft_reel',
         'drex_reel',
+        'execution_slots',
         // Destinataires
         'chargecon_id',
         'correspondant_id',
@@ -87,6 +88,7 @@ class Note extends Model
         'ddt_reel' => 'datetime',
         'dft_reel' => 'datetime',
         'drex_reel' => 'datetime',
+        'execution_slots' => 'array',
     ];
 
     // Propriété temporaire pour l'historique (ne pas sauvegarder en BDD)
