@@ -272,33 +272,36 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 
 ### Sauvegardes automatiques
 
-Créer `/opt/sendaptnapt/backup.sh` :
+Scripts inclus dans le projet :
+
+- `docker/backup.sh` : lance un backup DB + `storage/app` avec rétention
+- `docker/install-backup-cron.sh` : installe/met à jour le cron quotidien
+
+Exécution manuelle :
 
 ```bash
-#!/bin/bash
-BACKUP_DIR="/opt/backups/sendaptnapt"
-DATE=$(date +%Y%m%d_%H%M%S)
-
-mkdir -p $BACKUP_DIR
-
-# Backup PostgreSQL
-docker-compose exec -T postgres pg_dump -U sendaptnapt sendaptnapt | gzip > $BACKUP_DIR/db_$DATE.sql.gz
-
-# Backup des fichiers uploadés
-tar -czf $BACKUP_DIR/storage_$DATE.tar.gz -C /opt/sendaptnapt storage/app
-
-# Garder seulement les 7 derniers backups
-find $BACKUP_DIR -type f -mtime +7 -delete
-
-echo "Backup terminé: $DATE"
+cd /opt/sendaptnapt
+bash docker/backup.sh
 ```
 
-```bash
-# Rendre exécutable
-chmod +x /opt/sendaptnapt/backup.sh
+Installer le cron (quotidien à 02:00) :
 
-# Ajouter au cron (backup quotidien à 2h du matin)
-echo "0 2 * * * /opt/sendaptnapt/backup.sh >> /var/log/sendaptnapt_backup.log 2>&1" | crontab -
+```bash
+cd /opt/sendaptnapt
+bash docker/install-backup-cron.sh
+
+# Vérifier
+crontab -l
+```
+
+Options utiles :
+
+```bash
+# Changer le dossier backup
+BACKUP_DIR=/data/backups/sendaptnapt bash docker/backup.sh
+
+# Installer un cron à 03:30 avec rétention 30 jours
+SCHEDULE="30 3 * * *" RETENTION_DAYS=30 bash docker/install-backup-cron.sh
 ```
 
 ### Vérification de l'état
