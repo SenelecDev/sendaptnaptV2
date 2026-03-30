@@ -91,6 +91,9 @@ class WorkflowNotification extends Notification
             if (isset($this->data['lieu'])) {
                 $mail->line('• Lieu : ' . $this->data['lieu']);
             }
+            if (isset($this->data['ouvrages'])) {
+                $mail->line('• Ouvrages à consigner : ' . $this->data['ouvrages']);
+            }
             if (isset($this->data['motif'])) {
                 $mail->line(new HtmlString('<br><em style="color: #666;">Motif : ' . $this->data['motif'] . '</em>'));
             }

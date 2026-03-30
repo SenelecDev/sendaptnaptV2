@@ -66,7 +66,10 @@ class NotificationService
             message: "Une nouvelle demande {$demande->numero_demande} a été créée par {$demande->demandeur->full_name}.",
             actionUrl: "/desa/demandes/{$demande->id}",
             actionText: 'Traiter la demande',
-            data: ['demande_id' => $demande->id, 'numero' => $demande->numero_demande]
+            data: array_merge([
+                'demande_id' => $demande->id,
+                'numero' => $demande->numero_demande,
+            ], $this->demandeMailContext($demande))
         ));
     }
 
@@ -82,7 +85,10 @@ class NotificationService
                 message: "Votre demande {$demande->numero_demande} a été acceptée.",
                 actionUrl: "/demandeur/demandes/{$demande->id}",
                 actionText: 'Voir la demande',
-                data: ['demande_id' => $demande->id, 'numero' => $demande->numero_demande]
+                data: array_merge([
+                    'demande_id' => $demande->id,
+                    'numero' => $demande->numero_demande,
+                ], $this->demandeMailContext($demande))
             ));
         }
     }
@@ -99,7 +105,11 @@ class NotificationService
                 message: "Votre demande {$demande->numero_demande} a été retournée pour modification." . ($motif ? " Motif: {$motif}" : ''),
                 actionUrl: "/demandeur/demandes/{$demande->id}/edit",
                 actionText: 'Modifier la demande',
-                data: ['demande_id' => $demande->id, 'numero' => $demande->numero_demande, 'motif' => $motif]
+                data: array_merge([
+                    'demande_id' => $demande->id,
+                    'numero' => $demande->numero_demande,
+                    'motif' => $motif,
+                ], $this->demandeMailContext($demande))
             ));
         }
     }
@@ -116,7 +126,11 @@ class NotificationService
                 message: "Votre demande {$demande->numero_demande} a été refusée." . ($motif ? " Motif: {$motif}" : ''),
                 actionUrl: "/demandeur/demandes/{$demande->id}",
                 actionText: 'Voir les détails',
-                data: ['demande_id' => $demande->id, 'numero' => $demande->numero_demande, 'motif' => $motif]
+                data: array_merge([
+                    'demande_id' => $demande->id,
+                    'numero' => $demande->numero_demande,
+                    'motif' => $motif,
+                ], $this->demandeMailContext($demande))
             ));
         }
     }
@@ -136,7 +150,11 @@ class NotificationService
             message: "La note {$note->numero_note} est en attente de vérification.",
             actionUrl: "/verificateur/notes/{$note->id}",
             actionText: 'Vérifier la note',
-            data: ['note_id' => $note->id, 'numero' => $note->numero_note]
+            data: array_merge([
+                'note_id' => $note->id,
+                'numero' => $note->numero_note,
+                'demande_numero' => $note->demande->numero_demande ?? null,
+            ], $this->demandeMailContext($note->demande))
         ));
 
         if ($note->demande && $note->demande->demandeur) {
@@ -146,7 +164,12 @@ class NotificationService
                 message: "Une note {$note->numero_note} a été créée pour votre demande {$note->demande->numero_demande}.",
                 actionUrl: "/demandeur/demandes",
                 actionText: 'Voir mes demandes',
-                data: ['note_id' => $note->id, 'demande_id' => $note->demande_id]
+                data: array_merge([
+                    'note_id' => $note->id,
+                    'demande_id' => $note->demande_id,
+                    'demande_numero' => $note->demande->numero_demande ?? null,
+                    'numero' => $note->numero_note,
+                ], $this->demandeMailContext($note->demande))
             ));
         }
     }
@@ -164,7 +187,11 @@ class NotificationService
             message: "La note {$note->numero_note} a été vérifiée et attend votre validation.",
             actionUrl: "/valideur/notes/{$note->id}",
             actionText: 'Valider la note',
-            data: ['note_id' => $note->id, 'numero' => $note->numero_note]
+            data: array_merge([
+                'note_id' => $note->id,
+                'numero' => $note->numero_note,
+                'demande_numero' => $note->demande->numero_demande ?? null,
+            ], $this->demandeMailContext($note->demande))
         ));
 
         if ($note->etabliPar) {
@@ -174,7 +201,11 @@ class NotificationService
                 message: "La note {$note->numero_note} a été vérifiée avec succès.",
                 actionUrl: "/desa/notes/{$note->id}",
                 actionText: 'Voir la note',
-                data: ['note_id' => $note->id, 'numero' => $note->numero_note]
+                data: array_merge([
+                    'note_id' => $note->id,
+                    'numero' => $note->numero_note,
+                    'demande_numero' => $note->demande->numero_demande ?? null,
+                ], $this->demandeMailContext($note->demande))
             ));
         }
     }
@@ -192,7 +223,11 @@ class NotificationService
             message: "La note {$note->numero_note} est validée et prête à être exécutée.",
             actionUrl: "/operateur/notes/{$note->id}",
             actionText: 'Exécuter la note',
-            data: ['note_id' => $note->id, 'numero' => $note->numero_note]
+            data: array_merge([
+                'note_id' => $note->id,
+                'numero' => $note->numero_note,
+                'demande_numero' => $note->demande->numero_demande ?? null,
+            ], $this->demandeMailContext($note->demande))
         ));
 
         $operateursChef = User::role('operateurchef')->get();
@@ -203,7 +238,11 @@ class NotificationService
             message: "La note {$note->numero_note} est validée et prête à être exécutée.",
             actionUrl: "/operateurchef/notes/{$note->id}",
             actionText: 'Exécuter la note',
-            data: ['note_id' => $note->id, 'numero' => $note->numero_note]
+            data: array_merge([
+                'note_id' => $note->id,
+                'numero' => $note->numero_note,
+                'demande_numero' => $note->demande->numero_demande ?? null,
+            ], $this->demandeMailContext($note->demande))
         ));
 
         if ($note->etabliPar) {
@@ -213,7 +252,11 @@ class NotificationService
                 message: "La note {$note->numero_note} a été validée avec succès.",
                 actionUrl: "/desa/notes/{$note->id}",
                 actionText: 'Voir la note',
-                data: ['note_id' => $note->id, 'numero' => $note->numero_note]
+                data: array_merge([
+                    'note_id' => $note->id,
+                    'numero' => $note->numero_note,
+                    'demande_numero' => $note->demande->numero_demande ?? null,
+                ], $this->demandeMailContext($note->demande))
             ));
         }
 
@@ -224,7 +267,12 @@ class NotificationService
                 message: "La note {$note->numero_note} pour votre demande a été validée.",
                 actionUrl: "/demandeur/demandes",
                 actionText: 'Voir mes demandes',
-                data: ['note_id' => $note->id, 'demande_id' => $note->demande_id]
+                data: array_merge([
+                    'note_id' => $note->id,
+                    'demande_id' => $note->demande_id,
+                    'demande_numero' => $note->demande->numero_demande ?? null,
+                    'numero' => $note->numero_note,
+                ], $this->demandeMailContext($note->demande))
             ));
         }
     }
@@ -241,7 +289,13 @@ class NotificationService
                 message: "La note {$note->numero_note} a été retournée par le {$returnedBy}." . ($motif ? " Motif: {$motif}" : ''),
                 actionUrl: "/desa/notes/{$note->id}/edit",
                 actionText: 'Modifier la note',
-                data: ['note_id' => $note->id, 'numero' => $note->numero_note, 'returned_by' => $returnedBy, 'motif' => $motif]
+                data: array_merge([
+                    'note_id' => $note->id,
+                    'numero' => $note->numero_note,
+                    'demande_numero' => $note->demande->numero_demande ?? null,
+                    'returned_by' => $returnedBy,
+                    'motif' => $motif,
+                ], $this->demandeMailContext($note->demande))
             ));
         }
     }
@@ -258,7 +312,11 @@ class NotificationService
                 message: "La note {$note->numero_note} a été exécutée avec succès.",
                 actionUrl: "/desa/notes/{$note->id}",
                 actionText: 'Voir la note',
-                data: ['note_id' => $note->id, 'numero' => $note->numero_note]
+                data: array_merge([
+                    'note_id' => $note->id,
+                    'numero' => $note->numero_note,
+                    'demande_numero' => $note->demande->numero_demande ?? null,
+                ], $this->demandeMailContext($note->demande))
             ));
         }
 
@@ -269,7 +327,12 @@ class NotificationService
                 message: "Les travaux de la note {$note->numero_note} pour votre demande ont été exécutés.",
                 actionUrl: "/demandeur/demandes",
                 actionText: 'Voir mes demandes',
-                data: ['note_id' => $note->id, 'demande_id' => $note->demande_id]
+                data: array_merge([
+                    'note_id' => $note->id,
+                    'demande_id' => $note->demande_id,
+                    'demande_numero' => $note->demande->numero_demande ?? null,
+                    'numero' => $note->numero_note,
+                ], $this->demandeMailContext($note->demande))
             ));
         }
     }
@@ -296,9 +359,10 @@ class NotificationService
                 data: [
                     'note_id' => $note->id, 
                     'numero' => $note->numero_note, 
+                    'demande_numero' => $note->demande->numero_demande ?? null,
                     'cancelled_by' => $cancelledBy,
                     'motif' => $motif
-                ]
+                ] + $this->demandeMailContext($note->demande)
             ));
         }
 
@@ -313,9 +377,10 @@ class NotificationService
                     data: [
                         'note_id' => $note->id, 
                         'numero' => $note->numero_note, 
+                        'demande_numero' => $note->demande->numero_demande ?? null,
                         'cancelled_by' => $cancelledBy,
                         'motif' => $motif
-                    ]
+                    ] + $this->demandeMailContext($note->demande)
                 ));
             }
 
@@ -330,11 +395,62 @@ class NotificationService
                 data: [
                     'note_id' => $note->id, 
                     'numero' => $note->numero_note, 
+                    'demande_numero' => $note->demande->numero_demande ?? null,
                     'cancelled_by' => $cancelledBy,
                     'motif' => $motif
-                ]
+                ] + $this->demandeMailContext($note->demande)
             ));
         }
+    }
+
+    /**
+     * Donnees supplementaires a afficher dans les mails d'information.
+     */
+    private function demandeMailContext(?Demande $demande): array
+    {
+        if (!$demande) {
+            return [];
+        }
+
+        $lieu = $demande->lieu_execution ?? $demande->lieu_execution_manuel ?? null;
+        $ouvrages = $this->formatOuvragesAConsigner($demande);
+
+        return array_filter([
+            'lieu' => $lieu,
+            'ouvrages' => $ouvrages,
+        ], fn ($value) => !is_null($value) && trim((string) $value) !== '');
+    }
+
+    private function formatOuvragesAConsigner(Demande $demande): string
+    {
+        if (($demande->mode_saisie ?? 'gmao') === 'manuel') {
+            return trim((string) ($demande->ouvrages_consigner_manuel ?? ''));
+        }
+
+        $gmao = $demande->ouvrages_consigner_gmao;
+        if (is_string($gmao)) {
+            $gmao = json_decode($gmao, true);
+        }
+        if (!is_array($gmao)) {
+            return '';
+        }
+
+        return collect($gmao)
+            ->map(function ($row) {
+                if (is_string($row)) {
+                    return $row;
+                }
+                if (!is_array($row)) {
+                    return null;
+                }
+                return $row['designation'] ?? $row['description'] ?? $row['libelle'] ?? $row['nom'] ?? null;
+            })
+            ->filter()
+            ->map(fn ($v) => trim((string) $v))
+            ->filter()
+            ->unique()
+            ->values()
+            ->implode(', ');
     }
 
     // ==================== INTERIM NOTIFICATIONS ====================
