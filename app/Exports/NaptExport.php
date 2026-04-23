@@ -62,6 +62,11 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
             if ($this->request->filled('date_fin')) {
                 $query->where('date', '<=', $this->request->date_fin);
             }
+            if ($this->request->filled('groupe_id')) {
+                $query->whereHas('demande.demandeur', function ($q) {
+                    $q->where('groupe_id', $this->request->groupe_id);
+                });
+            }
         }
 
         return $query->orderBy('created_at', 'desc')->get();
@@ -77,6 +82,7 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
             'Désignation',
             'Lieu',
             'Ouvrages à consigner',
+            'Ouvrages à installer',
             'Installations consignées',
             'Travaux',
             'Date début',
@@ -100,6 +106,37 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
         }
 
         $gmao = $demande->ouvrages_consigner_gmao;
+        if (is_string($gmao)) {
+            $gmao = json_decode($gmao, true);
+        }
+        if (!is_array($gmao)) {
+            return '';
+        }
+
+        $items = collect($gmao)
+            ->map(function ($row) {
+                if (is_string($row)) return $row;
+                if (!is_array($row)) return null;
+                return $row['designation'] ?? $row['description'] ?? $row['libelle'] ?? $row['nom'] ?? null;
+            })
+            ->filter()
+            ->map(fn ($v) => trim((string) $v))
+            ->filter()
+            ->unique()
+            ->values();
+
+        return $items->implode(', ');
+    }
+
+    private function formatOuvragesAInstaller(?Demande $demande): string
+    {
+        if (!$demande) return '';
+
+        if (($demande->mode_saisie ?? 'gmao') === 'manuel') {
+            return trim((string) ($demande->ouvrages_installer_manuel ?? ''));
+        }
+
+        $gmao = $demande->ouvrages_installer_gmao;
         if (is_string($gmao)) {
             $gmao = json_decode($gmao, true);
         }
@@ -147,6 +184,7 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
             $note->demande->designation ?? '',
             $note->demande->lieu_execution ?? '',
             $this->formatOuvragesAConsigner($note->demande),
+            $this->formatOuvragesAInstaller($note->demande),
             $installations ?: ($note->renseignementN ?? ''),
             $note->renseignementO ?? '',
             $note->ddt ? \Carbon\Carbon::parse($note->ddt)->format('d/m/Y') : '',

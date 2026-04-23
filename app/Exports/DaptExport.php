@@ -43,6 +43,11 @@ class DaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
             if ($this->request->filled('date_fin')) {
                 $query->where('dfp', '<=', $this->request->date_fin);
             }
+            if ($this->request->filled('groupe_id')) {
+                $query->whereHas('demandeur', function ($q) {
+                    $q->where('groupe_id', $this->request->groupe_id);
+                });
+            }
             if ($this->request->filled('demandeur_id')) {
                 $query->where('demandeur_id', $this->request->demandeur_id);
             }

@@ -33,21 +33,30 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Date début</label>
-                        <input type="date" name="date_debut" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-purple focus:border-senelec-purple">
+                        <input type="date" name="date_debut" value="{{ request('date_debut') }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-purple focus:border-senelec-purple">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Date fin</label>
-                        <input type="date" name="date_fin" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-purple focus:border-senelec-purple">
+                        <input type="date" name="date_fin" value="{{ request('date_fin') }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-purple focus:border-senelec-purple">
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
                     <select name="statut" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-purple focus:border-senelec-purple">
                         <option value="">Tous les statuts</option>
-                        <option value="créée">Créée</option>
-                        <option value="en cours de traitement">En cours de traitement</option>
-                        <option value="acceptée">Acceptée</option>
-                        <option value="retournée">Retournée</option>
+                        <option value="créée" @selected(request('statut') === 'créée')>Créée</option>
+                        <option value="en cours de traitement" @selected(request('statut') === 'en cours de traitement')>En cours de traitement</option>
+                        <option value="acceptée" @selected(request('statut') === 'acceptée')>Acceptée</option>
+                        <option value="retournée" @selected(request('statut') === 'retournée')>Retournée</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Groupe</label>
+                    <select name="groupe_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-purple focus:border-senelec-purple">
+                        <option value="">Tous les groupes</option>
+                        @foreach(($groupes ?? []) as $groupe)
+                            <option value="{{ $groupe->id }}" @selected((string) request('groupe_id') === (string) $groupe->id)>{{ $groupe->nom }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <button type="submit" class="w-full btn-senelec flex items-center justify-center gap-2">
@@ -74,30 +83,39 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Date début</label>
-                        <input type="date" name="date_debut" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange">
+                        <input type="date" name="date_debut" value="{{ request('date_debut') }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Date fin</label>
-                        <input type="date" name="date_fin" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange">
+                        <input type="date" name="date_fin" value="{{ request('date_fin') }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange">
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Semaine</label>
-                    <input type="number" name="numero_semaine" min="1" max="53" placeholder="Ex: 12" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange">
+                    <input type="number" name="numero_semaine" min="1" max="53" value="{{ request('numero_semaine') }}" placeholder="Ex: 12" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
                     <select name="statut" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange">
                         <option value="">Tous les statuts</option>
-                        <option value="brouillon">Brouillon</option>
-                        <option value="en étude">En étude</option>
-                        <option value="en attente de vérification">En attente de vérification</option>
-                        <option value="vérifiée">Vérifiée</option>
-                        <option value="en attente de validation">En attente de validation</option>
-                        <option value="validée">Validée</option>
-                        <option value="executée">Exécutée</option>
-                        <option value="retournée">Retournée</option>
-                        <option value="annulée">Annulée</option>
+                        <option value="brouillon" @selected(request('statut') === 'brouillon')>Brouillon</option>
+                        <option value="en étude" @selected(request('statut') === 'en étude')>En étude</option>
+                        <option value="en attente de vérification" @selected(request('statut') === 'en attente de vérification')>En attente de vérification</option>
+                        <option value="vérifiée" @selected(request('statut') === 'vérifiée')>Vérifiée</option>
+                        <option value="en attente de validation" @selected(request('statut') === 'en attente de validation')>En attente de validation</option>
+                        <option value="validée" @selected(request('statut') === 'validée')>Validée</option>
+                        <option value="executée" @selected(request('statut') === 'executée')>Exécutée</option>
+                        <option value="retournée" @selected(request('statut') === 'retournée')>Retournée</option>
+                        <option value="annulée" @selected(request('statut') === 'annulée')>Annulée</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Groupe</label>
+                    <select name="groupe_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange">
+                        <option value="">Tous les groupes</option>
+                        @foreach(($groupes ?? []) as $groupe)
+                            <option value="{{ $groupe->id }}" @selected((string) request('groupe_id') === (string) $groupe->id)>{{ $groupe->nom }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <button type="submit" class="w-full bg-senelec-orange text-white px-4 py-2 rounded-lg hover:bg-senelec-orange/90 transition flex items-center justify-center gap-2">

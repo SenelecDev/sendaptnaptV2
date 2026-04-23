@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\DaptExport;
 use App\Exports\NaptExport;
+use App\Models\Groupe;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -34,6 +35,10 @@ class ExportController extends Controller
      */
     public function index()
     {
-        return view('exports.index');
+        $groupes = Groupe::query()
+            ->orderBy('nom')
+            ->get(['id', 'nom']);
+
+        return view('exports.index', compact('groupes'));
     }
 }
