@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Desa;
 use App\Http\Controllers\Controller;
 use App\Models\Note;
 use App\Traits\SearchableTrait;
+use App\Support\NaptQueryFilters;
 use App\Models\Demande;
 use App\Models\ChargeCons;
 use App\Models\Correspondant;
@@ -30,71 +31,11 @@ class NoteController extends Controller
             ->join('demandes', 'notes.demande_id', '=', 'demandes.id')
             ->join('users', 'demandes.demandeur_id', '=', 'users.id')
             ->select('notes.*');
-        
-        // Recherche (numéro NAPT, numéro DAPT, lieu d'exécution, ouvrage à consigner)
-        if ($request->filled('search')) {
-            $driver = DB::connection()->getDriverName();
-            $this->applySimpleSearch($query, $request->search,
-                ['notes.numero_note', 'demandes.numero_demande', 'demandes.lieu_execution', 'demandes.ouvrages_consigner_manuel'],
-                [],
-                function ($q, $pattern) use ($driver) {
-                    if ($driver === 'mysql') {
-                        $q->orWhereRaw('LOWER(CAST(COALESCE(demandes.ouvrages_consigner_gmao, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                    } elseif ($driver === 'pgsql') {
-                        $q->orWhereRaw('LOWER(COALESCE(demandes.ouvrages_consigner_gmao::text, \'[]\')) LIKE ?', [$pattern]);
-                    }
-                });
-        }
-        
-        // Filtre par statut
-        if ($request->filled('statut')) {
-            // Mapping des valeurs URL vers les constantes
-            $statutMap = [
-                'brouillon' => Note::STATUT_BROUILLON,
-                'en_etude' => Note::STATUT_EN_ETUDE,
-                'en_attente_verification' => Note::STATUT_EN_ATTENTE_VERIFICATION,
-                'verifiee' => Note::STATUT_VERIFIEE,
-                'en_attente_validation' => Note::STATUT_EN_ATTENTE_VALIDATION,
-                'validee' => Note::STATUT_VALIDEE,
-                'en_cours_execution' => Note::STATUT_EN_COURS_EXECUTION,
-                'executee' => Note::STATUT_EXECUTEE,
-                'retournee' => Note::STATUT_RETOURNEE,
-                'annulee' => Note::STATUT_ANNULEE,
-            ];
-            
-            $statut = $statutMap[$request->statut] ?? $request->statut;
-            $query->where('notes.statut', $statut);
-        }
-        
-        // Filtre par date début (sur ddt de la note - affiche les NAPT qui commencent à cette date)
-        if ($request->filled('date_debut')) {
-            $dateDebut = $request->date_debut;
-            $query->whereDate('notes.ddt', '=', $dateDebut);
-        }
-        
-        // Filtre par date fin (sur dft de la note - affiche les NAPT qui finissent à cette date)
-        if ($request->filled('date_fin')) {
-            $dateFin = $request->date_fin;
-            $query->whereDate('notes.dft', '=', $dateFin);
-        }
-        
-        // Filtre par semaine
-        if ($request->filled('semaine')) {
-            $query->where('notes.numero_semaine', $request->semaine);
-        }
-        
-        // Filtre par année (sur la date des travaux de la note)
-        if ($request->filled('annee')) {
-            $query->whereYear('notes.ddt', $request->annee);
-        }
-        
-        // Filtre par groupe (via le demandeur de la demande)
-        if ($request->filled('groupe_id')) {
-            $query->where('users.groupe_id', $request->groupe_id);
-        }
-        
+
+        (new NaptQueryFilters())->apply($query, $request, joined: true);
+
         $notes = $query->orderBy('notes.created_at', 'desc')->paginate(15);
-        
+
         return view('desa.notes.index', compact('notes'));
     }
 
@@ -478,50 +419,10 @@ class NoteController extends Controller
             ->join('demandes', 'notes.demande_id', '=', 'demandes.id')
             ->join('users', 'demandes.demandeur_id', '=', 'users.id')
             ->select('notes.*');
-        
-        // Appliquer les mêmes filtres que l'index
-        if ($request->filled('search')) {
-            $this->applySimpleSearch($query, $request->search, ['notes.numero_note', 'demandes.numero_demande'], []);
-        }
-        
-        if ($request->filled('statut')) {
-            $statutMap = [
-                'brouillon' => Note::STATUT_BROUILLON,
-                'en_etude' => Note::STATUT_EN_ETUDE,
-                'en_attente_verification' => Note::STATUT_EN_ATTENTE_VERIFICATION,
-                'verifiee' => Note::STATUT_VERIFIEE,
-                'en_attente_validation' => Note::STATUT_EN_ATTENTE_VALIDATION,
-                'validee' => Note::STATUT_VALIDEE,
-                'en_cours_execution' => Note::STATUT_EN_COURS_EXECUTION,
-                'executee' => Note::STATUT_EXECUTEE,
-                'retournee' => Note::STATUT_RETOURNEE,
-                'annulee' => Note::STATUT_ANNULEE,
-            ];
-            $statut = $statutMap[$request->statut] ?? $request->statut;
-            $query->where('notes.statut', $statut);
-        }
-        
-        if ($request->filled('date_debut')) {
-            $query->whereDate('notes.ddt', '=', $request->date_debut);
-        }
-        
-        if ($request->filled('date_fin')) {
-            $query->whereDate('notes.dft', '=', $request->date_fin);
-        }
-        
-        if ($request->filled('semaine')) {
-            $query->where('notes.numero_semaine', $request->semaine);
-        }
-        
-        if ($request->filled('annee')) {
-            $query->whereYear('notes.ddt', $request->annee);
-        }
-        
-        if ($request->filled('groupe_id')) {
-            $query->where('users.groupe_id', $request->groupe_id);
-        }
-        
-        $notes = $query->orderBy('notes.created_at', 'desc')->limit(50)->get();
+
+        (new NaptQueryFilters())->apply($query, $request, joined: true);
+
+        $notes = $query->orderBy('notes.created_at', 'desc')->limit(150)->get();
         
         if ($notes->isEmpty()) {
             return back()->with('error', 'Aucune note à imprimer avec ces filtres.');

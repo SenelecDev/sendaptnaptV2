@@ -13,7 +13,7 @@
                 </svg>
                 Export des données
             </h1>
-            <p class="text-gray-600 mt-1">Exportez vos données DAPT et NAPT au format Excel</p>
+            <p class="text-gray-600 mt-1">Exportez vos données DAPT et NAPT au format Excel, avec les mêmes filtres que l'export PDF DESA</p>
         </div>
     </div>
 
@@ -80,44 +80,11 @@
                 <p class="text-sm text-gray-500 mt-1">Notes d'Arrêt pour Travaux</p>
             </div>
             <form action="{{ route('exports.napt') }}" method="GET" class="p-5 space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Date début</label>
-                        <input type="date" name="date_debut" value="{{ request('date_debut') }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Date fin</label>
-                        <input type="date" name="date_fin" value="{{ request('date_fin') }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Semaine</label>
-                    <input type="number" name="numero_semaine" min="1" max="53" value="{{ request('numero_semaine') }}" placeholder="Ex: 12" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
-                    <select name="statut" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange">
-                        <option value="">Tous les statuts</option>
-                        <option value="brouillon" @selected(request('statut') === 'brouillon')>Brouillon</option>
-                        <option value="en étude" @selected(request('statut') === 'en étude')>En étude</option>
-                        <option value="en attente de vérification" @selected(request('statut') === 'en attente de vérification')>En attente de vérification</option>
-                        <option value="vérifiée" @selected(request('statut') === 'vérifiée')>Vérifiée</option>
-                        <option value="en attente de validation" @selected(request('statut') === 'en attente de validation')>En attente de validation</option>
-                        <option value="validée" @selected(request('statut') === 'validée')>Validée</option>
-                        <option value="executée" @selected(request('statut') === 'executée')>Exécutée</option>
-                        <option value="retournée" @selected(request('statut') === 'retournée')>Retournée</option>
-                        <option value="annulée" @selected(request('statut') === 'annulée')>Annulée</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Groupe</label>
-                    <select name="groupe_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange">
-                        <option value="">Tous les groupes</option>
-                        @foreach(($groupes ?? []) as $groupe)
-                            <option value="{{ $groupe->id }}" @selected((string) request('groupe_id') === (string) $groupe->id)>{{ $groupe->nom }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                @include('partials.napt-filters-fields', [
+                    'inputClass' => 'w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-senelec-orange focus:border-senelec-orange',
+                    'semaineFieldName' => 'numero_semaine',
+                    'groupes' => $groupes,
+                ])
                 <button type="submit" class="w-full bg-senelec-orange text-white px-4 py-2 rounded-lg hover:bg-senelec-orange/90 transition flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -140,9 +107,9 @@
                 <h3 class="font-semibold text-gray-900">À propos de l'export</h3>
                 <ul class="text-sm text-gray-600 mt-2 space-y-1">
                     <li>• Les fichiers exportés sont au format Excel (.xlsx)</li>
-                    <li>• Vous pouvez filtrer les données avant l'export</li>
-                    <li>• Si aucun filtre n'est sélectionné, toutes les données seront exportées</li>
-                    <li>• Les fichiers sont générés instantanément et téléchargés automatiquement</li>
+                    <li>• Filtres NAPT : demandeur, ouvrage, type d'ouvrage, dates, semaine, statut, groupe</li>
+                    <li>• Les mêmes critères s'appliquent à l'export PDF depuis DESA → NAPTs</li>
+                    <li>• Si aucun filtre n'est sélectionné, toutes les données accessibles seront exportées</li>
                 </ul>
             </div>
         </div>

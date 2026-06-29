@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Note;
 use App\Models\Demande;
+use App\Support\NaptQueryFilters;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -26,8 +27,6 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
         $query = Note::with(['demande.demandeur', 'etabliPar', 'verifiePar', 'validePar']);
         $user = auth()->user();
 
-        // Filtrer par groupe uniquement pour un demandeur "pur"
-        // (ne pas restreindre les profils multi-roles comme verificateur/valideur/directeur, etc.)
         if ($user->hasRole('demandeur') && !$user->hasAnyRole([
             'admin',
             'desa',
@@ -43,30 +42,8 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
             });
         }
 
-        // Filtres additionnels
         if ($this->request) {
-            if ($this->request->filled('statut')) {
-                $statut = $this->request->statut;
-                $statutMap = [
-                    'exécutée' => 'executée',
-                    'établie' => 'brouillon',
-                ];
-                $query->where('statut', $statutMap[$statut] ?? $statut);
-            }
-            if ($this->request->filled('numero_semaine')) {
-                $query->where('numero_semaine', $this->request->numero_semaine);
-            }
-            if ($this->request->filled('date_debut')) {
-                $query->where('date', '>=', $this->request->date_debut);
-            }
-            if ($this->request->filled('date_fin')) {
-                $query->where('date', '<=', $this->request->date_fin);
-            }
-            if ($this->request->filled('groupe_id')) {
-                $query->whereHas('demande.demandeur', function ($q) {
-                    $q->where('groupe_id', $this->request->groupe_id);
-                });
-            }
+            (new NaptQueryFilters())->apply($query, $this->request, joined: false);
         }
 
         return $query->orderBy('created_at', 'desc')->get();
@@ -79,6 +56,7 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
             'Semaine',
             'N° DAPT',
             'Demandeur',
+            'Matricule demandeur',
             'Désignation',
             'Lieu',
             'Ouvrages à consigner',
@@ -161,7 +139,6 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
 
     public function map($note): array
     {
-        // Récupérer les installations consignées
         $installations = '';
         if ($note->lignes_oracle) {
             $lignes = is_array($note->lignes_oracle) ? $note->lignes_oracle : json_decode($note->lignes_oracle, true);
@@ -181,6 +158,7 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
             'S' . $note->numero_semaine,
             $note->demande->numero_demande ?? 'N/A',
             $note->demande->demandeur->name ?? 'N/A',
+            $note->demande->demandeur->matricule ?? '',
             $note->demande->designation ?? '',
             $note->demande->lieu_execution ?? '',
             $this->formatOuvragesAConsigner($note->demande),
