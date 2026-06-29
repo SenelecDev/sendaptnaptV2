@@ -85,18 +85,18 @@
                     'semaineFieldName' => 'numero_semaine',
                     'groupes' => $groupes,
                 ])
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button type="submit" formaction="{{ route('exports.napt') }}" class="flex-1 bg-senelec-orange text-white px-4 py-2 rounded-lg hover:bg-senelec-orange/90 transition flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex flex-col sm:flex-row gap-3 pt-1">
+                    <button type="submit" formaction="{{ route('exports.napt') }}" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-senelec-orange text-white font-semibold rounded-xl shadow-md hover:bg-senelec-orange-dark transition-all duration-200">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
-                        Exporter NAPT en Excel
+                        <span>Exporter NAPT en Excel</span>
                     </button>
-                    <button type="submit" formaction="{{ route('exports.napt.pdf') }}" formtarget="_blank" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition shadow-md border-2 border-emerald-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button type="submit" formaction="{{ route('exports.napt.pdf') }}" formtarget="_blank" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-senelec-teal text-white font-semibold rounded-xl shadow-md hover:bg-senelec-teal-dark transition-all duration-200 border-2 border-senelec-teal">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                         </svg>
-                        Exporter NAPT en PDF
+                        <span>Exporter NAPT en PDF</span>
                     </button>
                 </div>
             </form>
