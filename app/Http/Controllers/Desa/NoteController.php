@@ -16,8 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Dompdf\Dompdf;
-use Dompdf\Options;
+use App\Services\NaptPdfExportService;
 
 class NoteController extends Controller
 {
@@ -399,51 +398,9 @@ class NoteController extends Controller
     /**
      * Export filtered notes as PDF (combined individual NAPT PDFs)
      */
-    public function exportPdf(Request $request)
+    public function exportPdf(Request $request, NaptPdfExportService $pdfExport)
     {
-        ini_set('memory_limit', '1G');
-        set_time_limit(300);
-
-        $query = Note::with([
-            'demande.demandeur',
-            'demande.chargeTravaux',
-            'etabliPar',
-            'verifiePar',
-            'validePar',
-            'chargesConsignation',
-            'correspondants',
-            'services',
-            'retourne1',
-            'retourne2'
-        ])
-            ->join('demandes', 'notes.demande_id', '=', 'demandes.id')
-            ->join('users', 'demandes.demandeur_id', '=', 'users.id')
-            ->select('notes.*');
-
-        (new NaptQueryFilters())->apply($query, $request, joined: true);
-
-        $notes = $query->orderBy('notes.created_at', 'desc')->limit(150)->get();
-        
-        if ($notes->isEmpty()) {
-            return back()->with('error', 'Aucune note à imprimer avec ces filtres.');
-        }
-        
-        // Générer le PDF combiné avec les vrais PDF NAPT
-        $options = new Options();
-        $options->set('defaultFont', 'Arial');
-        $options->set('isRemoteEnabled', true);
-        $dompdf = new Dompdf($options);
-        
-        $html = view('pdf.napt-combined', compact('notes'))->render();
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-        
-        $filename = 'notes_' . now()->format('Y-m-d_His') . '.pdf';
-        
-        return response($dompdf->output(), 200)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
+        return $pdfExport->exportFiltered($request);
     }
 
     /**

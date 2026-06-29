@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\DaptExport;
 use App\Exports\NaptExport;
 use App\Models\Groupe;
+use App\Services\NaptPdfExportService;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -28,6 +29,14 @@ class ExportController extends Controller
         $filename = 'NAPT_Export_' . now()->format('Y-m-d_His') . '.xlsx';
         
         return Excel::download(new NaptExport($request), $filename);
+    }
+
+    /**
+     * Export NAPT filtrées en PDF (mêmes filtres que Excel)
+     */
+    public function exportNaptPdf(Request $request, NaptPdfExportService $pdfExport)
+    {
+        return $pdfExport->exportFiltered($request);
     }
 
     /**

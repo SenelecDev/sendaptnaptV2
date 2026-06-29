@@ -71,6 +71,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/exports', [\App\Http\Controllers\ExportController::class, 'index'])->name('exports.index');
     Route::get('/exports/dapt', [\App\Http\Controllers\ExportController::class, 'exportDapt'])->name('exports.dapt');
     Route::get('/exports/napt', [\App\Http\Controllers\ExportController::class, 'exportNapt'])->name('exports.napt');
+    Route::get('/exports/napt/pdf', [\App\Http\Controllers\ExportController::class, 'exportNaptPdf'])->name('exports.napt.pdf');
     Route::get('/documentation', [\App\Http\Controllers\DocumentationController::class, 'index'])->name('documentation');
     
     // Profile routes

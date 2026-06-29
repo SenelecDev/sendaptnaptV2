@@ -13,7 +13,7 @@
                 </svg>
                 Export des données
             </h1>
-            <p class="text-gray-600 mt-1">Exportez vos données DAPT et NAPT au format Excel, avec les mêmes filtres que l'export PDF DESA</p>
+            <p class="text-gray-600 mt-1">Exportez vos données DAPT et NAPT en Excel ou PDF (NAPT)</p>
         </div>
     </div>
 
@@ -85,12 +85,20 @@
                     'semaineFieldName' => 'numero_semaine',
                     'groupes' => $groupes,
                 ])
-                <button type="submit" class="w-full bg-senelec-orange text-white px-4 py-2 rounded-lg hover:bg-senelec-orange/90 transition flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    Exporter NAPT en Excel
-                </button>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="submit" formaction="{{ route('exports.napt') }}" class="flex-1 bg-senelec-orange text-white px-4 py-2 rounded-lg hover:bg-senelec-orange/90 transition flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Exporter NAPT en Excel
+                    </button>
+                    <button type="submit" formaction="{{ route('exports.napt.pdf') }}" formtarget="_blank" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition shadow-md border-2 border-emerald-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                        </svg>
+                        Exporter NAPT en PDF
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -106,9 +114,10 @@
             <div>
                 <h3 class="font-semibold text-gray-900">À propos de l'export</h3>
                 <ul class="text-sm text-gray-600 mt-2 space-y-1">
-                    <li>• Les fichiers exportés sont au format Excel (.xlsx)</li>
+                    <li>• NAPT : export Excel (.xlsx) ou PDF (jusqu'à 150 notes)</li>
+                    <li>• DAPT : export Excel uniquement</li>
                     <li>• Filtres NAPT : demandeur, ouvrage, type d'ouvrage, dates, semaine, statut, groupe</li>
-                    <li>• Les mêmes critères s'appliquent à l'export PDF depuis DESA → NAPTs</li>
+                    <li>• Les mêmes filtres s'appliquent aussi depuis DESA → NAPTs (bouton imprimer)</li>
                     <li>• Si aucun filtre n'est sélectionné, toutes les données accessibles seront exportées</li>
                 </ul>
             </div>
