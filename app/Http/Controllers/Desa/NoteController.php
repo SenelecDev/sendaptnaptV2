@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Services\NaptPdfExportService;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class NoteController extends Controller
 {
