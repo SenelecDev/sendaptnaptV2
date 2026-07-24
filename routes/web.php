@@ -73,6 +73,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/exports/napt', [\App\Http\Controllers\ExportController::class, 'exportNapt'])->name('exports.napt');
     Route::get('/exports/napt/pdf', [\App\Http\Controllers\ExportController::class, 'exportNaptPdf'])->name('exports.napt.pdf');
     Route::get('/documentation', [\App\Http\Controllers\DocumentationController::class, 'index'])->name('documentation');
+
+    // Assistant IA (chat flottant — Gemini ou mode local)
+    Route::prefix('assistant')->name('assistant.')->group(function () {
+        Route::get('/status', [\App\Http\Controllers\AssistantController::class, 'status'])->name('status');
+        Route::post('/chat', [\App\Http\Controllers\AssistantController::class, 'chat'])
+            ->middleware('throttle:20,1')
+            ->name('chat');
+    });
     
     // Profile routes
     Route::get('/profile', function () {

@@ -14,7 +14,7 @@
             </div>
             <div>
                 <h1 class="text-3xl font-bold font-['Rajdhani'] text-white">Documentation SENDAPTNAPT</h1>
-                <p class="mt-1" style="color: #e5e7eb;">Guide complet pour la gestion des DAPT et NAPT</p>
+                <p class="mt-1" style="color: #e5e7eb;">Guide utilisateur complet — DAPT, NAPT, diffusions, admin et outils</p>
             </div>
         </div>
     </div>
@@ -27,674 +27,483 @@
             </svg>
             Table des matières
         </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <a href="#introduction" class="flex items-center gap-3 p-3 rounded-lg text-white transition hover:opacity-90" style="background: #0D1CB0;">
-                <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style="background: rgba(255,255,255,0.2);">1</span>
-                <span class="font-medium">Introduction</span>
-            </a>
-            <a href="#workflow" class="flex items-center gap-3 p-3 rounded-lg text-white transition hover:opacity-90" style="background: #B3006C;">
-                <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style="background: rgba(255,255,255,0.2);">2</span>
-                <span class="font-medium">Workflow Général</span>
-            </a>
-            <a href="#roles" class="flex items-center gap-3 p-3 rounded-lg text-white transition hover:opacity-90" style="background: #E85D04;">
-                <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style="background: rgba(255,255,255,0.2);">3</span>
-                <span class="font-medium">Rôles et Responsabilités</span>
-            </a>
-            <a href="#creer-demande" class="flex items-center gap-3 p-3 rounded-lg text-white transition hover:opacity-90" style="background: #0D9488;">
-                <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style="background: rgba(255,255,255,0.2);">4</span>
-                <span class="font-medium">Créer une Demande (DAPT)</span>
-            </a>
-            <a href="#traitement-napt" class="flex items-center gap-3 p-3 rounded-lg text-white transition hover:opacity-90" style="background: #7C3AED;">
-                <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style="background: rgba(255,255,255,0.2);">5</span>
-                <span class="font-medium">Traitement NAPT</span>
-            </a>
-            <a href="#interims" class="flex items-center gap-3 p-3 rounded-lg text-white transition hover:opacity-90" style="background: #059669;">
-                <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style="background: rgba(255,255,255,0.2);">6</span>
-                <span class="font-medium">Gestion des Intérims</span>
-            </a>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            @php
+                $toc = [
+                    ['#introduction', '1', 'Introduction', '#0D1CB0'],
+                    ['#workflow', '2', 'Workflow général', '#B3006C'],
+                    ['#statuts', '3', 'Statuts & glossaire', '#E87400'],
+                    ['#roles', '4', 'Rôles', '#7C3AED'],
+                    ['#creer-demande', '5', 'Créer une DAPT', '#0D9488'],
+                    ['#gmao', '6', 'Mode GMAO', '#059669'],
+                    ['#traitement-napt', '7', 'Traitement NAPT', '#0A91A3'],
+                    ['#diffusion', '8', 'Diffusion hebdomadaire', '#B3006C'],
+                    ['#retours-annulations', '9', 'Retours & annulations', '#DC2626'],
+                    ['#execution', '10', 'Fiche manœuvre & exécution', '#0A91A3'],
+                    ['#directeur', '11', 'Directeur', '#2B1444'],
+                    ['#admin', '12', 'Administration', '#4A2066'],
+                    ['#outils', '13', 'Outils communs', '#B3006C'],
+                    ['#exports', '14', 'Exports Excel & PDF', '#E87400'],
+                    ['#interims', '15', 'Intérims & absences', '#059669'],
+                    ['#notifications', '16', 'Notifications', '#0D1CB0'],
+                    ['#faq', '17', 'Bonnes pratiques', '#7C3AED'],
+                ];
+            @endphp
+            @foreach($toc as [$href, $num, $label, $bg])
+                <a href="{{ $href }}" class="flex items-center gap-3 p-3 rounded-lg text-white transition hover:opacity-90" style="background: {{ $bg }};">
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style="background: rgba(255,255,255,0.2);">{{ $num }}</span>
+                    <span class="font-medium text-sm">{{ $label }}</span>
+                </a>
+            @endforeach
         </div>
     </div>
 
-    <!-- Section 1: Introduction -->
+    <!-- 1. Introduction -->
     <div id="introduction" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
         <div class="flex items-center gap-3 mb-6">
             <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">1</span>
             <h2 class="text-2xl font-bold text-gray-900">Introduction</h2>
         </div>
-        
-        <div class="prose prose-lg max-w-none">
-            <p class="text-gray-600 mb-4">
-                <strong>SENDAPTNAPT</strong> est le système de gestion électronique des <strong>Demandes d'Arrêt Pour Travaux (DAPT)</strong> 
-                et des <strong>Notes d'Arrêt Pour Travaux (NAPT)</strong> de SENELEC.
-            </p>
-            
-            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mb-6">
-                <div class="flex items-start gap-3">
-                    <svg class="h-6 w-6 text-blue-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <div>
-                        <h4 class="font-semibold text-blue-800">Qu'est-ce qu'une DAPT ?</h4>
-                        <p class="text-blue-700 text-sm mt-1">
-                            Une DAPT est une demande formelle émise par un demandeur pour solliciter un arrêt programmé 
-                            d'équipements électriques en vue d'effectuer des travaux de maintenance ou d'intervention.
-                        </p>
-                    </div>
-                </div>
+
+        <p class="text-gray-600 mb-4">
+            <strong>SENDAPTNAPT</strong> gère le cycle électronique des
+            <strong>Demandes d'Arrêt Pour Travaux (DAPT)</strong> et des
+            <strong>Notes d'Arrêt Pour Travaux (NAPT)</strong> — SENELEC / DESA-DESE.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                <h4 class="font-semibold text-blue-800">DAPT</h4>
+                <p class="text-blue-700 text-sm mt-1">Demande formelle d'arrêt programmé d'équipements pour travaux de maintenance ou d'intervention.</p>
             </div>
-            
             <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
-                <div class="flex items-start gap-3">
-                    <svg class="h-6 w-6 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <div>
-                        <h4 class="font-semibold text-green-800">Qu'est-ce qu'une NAPT ?</h4>
-                        <p class="text-green-700 text-sm mt-1">
-                            Une NAPT est le document officiel généré après validation d'une DAPT. Elle contient toutes les informations 
-                            techniques nécessaires pour l'exécution sécurisée des travaux, incluant les consignes de sécurité et les 
-                            équipements concernés.
-                        </p>
-                    </div>
-                </div>
+                <h4 class="font-semibold text-green-800">NAPT</h4>
+                <p class="text-green-700 text-sm mt-1">Document officiel établi par le DESA : dates, destinataires, consignes et suivi jusqu'à l'exécution.</p>
             </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 text-sm text-gray-600 space-y-2">
+            <p><strong>Connexion :</strong> authentification locale, puis LDAP si activé. Rôle <em>demandeur</em> par défaut si aucun rôle.</p>
+            <p><strong>Multi-rôles :</strong> toutes vos sections apparaissent dans la barre latérale (ex. admin + desa).</p>
+            <p><strong>Aide :</strong> cette page, le tutoriel d'accueil (premier login), et l'<strong>assistant</strong> (bouton bas-droite / icône chat du header).</p>
         </div>
     </div>
 
-    <!-- Section 2: Workflow -->
+    <!-- 2. Workflow -->
     <div id="workflow" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
         <div class="flex items-center gap-3 mb-6">
             <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">2</span>
-            <h2 class="text-2xl font-bold text-gray-900">Workflow Général</h2>
+            <h2 class="text-2xl font-bold text-gray-900">Workflow général</h2>
         </div>
-        
-        <p class="text-gray-600 mb-6">Le processus complet de gestion d'un arrêt pour travaux suit les étapes suivantes :</p>
-        
-        <!-- Timeline Workflow -->
-        <div class="relative">
+
+        <div class="relative mb-6">
             <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#2B1444] to-green-500"></div>
-            
-            <div class="space-y-6">
-                <!-- Étape 1 -->
-                <div class="relative flex gap-6">
-                    <div class="w-16 h-16 rounded-full bg-[#2B1444] flex items-center justify-center z-10 ring-4 ring-white">
-                        <span class="text-white font-bold text-lg">1</span>
+            <div class="space-y-5">
+                @php
+                    $steps = [
+                        ['1', '#2B1444', 'Création DAPT', 'Le Demandeur crée (brouillon) ou soumet (créée) une demande avec schéma.', 'Demandeur → Demandes'],
+                        ['2', '#4A2066', 'Traitement DESA', 'Prise en charge, acceptation des dates, Faire NAPT, ou retour au demandeur.', 'Éditeur → Demandes'],
+                        ['3', '#6B3D99', 'Vérification', 'Le Vérificateur contrôle la NAPT : vérifier (statut vérifiée) ou retourner.', 'Vérificateur → Notes'],
+                        ['4', '#E87400', 'Validation', 'Le Valideur valide (NAPT validée + DAPT acceptée) ou retourne.', 'Valideur → Notes'],
+                        ['5', '#0A91A3', 'Fiche manœuvre', 'L\'Opérateur Chef joint le PDF/image obligatoire avant exécution.', 'Opérateur Chef → Notes'],
+                        ['6', '#059669', 'Exécution', 'L\'Opérateur démarre puis termine (dates réelles ou créneaux).', 'Opérateur → Notes'],
+                    ];
+                @endphp
+                @foreach($steps as [$n, $color, $title, $desc, $menu])
+                    <div class="relative flex gap-6">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center z-10 ring-4 ring-white shrink-0" style="background: {{ $color }};">
+                            <span class="text-white font-bold text-lg">{{ $n }}</span>
+                        </div>
+                        <div class="flex-1 p-5 rounded-xl" style="background: linear-gradient(to right, {{ $color }}12, transparent);">
+                            <h4 class="font-bold text-gray-900">{{ $title }}</h4>
+                            <p class="text-gray-600 text-sm mt-1">{{ $desc }}</p>
+                            <span class="inline-flex mt-2 text-xs bg-white/80 text-gray-700 px-2 py-1 rounded-full border border-gray-200">{{ $menu }}</span>
+                        </div>
                     </div>
-                    <div class="flex-1 bg-gradient-to-r from-[#2B1444]/5 to-transparent p-5 rounded-xl">
-                        <h4 class="font-bold text-gray-900">Création de la DAPT</h4>
-                        <p class="text-gray-600 text-sm mt-1">Le <strong>Demandeur</strong> crée une demande avec les informations sur les travaux prévus</p>
-                        <span class="inline-flex items-center gap-1 mt-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                            <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-                            Statut: Créée
-                        </span>
-                    </div>
-                </div>
-                
-                <!-- Étape 2 -->
-                <div class="relative flex gap-6">
-                    <div class="w-16 h-16 rounded-full bg-[#4A2066] flex items-center justify-center z-10 ring-4 ring-white">
-                        <span class="text-white font-bold text-lg">2</span>
-                    </div>
-                    <div class="flex-1 bg-gradient-to-r from-[#4A2066]/5 to-transparent p-5 rounded-xl">
-                        <h4 class="font-bold text-gray-900">Traitement par l'Éditeur (DESA)</h4>
-                        <p class="text-gray-600 text-sm mt-1">L'<strong>Éditeur</strong> examine la demande et crée la NAPT correspondante</p>
-                        <span class="inline-flex items-center gap-1 mt-2 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
-                            <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
-                            Statut: En cours
-                        </span>
-                    </div>
-                </div>
-                
-                <!-- Étape 3 -->
-                <div class="relative flex gap-6">
-                    <div class="w-16 h-16 rounded-full bg-[#6B3D99] flex items-center justify-center z-10 ring-4 ring-white">
-                        <span class="text-white font-bold text-lg">3</span>
-                    </div>
-                    <div class="flex-1 bg-gradient-to-r from-[#6B3D99]/5 to-transparent p-5 rounded-xl">
-                        <h4 class="font-bold text-gray-900">Vérification</h4>
-                        <p class="text-gray-600 text-sm mt-1">Le <strong>Vérificateur</strong> contrôle les informations techniques de la NAPT</p>
-                        <span class="inline-flex items-center gap-1 mt-2 text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">
-                            <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
-                            Statut: En attente vérification
-                        </span>
-                    </div>
-                </div>
-                
-                <!-- Étape 4 -->
-                <div class="relative flex gap-6">
-                    <div class="w-16 h-16 rounded-full bg-amber-500 flex items-center justify-center z-10 ring-4 ring-white">
-                        <span class="text-white font-bold text-lg">4</span>
-                    </div>
-                    <div class="flex-1 bg-gradient-to-r from-amber-500/5 to-transparent p-5 rounded-xl">
-                        <h4 class="font-bold text-gray-900">Validation</h4>
-                        <p class="text-gray-600 text-sm mt-1">Le <strong>Valideur</strong> approuve officiellement la NAPT</p>
-                        <span class="inline-flex items-center gap-1 mt-2 text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full">
-                            <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
-                            Statut: Validée
-                        </span>
-                    </div>
-                </div>
-                
-                <!-- Étape 5 -->
-                <div class="relative flex gap-6">
-                    <div class="w-16 h-16 rounded-full bg-teal-500 flex items-center justify-center z-10 ring-4 ring-white">
-                        <span class="text-white font-bold text-lg">5</span>
-                    </div>
-                    <div class="flex-1 bg-gradient-to-r from-teal-500/5 to-transparent p-5 rounded-xl">
-                        <h4 class="font-bold text-gray-900">Préparation par l'Opérateur Chef</h4>
-                        <p class="text-gray-600 text-sm mt-1">L'<strong>Opérateur Chef</strong> prépare la fiche manœuvre et planifie l'exécution</p>
-                        <span class="inline-flex items-center gap-1 mt-2 text-xs bg-teal-100 text-teal-700 px-2 py-1 rounded-full">
-                            <span class="w-2 h-2 bg-teal-500 rounded-full"></span>
-                            Fiche manœuvre créée
-                        </span>
-                    </div>
-                </div>
-                
-                <!-- Étape 6 -->
-                <div class="relative flex gap-6">
-                    <div class="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center z-10 ring-4 ring-white">
-                        <span class="text-white font-bold text-lg">6</span>
-                    </div>
-                    <div class="flex-1 bg-gradient-to-r from-green-500/5 to-transparent p-5 rounded-xl">
-                        <h4 class="font-bold text-gray-900">Exécution</h4>
-                        <p class="text-gray-600 text-sm mt-1">L'<strong>Opérateur</strong> exécute les manœuvres et marque la NAPT comme exécutée</p>
-                        <span class="inline-flex items-center gap-1 mt-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                            Statut: Exécutée
-                        </span>
-                    </div>
-                </div>
+                @endforeach
             </div>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800 space-y-1">
+            <p><strong>Règles clés :</strong> une DAPT = une seule NAPT · document d'étude obligatoire si étude = oui · exécution bloquée sans fiche manœuvre.</p>
+            <p>À l'envoi en vérification, le DESA enregistre les dates acceptées sur la DAPT et régénère le PDF DAPT.</p>
         </div>
     </div>
 
-    <!-- Section 3: Rôles -->
-    <div id="roles" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+    <!-- 3. Statuts & glossaire -->
+    <div id="statuts" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
         <div class="flex items-center gap-3 mb-6">
             <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">3</span>
-            <h2 class="text-2xl font-bold text-gray-900">Rôles et Responsabilités</h2>
+            <h2 class="text-2xl font-bold text-gray-900">Statuts & glossaire</h2>
         </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Demandeur -->
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100/30 p-6 rounded-xl border border-blue-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900">Demandeur</h3>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div>
+                <h3 class="font-semibold text-gray-900 mb-3">Statuts DAPT</h3>
+                <div class="overflow-hidden rounded-xl border border-gray-200 text-sm">
+                    <table class="w-full">
+                        <thead class="bg-[#2B1444] text-white"><tr><th class="text-left px-4 py-2">Statut</th><th class="text-left px-4 py-2">Signification</th></tr></thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr><td class="px-4 py-2"><span class="badge-secondary">Brouillon</span></td><td class="px-4 py-2 text-gray-600">Non soumise, modifiable</td></tr>
+                            <tr><td class="px-4 py-2"><span class="badge-info">Créée</span></td><td class="px-4 py-2 text-gray-600">Soumise, en attente DESA</td></tr>
+                            <tr><td class="px-4 py-2"><span class="badge-warning">En cours de traitement</span></td><td class="px-4 py-2 text-gray-600">Prise en charge DESA</td></tr>
+                            <tr><td class="px-4 py-2"><span class="badge-success">Acceptée</span></td><td class="px-4 py-2 text-gray-600">Dates acceptées / NAPT validée</td></tr>
+                            <tr><td class="px-4 py-2"><span class="badge-danger">Retournée</span></td><td class="px-4 py-2 text-gray-600">À corriger par le demandeur</td></tr>
+                        </tbody>
+                    </table>
                 </div>
-                <ul class="space-y-2 text-sm text-gray-600">
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-blue-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Créer des demandes d'arrêt pour travaux (DAPT)
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-blue-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Suivre l'état de ses demandes
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-blue-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Modifier ou corriger une demande retournée
-                    </li>
-                </ul>
             </div>
-            
-            <!-- Éditeur DESA -->
-            <div class="bg-gradient-to-br from-purple-50 to-purple-100/30 p-6 rounded-xl border border-purple-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900">Éditeur (DESA)</h3>
+            <div>
+                <h3 class="font-semibold text-gray-900 mb-3">Statuts NAPT</h3>
+                <div class="overflow-hidden rounded-xl border border-gray-200 text-sm">
+                    <table class="w-full">
+                        <thead class="bg-[#2B1444] text-white"><tr><th class="text-left px-4 py-2">Statut</th><th class="text-left px-4 py-2">Signification</th></tr></thead>
+                        <tbody class="divide-y divide-gray-100 text-gray-600">
+                            <tr><td class="px-4 py-2">Brouillon / En étude</td><td class="px-4 py-2">Rédaction DESA</td></tr>
+                            <tr><td class="px-4 py-2">En attente de vérification</td><td class="px-4 py-2">Chez le vérificateur</td></tr>
+                            <tr><td class="px-4 py-2">Vérifiée</td><td class="px-4 py-2">Prête pour le valideur</td></tr>
+                            <tr><td class="px-4 py-2">Validée</td><td class="px-4 py-2">Fiche manœuvre possible</td></tr>
+                            <tr><td class="px-4 py-2">En cours d'exécution / Exécutée</td><td class="px-4 py-2">Travaux terrain</td></tr>
+                            <tr><td class="px-4 py-2">Retournée / Annulée</td><td class="px-4 py-2">Correction DESA / arrêt</td></tr>
+                        </tbody>
+                    </table>
                 </div>
-                <ul class="space-y-2 text-sm text-gray-600">
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-purple-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Traiter les demandes reçues
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-purple-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Créer et éditer les NAPT
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-purple-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Gérer les diffusions hebdomadaires
-                    </li>
-                </ul>
             </div>
-            
-            <!-- Vérificateur -->
-            <div class="bg-gradient-to-br from-orange-50 to-orange-100/30 p-6 rounded-xl border border-orange-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900">Vérificateur</h3>
-                </div>
-                <ul class="space-y-2 text-sm text-gray-600">
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-orange-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Contrôler les informations techniques
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-orange-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Vérifier ou retourner les NAPT
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-orange-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Ajouter des observations si nécessaire
-                    </li>
-                </ul>
-            </div>
-            
-            <!-- Valideur -->
-            <div class="bg-gradient-to-br from-amber-50 to-amber-100/30 p-6 rounded-xl border border-amber-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900">Valideur</h3>
-                </div>
-                <ul class="space-y-2 text-sm text-gray-600">
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-amber-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Valider officiellement les NAPT
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-amber-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Retourner pour correction si nécessaire
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-amber-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Apposer sa signature électronique
-                    </li>
-                </ul>
-            </div>
-            
-            <!-- Opérateur Chef -->
-            <div class="bg-gradient-to-br from-teal-50 to-teal-100/30 p-6 rounded-xl border border-teal-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-12 h-12 rounded-full bg-teal-500 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900">Opérateur Chef</h3>
-                </div>
-                <ul class="space-y-2 text-sm text-gray-600">
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-teal-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Créer les fiches manœuvre
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-teal-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Planifier l'exécution des NAPT
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-teal-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Superviser les opérateurs
-                    </li>
-                </ul>
-            </div>
-            
-            <!-- Opérateur -->
-            <div class="bg-gradient-to-br from-green-50 to-green-100/30 p-6 rounded-xl border border-green-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
-                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900">Opérateur</h3>
-                </div>
-                <ul class="space-y-2 text-sm text-gray-600">
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-green-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Exécuter les manœuvres sur le terrain
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-green-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Marquer les NAPT comme exécutées
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <svg class="h-5 w-5 text-green-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Saisir les heures d'exécution
-                    </li>
-                </ul>
-            </div>
+        </div>
+
+        <h3 class="font-semibold text-gray-900 mb-3">Glossaire</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
+            <div class="p-3 bg-gray-50 rounded-lg border"><strong>GMAO</strong> — saisie ouvrages depuis le référentiel équipements</div>
+            <div class="p-3 bg-gray-50 rounded-lg border"><strong>MTE</strong> — Mesures Techniques d'Exploitation (oui/non)</div>
+            <div class="p-3 bg-gray-50 rounded-lg border"><strong>MCCE</strong> — Mesures de Consignation / Contrôle Électrique</div>
+            <div class="p-3 bg-gray-50 rounded-lg border"><strong>UE / DE</strong> — étape / unité d'exécution sur la DAPT</div>
+            <div class="p-3 bg-gray-50 rounded-lg border"><strong>Restitution le soir</strong> — travaux avec restitution quotidienne → exécution par créneaux</div>
+            <div class="p-3 bg-gray-50 rounded-lg border"><strong>Fiche manœuvre</strong> — document opérateur chef obligatoire avant démarrage</div>
         </div>
     </div>
 
-    <!-- Section 4: Créer une Demande -->
-    <div id="creer-demande" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+    <!-- 4. Rôles -->
+    <div id="roles" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
         <div class="flex items-center gap-3 mb-6">
             <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">4</span>
-            <h2 class="text-2xl font-bold text-gray-900">Créer une Demande (DAPT)</h2>
+            <h2 class="text-2xl font-bold text-gray-900">Rôles et menus</h2>
         </div>
-        
-        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-6">
-            <div class="flex items-start gap-3">
-                <svg class="h-6 w-6 text-yellow-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-                <div>
-                    <h4 class="font-semibold text-yellow-800">Prérequis</h4>
-                    <p class="text-yellow-700 text-sm mt-1">Vous devez avoir le rôle <strong>Demandeur</strong> pour créer une DAPT.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            @foreach([
+                ['Demandeur', 'Dashboard, Demandes, Absences, Observations — créer/suivre DAPT (soi + groupe).'],
+                ['Éditeur (DESA)', 'Dashboard, Diffusions, Demandes (filtres), Notes (filtres), Absences, Observations.'],
+                ['Vérificateur', 'Dashboard, Notes en attente — vérifier ou retourner avec motif.'],
+                ['Valideur', 'Dashboard, Notes vérifiées — valider (DAPT acceptée) ou retourner.'],
+                ['Opérateur Chef', 'Dashboard, Notes validées — fiche manœuvre, annulation si validée.'],
+                ['Opérateur', 'Dashboard, Notes — démarrer/terminer exécution (bloque sans fiche).'],
+                ['Directeur', 'Dashboard, DAPT, NAPT, Feedback — consultation et statistiques.'],
+                ['Admin', 'Utilisateurs, groupes, référentiels, intérims, observations, journal, gestion DAPT/NAPT.'],
+            ] as [$name, $desc])
+                <div class="p-4 rounded-xl border border-gray-200 bg-gray-50">
+                    <h3 class="font-bold text-gray-900 mb-1">{{ $name }}</h3>
+                    <p class="text-gray-600">{{ $desc }}</p>
                 </div>
-            </div>
-        </div>
-        
-        <div class="space-y-6">
-            <div class="flex gap-4">
-                <div class="w-10 h-10 rounded-full bg-[#2B1444]/10 flex items-center justify-center shrink-0">
-                    <span class="text-[#2B1444] font-bold">1</span>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-gray-900">Accéder au formulaire</h4>
-                    <p class="text-gray-600 text-sm mt-1">
-                        Depuis votre tableau de bord Demandeur, cliquez sur <strong>"Nouvelle demande"</strong> ou accédez à 
-                        <strong>Demandes → Créer</strong> dans le menu latéral.
-                    </p>
-                </div>
-            </div>
-            
-            <div class="flex gap-4">
-                <div class="w-10 h-10 rounded-full bg-[#2B1444]/10 flex items-center justify-center shrink-0">
-                    <span class="text-[#2B1444] font-bold">2</span>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-gray-900">Remplir les informations générales</h4>
-                    <ul class="text-gray-600 text-sm mt-2 space-y-1 list-disc list-inside">
-                        <li><strong>Motif des travaux</strong> : Description claire et concise</li>
-                        <li><strong>Nature des travaux</strong> : Type d'intervention prévue</li>
-                        <li><strong>Date et horaires</strong> : Période souhaitée pour les travaux</li>
-                        <li><strong>Lieu d'exécution</strong> : Sélectionnez depuis la GMAO</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="flex gap-4">
-                <div class="w-10 h-10 rounded-full bg-[#2B1444]/10 flex items-center justify-center shrink-0">
-                    <span class="text-[#2B1444] font-bold">3</span>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-gray-900">Sélectionner les équipements</h4>
-                    <p class="text-gray-600 text-sm mt-1">
-                        Utilisez la recherche intégrée pour trouver et sélectionner les équipements concernés par l'arrêt. 
-                        Vous pouvez ajouter plusieurs équipements à votre demande.
-                    </p>
-                </div>
-            </div>
-            
-            <div class="flex gap-4">
-                <div class="w-10 h-10 rounded-full bg-[#2B1444]/10 flex items-center justify-center shrink-0">
-                    <span class="text-[#2B1444] font-bold">4</span>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-gray-900">Indiquer le chargé de travaux</h4>
-                    <p class="text-gray-600 text-sm mt-1">
-                        Le chargé de travaux est la personne responsable de l'exécution des travaux sur le terrain. 
-                        Vous pouvez vous désigner vous-même ou sélectionner un autre utilisateur.
-                    </p>
-                </div>
-            </div>
-            
-            <div class="flex gap-4">
-                <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
-                    <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-gray-900">Soumettre la demande</h4>
-                    <p class="text-gray-600 text-sm mt-1">
-                        Vérifiez toutes les informations et cliquez sur <strong>"Enregistrer"</strong>. 
-                        Votre demande sera automatiquement transmise à l'éditeur DESA pour traitement.
-                    </p>
-                </div>
-            </div>
+            @endforeach
         </div>
     </div>
 
-    <!-- Section 5: Traitement NAPT -->
-    <div id="traitement-napt" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+    <!-- 5. Créer DAPT -->
+    <div id="creer-demande" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
         <div class="flex items-center gap-3 mb-6">
             <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">5</span>
-            <h2 class="text-2xl font-bold text-gray-900">Traitement NAPT</h2>
+            <h2 class="text-2xl font-bold text-gray-900">Créer une DAPT</h2>
         </div>
-        
-        <p class="text-gray-600 mb-6">Une fois la DAPT soumise, elle passe par plusieurs étapes de traitement :</p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Pour l'Éditeur -->
-            <div class="border border-purple-200 rounded-xl p-6">
-                <h3 class="text-lg font-bold text-purple-700 mb-4 flex items-center gap-2">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                    Pour l'Éditeur (DESA)
-                </h3>
-                <ol class="space-y-3 text-sm text-gray-600">
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold shrink-0">1</span>
-                        <span>Examiner la DAPT reçue</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold shrink-0">2</span>
-                        <span>Cliquer sur "Faire NAPT" pour créer la note</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold shrink-0">3</span>
-                        <span>Compléter les informations techniques</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold shrink-0">4</span>
-                        <span>Sélectionner les chargés de consignation et correspondants</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold shrink-0">5</span>
-                        <span>Envoyer pour vérification</span>
-                    </li>
-                </ol>
-            </div>
-            
-            <!-- Pour le Vérificateur -->
-            <div class="border border-orange-200 rounded-xl p-6">
-                <h3 class="text-lg font-bold text-orange-700 mb-4 flex items-center gap-2">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    Pour le Vérificateur
-                </h3>
-                <ol class="space-y-3 text-sm text-gray-600">
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold shrink-0">1</span>
-                        <span>Consulter les NAPT en attente</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold shrink-0">2</span>
-                        <span>Contrôler les informations techniques</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold shrink-0">3</span>
-                        <span><strong>Vérifier</strong> si tout est correct, ou</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold shrink-0">4</span>
-                        <span><strong>Retourner</strong> avec un motif si corrections nécessaires</span>
-                    </li>
-                </ol>
-            </div>
-            
-            <!-- Pour le Valideur -->
-            <div class="border border-amber-200 rounded-xl p-6">
-                <h3 class="text-lg font-bold text-amber-700 mb-4 flex items-center gap-2">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    Pour le Valideur
-                </h3>
-                <ol class="space-y-3 text-sm text-gray-600">
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold shrink-0">1</span>
-                        <span>Consulter les NAPT vérifiées</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold shrink-0">2</span>
-                        <span>Effectuer une dernière revue</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold shrink-0">3</span>
-                        <span><strong>Valider</strong> pour approbation officielle</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold shrink-0">4</span>
-                        <span>La signature est automatiquement apposée</span>
-                    </li>
-                </ol>
-            </div>
-            
-            <!-- Pour les Opérateurs -->
-            <div class="border border-green-200 rounded-xl p-6">
-                <h3 class="text-lg font-bold text-green-700 mb-4 flex items-center gap-2">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
-                    Pour les Opérateurs
-                </h3>
-                <ol class="space-y-3 text-sm text-gray-600">
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold shrink-0">1</span>
-                        <span><strong>Op. Chef</strong> : Créer la fiche manœuvre</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold shrink-0">2</span>
-                        <span><strong>Op. Chef</strong> : Lancer l'exécution</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold shrink-0">3</span>
-                        <span><strong>Opérateur</strong> : Exécuter les manœuvres</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold shrink-0">4</span>
-                        <span><strong>Opérateur</strong> : Marquer comme exécutée</span>
-                    </li>
-                </ol>
-            </div>
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-6 text-sm text-yellow-800">
+            Menu : <strong>Demandeur → Demandes → Nouvelle demande</strong>
         </div>
+        <ol class="space-y-4 text-sm text-gray-600 list-decimal list-inside">
+            <li><strong>Période prévue</strong> (dates/heures), destinataire (DESA/DD), désignation des travaux.</li>
+            <li><strong>Schéma</strong> (image) obligatoire.</li>
+            <li>Ouvrages en mode <strong>GMAO</strong> ou <strong>manuel</strong> (voir section suivante).</li>
+            <li>Chargé de travaux interne (annuaire) ou externe + téléphones.</li>
+            <li>Options : MTE, MCCE, étape UE/DE, case <strong>restitution le soir</strong> si applicable.</li>
+            <li>
+                <strong>Enregistrer brouillon</strong> (modifiable plus tard) ou
+                <strong>Valider et soumettre</strong> (statut créée → transmis au DESA).
+            </li>
+        </ol>
+        <p class="mt-4 text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
+            Après soumission, modification possible uniquement si <strong>retournée</strong> ou <strong>brouillon</strong>.
+            Vous voyez vos DAPT et celles de votre <strong>groupe</strong>.
+        </p>
     </div>
 
-    <!-- Section 6: Intérims -->
-    <div id="interims" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+    <!-- 6. GMAO -->
+    <div id="gmao" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
         <div class="flex items-center gap-3 mb-6">
             <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">6</span>
-            <h2 class="text-2xl font-bold text-gray-900">Gestion des Intérims</h2>
+            <h2 class="text-2xl font-bold text-gray-900">Mode GMAO (ouvrages)</h2>
         </div>
-        
-        <p class="text-gray-600 mb-6">
-            Le système d'intérim permet de déléguer temporairement vos responsabilités à un autre utilisateur 
-            pendant une période d'absence (congés, mission, etc.).
-        </p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <h3 class="font-semibold text-gray-900 mb-4">Comment créer un intérim ?</h3>
-                <ol class="space-y-3 text-sm text-gray-600">
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-[#2B1444]/10 text-[#2B1444] flex items-center justify-center text-xs font-bold shrink-0">1</span>
-                        <span>Accédez à <strong>Absences</strong> dans le menu</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-[#2B1444]/10 text-[#2B1444] flex items-center justify-center text-xs font-bold shrink-0">2</span>
-                        <span>Cliquez sur <strong>"Nouvelle absence"</strong></span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-[#2B1444]/10 text-[#2B1444] flex items-center justify-center text-xs font-bold shrink-0">3</span>
-                        <span>Sélectionnez les dates de début et fin</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-[#2B1444]/10 text-[#2B1444] flex items-center justify-center text-xs font-bold shrink-0">4</span>
-                        <span>Choisissez le ou les rôles à déléguer</span>
-                    </li>
-                    <li class="flex gap-3">
-                        <span class="w-6 h-6 rounded-full bg-[#2B1444]/10 text-[#2B1444] flex items-center justify-center text-xs font-bold shrink-0">5</span>
-                        <span>Sélectionnez l'intérimaire</span>
-                    </li>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
+            <div class="border border-teal-200 rounded-xl p-5">
+                <h3 class="font-bold text-teal-700 mb-3">Parcours GMAO</h3>
+                <ol class="space-y-2 list-decimal list-inside text-gray-600">
+                    <li>Choisir le mode de saisie <strong>GMAO</strong></li>
+                    <li>Rechercher et sélectionner le <strong>lieu d'exécution</strong></li>
+                    <li>Ajouter les ouvrages à <strong>consigner</strong> et/ou à <strong>installer</strong> (équipements, lignes, postes…)</li>
+                    <li>Les données viennent du référentiel GMAO (API interne)</li>
                 </ol>
             </div>
-            
-            <div>
-                <h3 class="font-semibold text-gray-900 mb-4">Indicateur d'intérim actif</h3>
-                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                    <div class="flex items-center gap-2 text-amber-700 text-sm font-medium mb-2">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        INTÉRIM ACTIF
-                    </div>
-                    <p class="text-amber-600 text-sm">
-                        Lorsqu'un intérim est actif, un badge <strong class="bg-amber-500 text-white px-1.5 py-0.5 rounded text-xs">INTÉRIM</strong> 
-                        apparaît à côté du rôle concerné dans la barre latérale.
-                    </p>
-                </div>
-                
-                <div class="mt-4 p-4 bg-gray-50 rounded-lg">
-                    <p class="text-sm text-gray-600">
-                        <strong>Important :</strong> L'intérimaire hérite temporairement de toutes les permissions 
-                        du rôle délégué et peut effectuer les mêmes actions que le titulaire.
-                    </p>
-                </div>
+            <div class="border border-gray-200 rounded-xl p-5">
+                <h3 class="font-bold text-gray-800 mb-3">Mode manuel</h3>
+                <p class="text-gray-600">Saisie libre du texte des ouvrages à consigner et à installer lorsque l'équipement n'est pas (encore) dans la GMAO.</p>
             </div>
         </div>
     </div>
 
-    <!-- Contact Support -->
-    <div class="rounded-xl p-6 border border-gray-200 mt-8" style="background: linear-gradient(to right, #f9fafb, #f3f4f6);">
+    <!-- 7. Traitement NAPT -->
+    <div id="traitement-napt" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+            <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">7</span>
+            <h2 class="text-2xl font-bold text-gray-900">Traitement DAPT & NAPT</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
+            <div class="border border-purple-200 rounded-xl p-5">
+                <h3 class="font-bold text-purple-700 mb-3">DESA — Demandes</h3>
+                <ul class="space-y-2 text-gray-600 list-disc list-inside">
+                    <li>Filtres sidebar : Reçues, En cours, Retournées, Acceptées</li>
+                    <li>Prendre en charge → en cours de traitement</li>
+                    <li>Accepter les dates / <strong>Faire NAPT</strong></li>
+                    <li>Retourner au demandeur avec motif</li>
+                    <li>Alternative : Notes → sélectionner une DAPT sans NAPT</li>
+                </ul>
+            </div>
+            <div class="border border-purple-200 rounded-xl p-5">
+                <h3 class="font-bold text-purple-700 mb-3">DESA — Notes</h3>
+                <ul class="space-y-2 text-gray-600 list-disc list-inside">
+                    <li>N°, semaine, dates travaux/retrait, étude oui/non</li>
+                    <li>Document obligatoire si étude = oui</li>
+                    <li>Chargés consignation, correspondants, services</li>
+                    <li>Brouillon → en étude → envoyer en vérification</li>
+                    <li>Corriger une NAPT retournée puis renvoyer</li>
+                    <li>Filtres par statut dans la sidebar</li>
+                </ul>
+            </div>
+            <div class="border border-orange-200 rounded-xl p-5">
+                <h3 class="font-bold text-orange-700 mb-3">Vérificateur</h3>
+                <p class="text-gray-600">Ouvrir la NAPT → <strong>Vérifier</strong> (statut vérifiée) ou <strong>Retourner</strong> avec motif vers le DESA.</p>
+            </div>
+            <div class="border border-amber-200 rounded-xl p-5">
+                <h3 class="font-bold text-amber-700 mb-3">Valideur</h3>
+                <p class="text-gray-600">Ouvrir la NAPT vérifiée → <strong>Valider</strong> (NAPT validée + DAPT acceptée) ou retourner. Déposer une signature dans Profil → Ma signature (PNG/JPG, max 2 Mo) pour les PDF.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. Diffusion -->
+    <div id="diffusion" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+            <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">8</span>
+            <h2 class="text-2xl font-bold text-gray-900">Diffusion hebdomadaire (DESA)</h2>
+        </div>
+        <p class="text-sm text-gray-600 mb-4">Menu <strong>Éditeur → Diffusions</strong> — envoi des NAPT de la semaine aux groupes destinataires (email + PDF combiné).</p>
+        <ol class="space-y-3 text-sm text-gray-600">
+            <li class="flex gap-3"><span class="w-6 h-6 rounded-full bg-[#B3006C]/10 text-[#B3006C] flex items-center justify-center text-xs font-bold shrink-0">1</span><span>Choisir <strong>semaine</strong>, <strong>année</strong> et éventuellement un filtre de statut</span></li>
+            <li class="flex gap-3"><span class="w-6 h-6 rounded-full bg-[#B3006C]/10 text-[#B3006C] flex items-center justify-center text-xs font-bold shrink-0">2</span><span>Sélectionner les <strong>groupes</strong> destinataires (tout sélectionner / désélectionner)</span></li>
+            <li class="flex gap-3"><span class="w-6 h-6 rounded-full bg-[#B3006C]/10 text-[#B3006C] flex items-center justify-center text-xs font-bold shrink-0">3</span><span><strong>Prévisualiser</strong> la liste des NAPT concernées</span></li>
+            <li class="flex gap-3"><span class="w-6 h-6 rounded-full bg-[#B3006C]/10 text-[#B3006C] flex items-center justify-center text-xs font-bold shrink-0">4</span><span><strong>Envoyer</strong> : génération du PDF combiné et envoi par email aux groupes</span></li>
+        </ol>
+        <p class="mt-4 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-3">Les groupes doivent être correctement configurés (membres / emails) côté Admin → Groupes pour recevoir la diffusion.</p>
+    </div>
+
+    <!-- 9. Retours -->
+    <div id="retours-annulations" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+            <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">9</span>
+            <h2 class="text-2xl font-bold text-gray-900">Retours & annulations</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
+            <div>
+                <h3 class="font-semibold text-gray-900 mb-3">Retours</h3>
+                <ul class="space-y-2 text-gray-600">
+                    <li class="p-3 bg-red-50 rounded-lg border border-red-100"><strong>DAPT :</strong> DESA → demandeur (motif). Correction puis resoumission.</li>
+                    <li class="p-3 bg-orange-50 rounded-lg border border-orange-100"><strong>NAPT (vérificateur) :</strong> retour DESA avec motif.</li>
+                    <li class="p-3 bg-amber-50 rounded-lg border border-amber-100"><strong>NAPT (valideur) :</strong> 2ᵉ niveau de retour vers DESA.</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-semibold text-gray-900 mb-3">Annulations NAPT</h3>
+                <ul class="space-y-2 text-gray-600">
+                    <li class="p-3 bg-purple-50 rounded-lg border border-purple-100"><strong>DESA :</strong> la plupart des statuts (sauf déjà exécutée/annulée). Motif ≥ 10 caractères.</li>
+                    <li class="p-3 bg-teal-50 rounded-lg border border-teal-100"><strong>Opérateur Chef :</strong> si validée.</li>
+                    <li class="p-3 bg-green-50 rounded-lg border border-green-100"><strong>Opérateur :</strong> si validée ou en cours d'exécution.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. Exécution -->
+    <div id="execution" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+            <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">10</span>
+            <h2 class="text-2xl font-bold text-gray-900">Fiche manœuvre & exécution</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
+            <div class="border border-teal-200 rounded-xl p-5">
+                <h3 class="font-bold text-teal-700 mb-2">Opérateur Chef</h3>
+                <ul class="list-disc list-inside text-gray-600 space-y-1">
+                    <li>Sur NAPT <strong>validée</strong> uniquement</li>
+                    <li>Upload PDF, JPG ou PNG (max. 10 Mo)</li>
+                    <li>Modification / suppression possibles avant exécution</li>
+                    <li>Obligatoire pour que l'opérateur puisse démarrer</li>
+                </ul>
+            </div>
+            <div class="border border-green-200 rounded-xl p-5">
+                <h3 class="font-bold text-green-700 mb-2">Opérateur</h3>
+                <ul class="list-disc list-inside text-gray-600 space-y-1">
+                    <li><strong>Démarrer :</strong> date/heure réelle de début</li>
+                    <li><strong>Terminer :</strong> dates réelles de fin</li>
+                    <li>Si restitution le soir sur la DAPT : saisie par <strong>créneaux</strong> (slots)</li>
+                    <li>Statut final : <strong>exécutée</strong></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 11. Directeur -->
+    <div id="directeur" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+            <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">11</span>
+            <h2 class="text-2xl font-bold text-gray-900">Directeur — Supervision</h2>
+        </div>
+        <p class="text-sm text-gray-600 mb-4">Accès en <strong>consultation</strong> (pas d'édition du workflow). Menu Directeur :</p>
+        <ul class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
+            <li class="p-3 bg-indigo-50 rounded-lg border border-indigo-100"><strong>Dashboard :</strong> indicateurs filtrables (semaine / mois / année)</li>
+            <li class="p-3 bg-indigo-50 rounded-lg border border-indigo-100"><strong>DAPT / NAPT :</strong> listes, détail, pages statistiques dédiées</li>
+            <li class="p-3 bg-indigo-50 rounded-lg border border-indigo-100 md:col-span-2"><strong>Feedback :</strong> envoyer un retour de supervision (distinct de « Mes observations »)</li>
+        </ul>
+    </div>
+
+    <!-- 12. Admin -->
+    <div id="admin" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+            <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">12</span>
+            <h2 class="text-2xl font-bold text-gray-900">Administration</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm mb-5">
+            <div class="p-4 rounded-xl border bg-gray-50"><h4 class="font-semibold text-gray-900 mb-1">Utilisateurs</h4><p class="text-gray-600">CRUD, rôles, groupes. Accès Sync et Simuler (super admin).</p></div>
+            <div class="p-4 rounded-xl border bg-gray-50"><h4 class="font-semibold text-gray-900 mb-1">Groupes</h4><p class="text-gray-600">Organisation + membres (exports, diffusion).</p></div>
+            <div class="p-4 rounded-xl border bg-gray-50"><h4 class="font-semibold text-gray-900 mb-1">Référentiels NAPT</h4><p class="text-gray-600">Chargés consignation, correspondants, services destinataires.</p></div>
+            <div class="p-4 rounded-xl border bg-gray-50"><h4 class="font-semibold text-gray-900 mb-1">Observations</h4><p class="text-gray-600">Traiter bugs/suggestions (ouvert → en cours → résolu).</p></div>
+            <div class="p-4 rounded-xl border bg-gray-50"><h4 class="font-semibold text-gray-900 mb-1">Intérims</h4><p class="text-gray-600">Toutes les absences / délégations.</p></div>
+            <div class="p-4 rounded-xl border bg-gray-50"><h4 class="font-semibold text-gray-900 mb-1">Gestion DAPT / NAPT</h4><p class="text-gray-600">Supervision, exports, timelines / historique.</p></div>
+            <div class="p-4 rounded-xl border bg-gray-50"><h4 class="font-semibold text-gray-900 mb-1">Journal d'activités</h4><p class="text-gray-600">Audit des actions (Spatie Activity Log).</p></div>
+            <div class="p-4 rounded-xl border bg-gray-50 md:col-span-2"><h4 class="font-semibold text-gray-900 mb-1">Sync & impersonation</h4><p class="text-gray-600">Super admin uniquement : Utilisateurs → Sync Oracle/LDAP/photos. Bouton « Simuler » → bannière → Arrêter l'impersonation.</p></div>
+        </div>
+    </div>
+
+    <!-- 13. Outils -->
+    <div id="outils" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+            <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">13</span>
+            <h2 class="text-2xl font-bold text-gray-900">Outils communs</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="p-4 rounded-xl border bg-gray-50"><strong>Recherche</strong> (header, ≥ 2 car.) : n° DAPT, désignation, lieu, destinataire, demandeur ; n° NAPT, semaine ; users si admin.</div>
+            <div class="p-4 rounded-xl border bg-gray-50"><strong>Calendrier NAPT</strong> : vue planifiée des notes (menu Outils).</div>
+            <div class="p-4 rounded-xl border bg-gray-50"><strong>Profil & signature</strong> : PNG/JPG ~300×200, max 2 Mo, pour PDF NAPT.</div>
+            <div class="p-4 rounded-xl border bg-gray-50"><strong>Mes observations</strong> : bug / suggestion / question. Distinct du Feedback Directeur.</div>
+            <div class="p-4 rounded-xl border bg-gray-50"><strong>PDF unitaires</strong> : visualiser / télécharger depuis le détail DAPT ou NAPT.</div>
+            <div class="p-4 rounded-xl border bg-gray-50"><strong>Historique</strong> : timelines sur fiches admin / directeur / détail pour suivre les changements de statut.</div>
+            <div class="p-4 rounded-xl border bg-[#B3006C]/5 border-[#B3006C]/20 md:col-span-2">
+                <strong>Assistant intelligent</strong> — bouton violet/magenta en bas à droite (ou icône chat du header).
+                Posez des questions sur le workflow, vos DAPT/NAPT et la file d'attente.
+                Fonctionne en <strong>mode local</strong> sans Internet ; Gemini optionnel si clé API + réseau.
+            </div>
+        </div>
+    </div>
+
+    <!-- 14. Exports -->
+    <div id="exports" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+            <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">14</span>
+            <h2 class="text-2xl font-bold text-gray-900">Exports Excel & PDF</h2>
+        </div>
+        <p class="text-sm text-gray-600 mb-4">Menu <strong>Outils → Export Excel</strong> (<code class="text-xs bg-gray-100 px-1 rounded">/exports</code>).</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4 text-sm">
+            <div class="border border-orange-200 rounded-xl p-5">
+                <h3 class="font-bold text-[#E87400] mb-2">DAPT Excel</h3>
+                <p class="text-gray-600">Filtres : date début / fin, statut, groupe demandeur.</p>
+            </div>
+            <div class="border border-teal-200 rounded-xl p-5">
+                <h3 class="font-bold text-[#0A91A3] mb-2">NAPT Excel + PDF</h3>
+                <p class="text-gray-600">Recherche n°, demandeur, ouvrage, type, dates, semaine, année, statut, groupe. Boutons Excel (orange) et PDF (teal).</p>
+            </div>
+        </div>
+        <p class="text-sm text-gray-600 bg-gray-50 rounded-lg p-3">Aussi : exports DESA (PDF listes + dashboard), Admin (Excel + dashboard), PDF joint aux emails de diffusion.</p>
+    </div>
+
+    <!-- 15. Intérims -->
+    <div id="interims" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+            <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">15</span>
+            <h2 class="text-2xl font-bold text-gray-900">Intérims & absences</h2>
+        </div>
+        <p class="text-sm text-gray-600 mb-4">Menu <strong>Absences</strong> (tous les rôles). Admin → Intérims pour toutes les absences.</p>
+        <ol class="space-y-2 text-sm text-gray-600 mb-4 list-decimal list-inside">
+            <li>Nouvelle absence → dates début / fin</li>
+            <li>Rôle(s) à déléguer (ou tous)</li>
+            <li>Choisir l'intérimaire + motif</li>
+        </ol>
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+            Badge <strong class="bg-amber-500 text-white px-1.5 py-0.5 rounded text-xs">INTÉRIM</strong> dans la sidebar.
+            L'intérimaire dispose des mêmes droits que le titulaire pendant la période. Notifications à l'attribution et à la fin.
+        </div>
+    </div>
+
+    <!-- 16. Notifications -->
+    <div id="notifications" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+            <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">16</span>
+            <h2 class="text-2xl font-bold text-gray-900">Notifications</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+            <ul class="space-y-1 list-disc list-inside bg-blue-50 border border-blue-100 rounded-xl p-4">
+                <li>DAPT créée, acceptée, retournée</li>
+                <li>NAPT soumise, vérifiée, validée, retournée, exécutée, annulée</li>
+                <li>Intérim attribué / terminé</li>
+                <li>Réponse observation / feedback</li>
+            </ul>
+            <div class="bg-gray-50 border rounded-xl p-4">
+                <p class="mb-2">Header (compteur) + page Notifications. Email si adresse renseignée et notifications activées.</p>
+                <p>Actions : marquer lu, tout lire, supprimer. Rappels automatiques possibles pour dossiers en attente / en retard.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 17. Bonnes pratiques -->
+    <div id="faq" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 scroll-mt-8">
+        <div class="flex items-center gap-3 mb-6">
+            <span class="bg-[#2B1444] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold">17</span>
+            <h2 class="text-2xl font-bold text-gray-900">Bonnes pratiques</h2>
+        </div>
+        <div class="space-y-3">
+            @foreach([
+                'Joignez un schéma clair ; préférez la GMAO quand l\'équipement existe.',
+                'Utilisez le brouillon si la DAPT n\'est pas finalisée ; soumettez seulement quand elle est complète.',
+                'Si étude = oui, joignez le document avant l\'envoi en vérification.',
+                'Une DAPT = une NAPT : en cas de retour, le DESA corrige la note existante.',
+                'Déposez la fiche manœuvre avant de demander le démarrage terrain.',
+                'Renseignez votre signature (Profil) pour les PDF NAPT.',
+                'Déclarez vos absences à l\'avance avec un intérimaire.',
+                'Avant export ou diffusion : filtrez correctement (semaine, statut, groupes).',
+                'En cas d\'anomalie : Mes observations (bug/suggestion) ou l\'assistant chat.',
+            ] as $i => $tip)
+                <div class="flex gap-3 p-4 rounded-xl border border-gray-100">
+                    <span class="w-7 h-7 rounded-full bg-[#B3006C] text-white text-xs font-bold flex items-center justify-center shrink-0">{{ $i + 1 }}</span>
+                    <p class="text-sm text-gray-700">{{ $tip }}</p>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="rounded-xl p-6 border border-gray-200" style="background: linear-gradient(to right, #f9fafb, #f3f4f6);">
         <div class="flex items-center justify-between flex-wrap gap-4">
             <div class="flex items-center gap-4">
                 <div class="p-3 rounded-xl" style="background: #2B1444;">
@@ -703,11 +512,11 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="font-bold text-gray-900">Besoin d'aide supplémentaire ?</h3>
-                    <p class="text-gray-600 text-sm">Contactez le support technique ou envoyez vos observations.</p>
+                    <h3 class="font-bold text-gray-900">Besoin d'aide ?</h3>
+                    <p class="text-gray-600 text-sm">Utilisez l'assistant (bas-droite) ou envoyez une observation.</p>
                 </div>
             </div>
-            <a href="{{ route('mes-observations.create') }}" class="inline-flex items-center gap-2 text-white px-4 py-2 rounded-lg transition hover:opacity-90" style="background: #2B1444;">
+            <a href="{{ route('mes-observations.create') }}" class="inline-flex items-center gap-2 text-white px-4 py-2 rounded-lg hover:opacity-90" style="background: #2B1444;">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
                 </svg>

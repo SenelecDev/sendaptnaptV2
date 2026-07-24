@@ -15,6 +15,27 @@
     @livewireStyles
     
     @stack('styles')
+    <style>
+        /* Assistant IA : position forcée (CSS Vite parfois sans utilities Tailwind) */
+        #sen-assistant-root {
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            z-index: 2147483647 !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        #sen-assistant-root > button {
+            display: flex !important;
+            width: 56px !important;
+            height: 56px !important;
+            min-width: 56px !important;
+            min-height: 56px !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+    </style>
 </head>
 <body class="h-full bg-gray-50 font-['Open_Sans']" x-data="{ sidebarOpen: false }">
     <div class="min-h-full">
@@ -123,5 +144,8 @@
     
     {{-- Tutoriel d'onboarding (premier login) --}}
     @include('components.onboarding-tutorial')
+
+    {{-- Assistant IA flottant --}}
+    @include('partials.assistant-widget')
 </body>
 </html>
