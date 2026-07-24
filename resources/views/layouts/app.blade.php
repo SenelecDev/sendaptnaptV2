@@ -35,6 +35,24 @@
             visibility: visible !important;
             opacity: 1 !important;
         }
+        /* Scrollbar discret dans le chat (évite la barre OS épaisse) */
+        #sen-assistant-messages {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,.25) transparent;
+        }
+        #sen-assistant-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        #sen-assistant-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #sen-assistant-messages::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,.25);
+            border-radius: 9999px;
+        }
+        #sen-assistant-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,.4);
+        }
     </style>
 </head>
 <body class="h-full bg-gray-50 font-['Open_Sans']" x-data="{ sidebarOpen: false }">

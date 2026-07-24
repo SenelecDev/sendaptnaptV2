@@ -13,7 +13,7 @@
 
         <div id="sen-assistant-suggestions" style="display:flex;flex-wrap:wrap;gap:6px;padding:12px 12px 0;"></div>
 
-        <div id="sen-assistant-messages" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;"></div>
+        <div id="sen-assistant-messages" style="flex:1;min-height:0;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;"></div>
 
         <form id="sen-assistant-form" style="border-top:1px solid rgba(255,255,255,.1);padding:12px;display:flex;gap:8px;">
             <input id="sen-assistant-input" type="text" maxlength="2000" placeholder="Posez votre question…" style="flex:1;min-width:0;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.1);color:#fff;padding:8px 12px;font-size:14px;outline:none;">

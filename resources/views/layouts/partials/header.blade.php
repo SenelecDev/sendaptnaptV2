@@ -28,10 +28,11 @@
             @if(config('assistant.enabled', true))
                 <button type="button"
                         onclick="document.getElementById('sen-assistant-fab')?.click()"
-                        class="-m-2.5 p-2.5 text-white/90 hover:text-white"
+                        class="-m-2.5 p-2.5 hover:opacity-100"
+                        style="color:#ffffff;opacity:.9;"
                         title="Assistant SENDAPTNAPT"
                         aria-label="Assistant SENDAPTNAPT">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#ffffff;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
                     </svg>
                 </button>
