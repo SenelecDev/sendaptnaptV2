@@ -179,6 +179,7 @@ Ma signature : PNG/JPG recommandé fond transparent 300×200, max 2 Mo. Utilisé
 Bouton violet/magenta bas-droite + icône chat header.
 Mode local (documentation + vos DAPT/NAPT/file d'attente) même sans Internet.
 Gemini optionnel si GEMINI_API_KEY + réseau Google AI.
+Page Documentation : bouton **Télécharger plaquette documentation** → PDF imprimable.
 
 ## Tutoriel d'accueil (onboarding)
 Au premier login, un tutoriel guidé selon le rôle (demandeur, DESA, autres). Peut être complété puis ne plus s'afficher.
