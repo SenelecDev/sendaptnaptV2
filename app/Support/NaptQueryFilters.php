@@ -48,7 +48,6 @@ class NaptQueryFilters
     protected function applyJoinedFilters(Builder $query, Request $request): void
     {
         if ($request->filled('search')) {
-            $driver = DB::connection()->getDriverName();
             $this->applySimpleSearch(
                 $query,
                 $request->search,
@@ -63,16 +62,8 @@ class NaptQueryFilters
                     'users.matricule',
                 ],
                 [],
-                function ($q, $pattern) use ($driver) {
-                    if ($driver === 'mysql') {
-                        $q->orWhereRaw('LOWER(CAST(COALESCE(demandes.ouvrages_consigner_gmao, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                        $q->orWhereRaw('LOWER(CAST(COALESCE(notes.lignes_oracle, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                        $q->orWhereRaw('LOWER(CAST(COALESCE(notes.equipements_oracle, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                    } elseif ($driver === 'pgsql') {
-                        $q->orWhereRaw('LOWER(COALESCE(demandes.ouvrages_consigner_gmao::text, \'[]\')) LIKE ?', [$pattern]);
-                        $q->orWhereRaw('LOWER(COALESCE(notes.lignes_oracle::text, \'[]\')) LIKE ?', [$pattern]);
-                        $q->orWhereRaw('LOWER(COALESCE(notes.equipements_oracle::text, \'[]\')) LIKE ?', [$pattern]);
-                    }
+                function ($q, $pattern) {
+                    $this->applyDemandeJsonSearch($q, $pattern, 'demandes.');
                 }
             );
         }
@@ -92,32 +83,18 @@ class NaptQueryFilters
     protected function applyRelationFilters(Builder $query, Request $request): void
     {
         if ($request->filled('search')) {
-            $driver = DB::connection()->getDriverName();
-            $query->where(function ($outer) use ($request, $driver) {
-                $outer->where(function ($q) use ($request, $driver) {
+            $query->where(function ($outer) use ($request) {
+                $outer->where(function ($q) use ($request) {
                     $this->applySimpleSearch($q, $request->search, ['numero_note']);
-                    if ($driver === 'mysql') {
-                        $pattern = '%' . $this->normalizeSearchTerm($request->search) . '%';
-                        $q->orWhereRaw('LOWER(CAST(COALESCE(lignes_oracle, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                        $q->orWhereRaw('LOWER(CAST(COALESCE(equipements_oracle, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                    } elseif ($driver === 'pgsql') {
-                        $pattern = '%' . $this->normalizeSearchTerm($request->search) . '%';
-                        $q->orWhereRaw('LOWER(COALESCE(lignes_oracle::text, \'[]\')) LIKE ?', [$pattern]);
-                        $q->orWhereRaw('LOWER(COALESCE(equipements_oracle::text, \'[]\')) LIKE ?', [$pattern]);
-                    }
                 });
-                $outer->orWhereHas('demande', function ($dq) use ($request, $driver) {
+                $outer->orWhereHas('demande', function ($dq) use ($request) {
                     $this->applySimpleSearch(
                         $dq,
                         $request->search,
                         ['numero_demande', 'lieu_execution', 'ouvrages_consigner_manuel'],
                         ['demandeur' => ['name', 'nom', 'prenom', 'matricule']],
-                        function ($sub, $pattern) use ($driver) {
-                            if ($driver === 'mysql') {
-                                $sub->orWhereRaw('LOWER(CAST(COALESCE(ouvrages_consigner_gmao, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                            } elseif ($driver === 'pgsql') {
-                                $sub->orWhereRaw('LOWER(COALESCE(ouvrages_consigner_gmao::text, \'[]\')) LIKE ?', [$pattern]);
-                            }
+                        function ($sub, $pattern) {
+                            $this->applyDemandeJsonSearch($sub, $pattern);
                         }
                     );
                 });
@@ -139,94 +116,75 @@ class NaptQueryFilters
         if ($request->filled('ouvrage')) {
             $term = $request->ouvrage;
             if ($joined) {
-                $driver = DB::connection()->getDriverName();
                 $this->applySimpleSearch(
                     $query,
                     $term,
                     ['demandes.ouvrages_consigner_manuel', 'demandes.lieu_execution'],
                     [],
-                    function ($q, $pattern) use ($driver) {
-                        if ($driver === 'mysql') {
-                            $q->orWhereRaw('LOWER(CAST(COALESCE(demandes.ouvrages_consigner_gmao, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                            $q->orWhereRaw('LOWER(CAST(COALESCE(notes.lignes_oracle, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                            $q->orWhereRaw('LOWER(CAST(COALESCE(notes.equipements_oracle, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                        } elseif ($driver === 'pgsql') {
-                            $q->orWhereRaw('LOWER(COALESCE(demandes.ouvrages_consigner_gmao::text, \'[]\')) LIKE ?', [$pattern]);
-                            $q->orWhereRaw('LOWER(COALESCE(notes.lignes_oracle::text, \'[]\')) LIKE ?', [$pattern]);
-                            $q->orWhereRaw('LOWER(COALESCE(notes.equipements_oracle::text, \'[]\')) LIKE ?', [$pattern]);
-                        }
+                    function ($q, $pattern) {
+                        $this->applyDemandeJsonSearch($q, $pattern, 'demandes.');
                     }
                 );
             } else {
-                $query->where(function ($q) use ($term) {
-                    $q->whereHas('demande', function ($dq) use ($term) {
-                        $driver = DB::connection()->getDriverName();
-                        $this->applySimpleSearch(
-                            $dq,
-                            $term,
-                            ['ouvrages_consigner_manuel', 'lieu_execution'],
-                            [],
-                            function ($sub, $pattern) use ($driver) {
-                                if ($driver === 'mysql') {
-                                    $sub->orWhereRaw('LOWER(CAST(COALESCE(ouvrages_consigner_gmao, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                                } elseif ($driver === 'pgsql') {
-                                    $sub->orWhereRaw('LOWER(COALESCE(ouvrages_consigner_gmao::text, \'[]\')) LIKE ?', [$pattern]);
-                                }
-                            }
-                        );
-                    });
-                    $driver = DB::connection()->getDriverName();
-                    if ($driver === 'mysql') {
-                        $pattern = '%' . $this->normalizeSearchTerm($term) . '%';
-                        $q->orWhereRaw('LOWER(CAST(COALESCE(lignes_oracle, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                        $q->orWhereRaw('LOWER(CAST(COALESCE(equipements_oracle, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                    }
+                $query->whereHas('demande', function ($dq) use ($term) {
+                    $this->applySimpleSearch(
+                        $dq,
+                        $term,
+                        ['ouvrages_consigner_manuel', 'lieu_execution'],
+                        [],
+                        function ($sub, $pattern) {
+                            $this->applyDemandeJsonSearch($sub, $pattern);
+                        }
+                    );
                 });
             }
         }
 
         if ($request->filled('type_ouvrage')) {
             $keywords = self::TYPE_OUVRAGE_KEYWORDS[$request->type_ouvrage] ?? [];
-            if (!empty($keywords)) {
+            if (! empty($keywords)) {
                 $query->where(function ($q) use ($keywords, $joined) {
                     foreach ($keywords as $keyword) {
-                        $pattern = '%' . $this->normalizeSearchTerm($keyword) . '%';
+                        $pattern = '%'.$this->normalizeSearchTerm($keyword).'%';
                         if ($joined) {
                             $q->orWhere(function ($sub) use ($pattern) {
-                                $driver = DB::connection()->getDriverName();
                                 $sub->whereRaw('LOWER(demandes.ouvrages_consigner_manuel) LIKE ?', [$pattern])
                                     ->orWhereRaw('LOWER(demandes.lieu_execution) LIKE ?', [$pattern]);
-                                if ($driver === 'mysql') {
-                                    $sub->orWhereRaw('LOWER(CAST(COALESCE(demandes.ouvrages_consigner_gmao, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                                    $sub->orWhereRaw('LOWER(CAST(COALESCE(notes.lignes_oracle, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                                    $sub->orWhereRaw('LOWER(CAST(COALESCE(notes.equipements_oracle, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                                } elseif ($driver === 'pgsql') {
-                                    $sub->orWhereRaw('LOWER(COALESCE(demandes.ouvrages_consigner_gmao::text, \'[]\')) LIKE ?', [$pattern]);
-                                    $sub->orWhereRaw('LOWER(COALESCE(notes.lignes_oracle::text, \'[]\')) LIKE ?', [$pattern]);
-                                    $sub->orWhereRaw('LOWER(COALESCE(notes.equipements_oracle::text, \'[]\')) LIKE ?', [$pattern]);
-                                }
+                                $this->applyDemandeJsonSearch($sub, $pattern, 'demandes.');
                             });
                         } else {
                             $q->orWhereHas('demande', function ($dq) use ($pattern) {
-                                $driver = DB::connection()->getDriverName();
-                                $dq->where(function ($sub) use ($pattern, $driver) {
+                                $dq->where(function ($sub) use ($pattern) {
                                     $sub->whereRaw('LOWER(ouvrages_consigner_manuel) LIKE ?', [$pattern])
                                         ->orWhereRaw('LOWER(lieu_execution) LIKE ?', [$pattern]);
-                                    if ($driver === 'mysql') {
-                                        $sub->orWhereRaw('LOWER(CAST(COALESCE(ouvrages_consigner_gmao, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                                    } elseif ($driver === 'pgsql') {
-                                        $sub->orWhereRaw('LOWER(COALESCE(ouvrages_consigner_gmao::text, \'[]\')) LIKE ?', [$pattern]);
-                                    }
+                                    $this->applyDemandeJsonSearch($sub, $pattern);
                                 });
                             });
-                            $driver = DB::connection()->getDriverName();
-                            if ($driver === 'mysql') {
-                                $q->orWhereRaw('LOWER(CAST(COALESCE(lignes_oracle, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                                $q->orWhereRaw('LOWER(CAST(COALESCE(equipements_oracle, "[]") AS CHAR)) LIKE ?', [$pattern]);
-                            }
                         }
                     }
                 });
+            }
+        }
+    }
+
+    /**
+     * Recherche dans les champs JSON ouvrages de la table demandes
+     * (lignes_oracle / equipements_oracle / ouvrages_consigner_gmao).
+     */
+    protected function applyDemandeJsonSearch($query, string $pattern, string $prefix = ''): void
+    {
+        $driver = DB::connection()->getDriverName();
+        $columns = [
+            $prefix.'ouvrages_consigner_gmao',
+            $prefix.'lignes_oracle',
+            $prefix.'equipements_oracle',
+        ];
+
+        foreach ($columns as $column) {
+            if ($driver === 'mysql') {
+                $query->orWhereRaw('LOWER(CAST(COALESCE('.$column.', "[]") AS CHAR)) LIKE ?', [$pattern]);
+            } elseif ($driver === 'pgsql') {
+                $query->orWhereRaw('LOWER(COALESCE('.$column.'::text, \'[]\')) LIKE ?', [$pattern]);
             }
         }
     }
@@ -238,29 +196,29 @@ class NaptQueryFilters
 
         if ($request->filled('statut')) {
             $statut = $this->resolveStatut($request->statut);
-            $query->where($notesTable . 'statut', $statut);
+            $query->where($notesTable.'statut', $statut);
         }
 
         if ($request->filled('date_debut')) {
-            $query->whereDate($notesTable . 'ddt', '>=', $request->date_debut);
+            $query->whereDate($notesTable.'ddt', '>=', $request->date_debut);
         }
 
         if ($request->filled('date_fin')) {
-            $query->whereDate($notesTable . 'dft', '<=', $request->date_fin);
+            $query->whereDate($notesTable.'dft', '<=', $request->date_fin);
         }
 
         $semaine = $request->input('semaine', $request->input('numero_semaine'));
         if ($request->filled('semaine') || $request->filled('numero_semaine')) {
-            $query->where($notesTable . 'numero_semaine', $semaine);
+            $query->where($notesTable.'numero_semaine', $semaine);
         }
 
         if ($request->filled('annee')) {
-            $query->whereYear($notesTable . 'ddt', $request->annee);
+            $query->whereYear($notesTable.'ddt', $request->annee);
         }
 
         if ($request->filled('groupe_id')) {
             if ($joined) {
-                $query->where($usersTable . 'groupe_id', $request->groupe_id);
+                $query->where($usersTable.'groupe_id', $request->groupe_id);
             } else {
                 $query->whereHas('demande.demandeur', function ($q) use ($request) {
                     $q->where('groupe_id', $request->groupe_id);

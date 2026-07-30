@@ -139,15 +139,16 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
 
     public function map($note): array
     {
+        $demande = $note->demande;
         $installations = '';
-        if ($note->lignes_oracle) {
-            $lignes = is_array($note->lignes_oracle) ? $note->lignes_oracle : json_decode($note->lignes_oracle, true);
+        if ($demande?->lignes_oracle) {
+            $lignes = is_array($demande->lignes_oracle) ? $demande->lignes_oracle : json_decode($demande->lignes_oracle, true);
             if ($lignes) {
                 $installations = collect($lignes)->pluck('description')->filter()->implode(', ');
             }
         }
-        if (!$installations && $note->equipements_oracle) {
-            $equipements = is_array($note->equipements_oracle) ? $note->equipements_oracle : json_decode($note->equipements_oracle, true);
+        if (! $installations && $demande?->equipements_oracle) {
+            $equipements = is_array($demande->equipements_oracle) ? $demande->equipements_oracle : json_decode($demande->equipements_oracle, true);
             if ($equipements) {
                 $installations = collect($equipements)->pluck('description')->filter()->implode(', ');
             }
@@ -156,13 +157,13 @@ class NaptExport implements FromCollection, WithHeadings, WithMapping, WithStyle
         return [
             $note->numero_note,
             'S' . $note->numero_semaine,
-            $note->demande->numero_demande ?? 'N/A',
-            $note->demande->demandeur->name ?? 'N/A',
-            $note->demande->demandeur->matricule ?? '',
-            $note->demande->designation ?? '',
-            $note->demande->lieu_execution ?? '',
-            $this->formatOuvragesAConsigner($note->demande),
-            $this->formatOuvragesAInstaller($note->demande),
+            $demande->numero_demande ?? 'N/A',
+            $demande->demandeur->name ?? 'N/A',
+            $demande->demandeur->matricule ?? '',
+            $demande->designation ?? '',
+            $demande->lieu_execution ?? '',
+            $this->formatOuvragesAConsigner($demande),
+            $this->formatOuvragesAInstaller($demande),
             $installations ?: ($note->renseignementN ?? ''),
             $note->renseignementO ?? '',
             $note->ddt ? \Carbon\Carbon::parse($note->ddt)->format('d/m/Y') : '',
