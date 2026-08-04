@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | LDAP Authentication Enabled
+    |--------------------------------------------------------------------------
+    |
+    | Active la tentative d'auth LDAP après l'échec du login local.
+    | IMPORTANT : utiliser config('ldap.enabled') et non env() dans le code
+    | (env() est null après php artisan config:cache).
+    |
+    */
+
+    'enabled' => filter_var(env('LDAP_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
+
+    /*
+    |--------------------------------------------------------------------------
     | LDAP Connections
     |--------------------------------------------------------------------------
     |

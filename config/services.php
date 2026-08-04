@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'oracle' => [
+        'enabled' => filter_var(env('ORACLE_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
+    ],
+
 ];

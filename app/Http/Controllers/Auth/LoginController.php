@@ -62,10 +62,14 @@ class LoginController extends Controller
         }
 
         // 2. Try LDAP authentication (if enabled)
-        if (env('LDAP_ENABLED', false)) {
+        // Utiliser config() et non env() : après config:cache, env() renvoie toujours null
+        if (config('ldap.enabled')) {
+            Log::info('Attempting LDAP authentication', ['matricule' => $matricule]);
             if ($this->authenticateViaLdap($matricule, $password)) {
                 return $this->handleSuccessfulLogin($request, $matricule);
             }
+        } else {
+            Log::info('LDAP authentication skipped (ldap.enabled=false)', ['matricule' => $matricule]);
         }
 
         Log::warning('Login failed', ['matricule' => $matricule]);
@@ -96,7 +100,7 @@ class LoginController extends Controller
             }
 
             // 3. Si toujours pas trouvé, chercher l'email dans Oracle HR puis dans LDAP
-            if (!$ldapUser && env('ORACLE_ENABLED', false)) {
+            if (!$ldapUser && config('services.oracle.enabled')) {
                 $ldapUser = $this->findLdapUserViaOracle($matricule);
             }
 
@@ -242,7 +246,7 @@ class LoginController extends Controller
         $user->save();
 
         // Synchroniser avec Oracle si activé
-        if (env('ORACLE_ENABLED', false)) {
+        if (config('services.oracle.enabled')) {
             $this->syncWithOracle($user);
         }
 
